@@ -1,63 +1,65 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freecam UI</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background: transparent; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* تصميم الواجهة ليطابق طلبك */
+        body { margin: 0; padding: 0; overflow: hidden; background: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
         
-        /* حاوية القائمة */
+        #ui-wrapper { display: none; width: 100vw; height: 100vh; position: relative; }
+
+        /* القائمة السفلية */
         #menu-container {
-            position: absolute; display: none; flex-direction: column; justify-content: center; 
+            position: absolute; display: flex; flex-direction: column; justify-content: center; 
             align-items: center; left: 50%; bottom: 4vw; transform: translateX(-50%); 
-            gap: 0.4vw; text-shadow: -0.1vw 0.2vw 0.2vw #000000a2;
+            gap: 0.4vw; text-shadow: -2px 2px 4px rgba(0,0,0,0.6);
         }
 
-        .option { font-size: 0.75vw; font-weight: 525; color: white; position: relative; }
-        .active { color: #00bcd4; /* لون القائمة - يمكنك تغييره */ }
-        .arrow { font-size: 0.5vw; margin: 0 0.2vw; }
+        .option { font-size: 0.75vw; font-weight: 525; color: white; position: relative; transition: all 0.2s; }
+        .active { color: #00bcd4; font-weight: bold; } /* اللون السماوي للخيار المحدد */
 
-        /* الكروس هير (النقطة) */
+        /* علامة التنشين (الكروس هير) */
         #crosshair {
-            position: absolute; display: none; left: 50%; top: 50%; 
+            position: absolute; left: 50%; top: 50%; 
             width: 1.1vw; transform: translate(-50%, -50%); opacity: 0.9;
         }
     </style>
 </head>
 <body>
 
-    <div id="menu-container">
-        </div>
-
-    <img id="crosshair" src="https://files.catbox.moe/cm9g47.png">
+    <div id="ui-wrapper">
+        <div id="menu-container">
+            </div>
+        <img id="crosshair" src="https://files.catbox.moe/cm9g47.png" alt="">
+    </div>
 
     <script>
+        // هذا الجزء هو "المترجم" الذي يستقبل الأوامر من ملف الـ Lua
         window.addEventListener('message', function(event) {
             const data = event.data;
 
             if (data.action === "displayFreecam") {
-                const menu = document.getElementById('menu-container');
-                const crosshair = document.getElementById('crosshair');
-                
+                const wrapper = document.getElementById('ui-wrapper');
+                wrapper.style.display = data.visible ? 'block' : 'none';
+
                 if (data.visible) {
-                    menu.style.display = 'flex';
-                    crosshair.style.display = 'block';
-                    renderOptions(data.options, data.hovered, data.vehicleIndex, data.vehicleList);
-                } else {
-                    menu.style.display = 'none';
-                    crosshair.style.display = 'none';
+                    renderMenu(data.options, data.hovered, data.vehicleIndex, data.vehicleList);
                 }
             }
         });
 
-        function renderOptions(options, hovered, vehicleIndex, vehicleList) {
+        function renderMenu(options, hovered, vehicleIndex, vehicleList) {
             const container = document.getElementById('menu-container');
-            container.innerHTML = ''; // مسح القائمة الحالية
+            container.innerHTML = ''; // تنظيف القائمة قبل التحديث
 
             options.forEach((opt, i) => {
                 const span = document.createElement('span');
                 span.className = 'option' + (i === hovered ? ' active' : '');
                 
                 let label = opt.label;
+                // إذا كان الخيار هو Spawn Car يعرض نوع السيارة المختار
                 if (i === hovered && label === 'Spawn Car' && vehicleList) {
                     label = `<< ${label} (${vehicleList[vehicleIndex]}) >>`;
                 } else if (i === hovered) {
