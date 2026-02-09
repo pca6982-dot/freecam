@@ -1,34 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
+    <meta charset="UTF-8">
     <style>
-        /* ضع هنا تصميم CSS الخاص بك */
-        body { margin: 0; overflow: hidden; background: transparent; }
-        .menu-container {
-            position: absolute; bottom: 4vw; left: 50%; transform: translateX(-50%);
-            color: white; font-family: sans-serif; text-align: center;
+        body { margin: 0; padding: 0; overflow: hidden; background: transparent; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* حاوية القائمة */
+        #menu-container {
+            position: absolute; display: none; flex-direction: column; justify-content: center; 
+            align-items: center; left: 50%; bottom: 4vw; transform: translateX(-50%); 
+            gap: 0.4vw; text-shadow: -0.1vw 0.2vw 0.2vw #000000a2;
         }
-        .crosshair {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 1.5vw;
+
+        .option { font-size: 0.75vw; font-weight: 525; color: white; position: relative; }
+        .active { color: #00bcd4; /* لون القائمة - يمكنك تغييره */ }
+        .arrow { font-size: 0.5vw; margin: 0 0.2vw; }
+
+        /* الكروس هير (النقطة) */
+        #crosshair {
+            position: absolute; display: none; left: 50%; top: 50%; 
+            width: 1.1vw; transform: translate(-50%, -50%); opacity: 0.9;
         }
     </style>
 </head>
 <body>
-    <div id="ui-wrapper" style="display: none;">
-        <div class="menu-container">
-            <div id="options-list"></div>
+
+    <div id="menu-container">
         </div>
-        <img class="crosshair" src="https://files.catbox.moe/cm9g47.png">
-    </div>
+
+    <img id="crosshair" src="https://files.catbox.moe/cm9g47.png">
 
     <script>
-        // استقبال الأوامر من ملف الـ Lua
         window.addEventListener('message', function(event) {
-            if (event.data.action === "displayFreecam") {
-                document.getElementById('ui-wrapper').style.display = event.data.visible ? 'block' : 'none';
+            const data = event.data;
+
+            if (data.action === "displayFreecam") {
+                const menu = document.getElementById('menu-container');
+                const crosshair = document.getElementById('crosshair');
+                
+                if (data.visible) {
+                    menu.style.display = 'flex';
+                    crosshair.style.display = 'block';
+                    renderOptions(data.options, data.hovered, data.vehicleIndex, data.vehicleList);
+                } else {
+                    menu.style.display = 'none';
+                    crosshair.style.display = 'none';
+                }
             }
         });
+
+        function renderOptions(options, hovered, vehicleIndex, vehicleList) {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = ''; // مسح القائمة الحالية
+
+            options.forEach((opt, i) => {
+                const span = document.createElement('span');
+                span.className = 'option' + (i === hovered ? ' active' : '');
+                
+                let label = opt.label;
+                if (i === hovered && label === 'Spawn Car' && vehicleList) {
+                    label = `<< ${label} (${vehicleList[vehicleIndex]}) >>`;
+                } else if (i === hovered) {
+                    label = `<< ${label} >>`;
+                }
+
+                span.innerText = label;
+                container.appendChild(span);
+            });
+        }
     </script>
 </body>
 </html>
