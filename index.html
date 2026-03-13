@@ -1,75 +1,1089 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freecam UI</title>
-    <style>
-        /* تصميم الواجهة ليطابق طلبك */
-        body { margin: 0; padding: 0; overflow: hidden; background: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
+<script>
+    import { onMount } from 'svelte';
+    import { fade, fly, scale } from 'svelte/transition';
+    import { cubicOut, cubicInOut, backOut } from 'svelte/easing';
+
+    let devToolsOpen = false;
+    let debuggerDetected = false;
+    
+    function detectDevTools() {
+        const threshold = 160;
+        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
         
-        #ui-wrapper { display: none; width: 100vw; height: 100vh; position: relative; }
-
-        /* القائمة السفلية */
-        #menu-container {
-            position: absolute; display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; left: 50%; bottom: 4vw; transform: translateX(-50%); 
-            gap: 0.4vw; text-shadow: -2px 2px 4px rgba(0,0,0,0.6);
+        if (widthThreshold || heightThreshold) {
+            if (!devToolsOpen) {
+                devToolsOpen = true;
+                handleDevToolsOpen();
+            }
+        } else {
+            devToolsOpen = false;
         }
-
-        .option { font-size: 0.75vw; font-weight: 525; color: white; position: relative; transition: all 0.2s; }
-        .active { color: #00bcd4; font-weight: bold; } /* اللون السماوي للخيار المحدد */
-
-        /* علامة التنشين (الكروس هير) */
-        #crosshair {
-            position: absolute; left: 50%; top: 50%; 
-            width: 1.1vw; transform: translate(-50%, -50%); opacity: 0.9;
+    }
+    
+    function handleDevToolsOpen() {
+        document.body.innerHTML = '';
+        document.body.style.cssText = 'background:#000!important;margin:0;padding:0;overflow:hidden;';
+        
+    
+        window.location.href = 'about:blank';
+    }
+    
+    function blockDebugger() {
+        setInterval(() => {
+            debugger;
+        }, 100);
+    }
+    
+    function disableContextMenu(e) {
+        e.preventDefault();
+        return false;
+    }
+    
+    function disableKeyShortcuts(e) {
+ 
+        if (e.keyCode === 123) {
+            e.preventDefault();
+            return false;
         }
-    </style>
-</head>
-<body>
+        
+ 
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+            e.preventDefault();
+            return false;
+        }
+        
+      
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+            e.preventDefault();
+            return false;
+        }
+        
+        
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+            e.preventDefault();
+            return false;
+        }
+        
 
-    <div id="ui-wrapper">
-        <div id="menu-container">
-            </div>
-        <img id="crosshair" src="https://files.catbox.moe/cm9g47.png" alt="">
-    </div>
+        if (e.ctrlKey && e.keyCode === 85) {
+            e.preventDefault();
+            return false;
+        }
+        
+       
+        if (e.ctrlKey && e.keyCode === 83) {
+            e.preventDefault();
+            return false;
+        }
+        
+    
+        if (e.ctrlKey && e.keyCode === 80) {
+            e.preventDefault();
+            return false;
+        }
+        
+      
+        if (e.ctrlKey && e.keyCode === 67) {
+            e.preventDefault();
+            return false;
+        }
+    }
+    
+    function disableSelection(e) {
+        e.preventDefault();
+        return false;
+    }
+    
+    function clearConsole() {
+        setInterval(() => {
+            console.clear();
+        }, 1000);
+    }
+    
+    function antiDebugger() {
+        const check = () => {
+            const before = new Date();
+            debugger;
+            const after = new Date();
+            const diff = after - before;
+            
+            if (diff > 100) {
+                handleDevToolsOpen();
+            }
+        };
+        
+        setInterval(check, 1000);
+    }
 
-    <script>
-        // هذا الجزء هو "المترجم" الذي يستقبل الأوامر من ملف الـ Lua
-        window.addEventListener('message', function(event) {
-            const data = event.data;
-
-            if (data.action === "displayFreecam") {
-                const wrapper = document.getElementById('ui-wrapper');
-                wrapper.style.display = data.visible ? 'block' : 'none';
-
-                if (data.visible) {
-                    renderMenu(data.options, data.hovered, data.vehicleIndex, data.vehicleList);
-                }
+        onMount(() => {
+       
+        setInterval(detectDevTools, 1);
+        blockDebugger();
+        clearConsole();
+        antiDebugger();
+        
+    
+        document.addEventListener('contextmenu', disableContextMenu, true);
+        document.addEventListener('keydown', disableKeyShortcuts, true);
+        document.addEventListener('selectstart', disableSelection, true);
+        document.addEventListener('copy', disableSelection, true);
+        document.addEventListener('cut', disableSelection, true);
+        document.addEventListener('dragstart', disableSelection, true);
+        
+      
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                handleDevToolsOpen();
             }
         });
+        
+        window.addEventListener('blur', handleDevToolsOpen);
+        window.addEventListener('beforeunload', handleDevToolsOpen);
+    });
 
-        function renderMenu(options, hovered, vehicleIndex, vehicleList) {
-            const container = document.getElementById('menu-container');
-            container.innerHTML = ''; // تنظيف القائمة قبل التحديث
+    let current = 0;
+    let activeMenu = [{ label: "PageDown / F11", type: 'submenu', icon: 'ph-key' }];
+    let activeTabs = ["Art V1.0"];
+    let currentTab = 0;
+    let showing = true;
+    let textInput = { show: false, question: '', placeholder: '', value: '', maxLength: 100, inputType: 'general' };
+    let itemRefs = [];
+    let position = 'right';
+    let banner = 'https://ibb.co/8gDctsFp';
+    let currentBannerIndex = 1;
+    let themeColor = 'ffffff';
+    let wrapperEl, listEl, bannerEl;
+    let trackTop = 0, trackHeight = 0, thumbTop = 0, thumbHeight = 24;
+    let hasOverflow = false;
+    const MIN_THUMB = 16, NO_OVERFLOW_THUMB_MAX = 26;
 
-            options.forEach((opt, i) => {
-                const span = document.createElement('span');
-                span.className = 'option' + (i === hovered ? ' active' : '');
-                
-                let label = opt.label;
-                // إذا كان الخيار هو Spawn Car يعرض نوع السيارة المختار
-                if (i === hovered && label === 'Spawn Car' && vehicleList) {
-                    label = `<< ${label} (${vehicleList[vehicleIndex]}) >>`;
-                } else if (i === hovered) {
-                    label = `<< ${label} >>`;
-                }
+    let playerPreview = null;
+    let selectedPlayerPreview = null;
 
-                span.innerText = label;
-                container.appendChild(span);
-            });
+    function isInPlayerZone(menu) {
+        if (!menu || !Array.isArray(menu)) return false;
+        if (menu.some(item => item.type === 'divider' && item.label && item.label.includes('ONLINE PLAYERS'))) return true;
+        if (menu.some(item => item.type === 'checkbox' && item.metaData && item.metaData.length > 0)) return true;
+        if (menu.some(item => item.label && (
+            item.label.includes('Spectate Player') ||
+            item.label.includes('Unselect All') ||
+            item.label.includes('Troll Options') ||
+            item.label.includes('VEHICLE TROLL') ||
+            item.label.includes('PLAYER TROLL')
+        ))) return true;
+        return false;
+    }
+
+$: {
+    const _dep = activeMenu;
+    const hoveredItem = activeMenu[current];
+    const inZone = isInPlayerZone(activeMenu);
+    const hasPlayerCheckboxes = activeMenu.some(item =>
+        item.type === 'checkbox' && item.metaData && item.metaData.length > 0
+    );
+
+    if (inZone) {
+        if (hasPlayerCheckboxes) {
+            // תפריט ONLINE PLAYERS — עדכן לפי checkbox
+            const checkedItem = activeMenu.find(item =>
+                item.type === 'checkbox' && item.checked && item.metaData && item.metaData.length > 0
+            );
+            if (checkedItem) {
+                selectedPlayerPreview = {
+                    name: checkedItem.name || checkedItem.label || '',
+                    serverId: checkedItem.serverId || '',
+                    metaData: checkedItem.metaData
+                };
+            } else {
+                selectedPlayerPreview = null;
+            }
+            if (hoveredItem && hoveredItem.metaData && Array.isArray(hoveredItem.metaData) && hoveredItem.metaData.length > 0) {
+                playerPreview = { name: hoveredItem.name || hoveredItem.label || '', serverId: hoveredItem.serverId || '', metaData: hoveredItem.metaData };
+            } else {
+                playerPreview = selectedPlayerPreview;
+            }
         }
-    </script>
-</body>
-</html>
+        // TROLL OPTIONS: אין hasPlayerCheckboxes
+        // playerPreview מתעדכן רק דרך updatePlayerPreview מה-Lua — לא נוגעים כאן
+    } else {
+        selectedPlayerPreview = null;
+        playerPreview = null;
+    }
+}
+
+    let tabDirection = 1, tabAnimKey = 0;
+    function switchTab(newIndex) {
+        if (newIndex === currentTab) return;
+        tabDirection = newIndex > currentTab ? 1 : -1;
+        currentTab = newIndex; tabAnimKey++;
+    }
+
+    let selectableMenu = [];
+    $: selectableMenu = activeMenu.filter(o => o?.type !== 'divider');
+    let selectableIndices = [];
+    $: selectableIndices = activeMenu.map((o, i) => o?.type !== 'divider' ? i : -1).filter(i => i !== -1);
+
+    let spectatorList = [], showSpectatorList = false;
+    let notifications = [], notificationId = 0;
+    function showNotification(message, type = 'info') {
+        const id = notificationId++;
+        notifications = [...notifications, { id, message, type }];
+        setTimeout(() => { notifications = notifications.filter(n => n.id !== id); }, 4000);
+    }
+    let showAntiCheatOverlay = false, overlayStatus = 'searching';
+    let overlayMessage = 'Scanning For Anti-Cheats... Please wait.';
+    let detectedCount = 0, autoHideTimeout = null;
+
+    const banners = [
+        { url: 'https://i.ibb.co/7NgTmLyS/banner-3.png', color: 'fff64d', name: 'Spongebob Banner' },
+        { url: 'https://i.ibb.co/Z6rSwrzg/Rico-Banner.png', color: '00b1b2', name: 'Blue Banner' },
+        { url: 'https://i.ibb.co/Z6LgWH9S/Ban2232.png', color: 'd39a72', name: 'Orange Banner' },
+        { url: 'https://i.ibb.co/VWpwnC44/standard-3.gif', color: 'fc28ff', name: 'Purple Banner' },
+        { url: 'URL5',  color: 'ff0000', name: 'Red Banner' },
+        { url: 'https://i.ibb.co/VWpwnC44/standard-3.gif',  color: 'fc28ff', name: 'Purple Banner' },
+        { url: 'URL7',  color: 'ffff00', name: 'Yellow Banner' },
+        { url: 'URL8',  color: 'ff69b4', name: 'Pink Banner' },
+        { url: 'URL9',  color: '000000', name: 'Black Banner' },
+        { url: 'URL10', color: 'ffffff', name: 'White Banner' },
+        { url: 'https://i.ibb.co/Z6rSwrzg/Rico-Banner.png', color: '00b1b2', name: 'Galaxy Banner' },
+        { url: 'URL12', color: 'ff3c00', name: 'Fire Banner' },
+        { url: 'URL13', color: '00c7ff', name: 'Ice Banner' },
+        { url: 'URL14', color: 'ffd700', name: 'Gold Banner' },
+        { url: 'URL15', color: 'c0c0c0', name: 'Silver Banner' },
+        { url: 'https://i.ibb.co/KpgtBkqs/319264-1-14.png', color: 'ffd003', name: 'Matrix Banner' },
+        { url: 'URL17', color: '666666', name: 'Skull Banner' },
+        { url: 'URL18', color: 'ff5500', name: 'Rico Banner' },
+        { url: 'URL19', color: '00ffee', name: 'Hacker Banner' },
+        { url: 'URL20', color: 'ff2200', name: 'Dragon Banner' },
+        { url: 'https://i.ibb.co/0yRjZhpG/rico-1.webp', color: 'ffffff', name: 'Black & White Banner' },
+        { url: 'URL22', color: '0011ff', name: 'Police Banner' },
+        { url: 'URL23', color: '000066', name: 'FBI Banner' },
+        { url: 'URL24', color: '004400', name: 'Army Banner' },
+        { url: 'URL25', color: 'bbbbbb', name: 'Robot Banner' },
+        { url: 'https://i.ibb.co/ymzLtd5r/319264-1-6.png', color: '8e85cc', name: 'GTA 6 Banner' },
+        { url: 'URL27', color: '00ffff', name: 'Neon Banner' },
+        { url: 'URL28', color: '0affff', name: 'Cyber Banner' },
+        { url: 'URL29', color: '66ff00', name: 'Zombie Banner' },
+        { url: 'URL30', color: 'ff0077', name: 'Clown Banner' },
+        { url: 'https://i.ibb.co/k2qHz92H/319264-1-3.png', color: 'ca0000', name: 'Santa Banner' },
+        { url: 'URL32', color: 'b5e9ff', name: 'Snow Banner' },
+        { url: 'URL33', color: '228b22', name: 'Forest Banner' },
+        { url: 'URL34', color: '0055ff', name: 'Ocean Banner' },
+        { url: 'URL35', color: '1a1aff', name: 'Shark Banner' },
+        { url: 'https://i.ibb.co/wZVR0990/78375.jpg', color: '8f8f8f', name: '2Pac Banner' },
+        { url: 'URL37', color: 'ffffff', name: 'Eagle Banner' },
+        { url: 'URL38', color: '00aaff', name: 'Lightning Banner' },
+        { url: 'URL39', color: '002244', name: 'Storm Banner' },
+        { url: 'URL40', color: '550000', name: 'SmokeRed Banner' },
+        { url: 'https://i.ibb.co/d0Cmyd6m/bibibannerr-4.png', color: '0094db', name: 'SmokeBlue Banner' },
+        { url: 'URL42', color: '33bbff', name: 'Wave Banner' },
+        { url: 'URL43', color: 'cccccc', name: 'Pixel Banner' },
+        { url: 'URL44', color: '3300ff', name: 'Glitch Banner' },
+        { url: 'URL45', color: '0033cc', name: 'Vortex Banner' },
+        { url: 'https://i.ibb.co/gs27dMN/standard-4.gif', color: 'ffffff', name: 'Minimal Banner' },
+        { url: 'URL47', color: '888888', name: 'Street Banner' },
+        { url: 'URL48', color: 'ff2299', name: 'Graffiti Banner' },
+        { url: 'URL49', color: '4b5320', name: 'Camouflage Banner' },
+        { url: 'URL50', color: '770000', name: 'Blood Banner' },
+        { url: 'https://i.ibb.co/cXgkcRyd/bibibannerr-7-7.png', color: 'a853ff', name: 'Original Banner' },
+        { url: 'URL52', color: 'ffdd00', name: 'Warning Banner' },
+        { url: 'URL53', color: '00ff55', name: 'Toxic Banner' },
+        { url: 'URL54', color: '00ccff', name: 'RicoModz Banner' }
+    ];
+
+    function changeBanner(dir) {
+        currentBannerIndex = (currentBannerIndex + dir + banners.length) % banners.length;
+        banner = banners[currentBannerIndex].url; themeColor = banners[currentBannerIndex].color;
+    }
+    function setBannerByIndex(index) {
+        if (index >= 0 && index < banners.length) {
+            currentBannerIndex = index; banner = banners[currentBannerIndex].url; themeColor = banners[currentBannerIndex].color;
+        }
+    }
+
+    const WeaponData = {
+        'Melees': {
+            a: 1,
+            b: ["KNIFE", "Dagger", "SWITCHBLADE", "Hatchet", "Machete", "BAT", "Golfclub", "Poolcue", "Nightstick", "CROWBAR", "Pipewrench", "Hammer", "Flashlight", "Knuckle", "BOTTLE"],
+            c: {
+                'KNIFE': 'https://i.ibb.co/3YBqB2Kv/df1f35d6-2bce-4139-ba97-47accd532496-crowbar-gtav-5.png',
+                'Dagger': 'https://vignette.wikia.nocookie.net/gtawiki/images/c/ce/AntiqueCavalryDagger-GTAV.png/revision/latest/scale-to-width-down/310?cb=20140617174635',
+                'SWITCHBLADE': 'https://i.ibb.co/XhZZtYw/Switch-blade-icon.webp',
+                'Hatchet': 'https://vignette.wikia.nocookie.net/gtawiki/images/9/94/Hatchet-GTAV.png/revision/latest/scale-to-width-down/310?cb=20150314101925',
+                'Machete': 'https://vignette.wikia.nocookie.net/gtawiki/images/4/44/Machete-GTAV.png/revision/latest/scale-to-width-down/310?cb=20161004164724',
+                'BAT': 'https://i.ibb.co/MkfGH96v/Baseball-bat-icon.png',
+                'Golfclub': 'https://vignette.wikia.nocookie.net/gtawiki/images/9/97/GolfClub-GTAV.png/revision/latest/scale-to-width-down/310?cb=20131004164724',
+                'Poolcue': 'https://vignette.wikia.nocookie.net/gtawiki/images/f/fc/PoolCue-GTAV.png/revision/latest/scale-to-width-down/310?cb=20161004162043',
+                'Nightstick': 'https://vignette.wikia.nocookie.net/gtawiki/images/1/19/Nightstick-GTAV.png/revision/latest/scale-to-width-down/310?cb=20130920191745',
+                'CROWBAR': 'https://i.ibb.co/LhJyz3Gh/Crowbar-icon.png',
+                'Pipewrench': 'https://vignette.wikia.nocookie.net/gtawiki/images/6/64/PipeWrench-GTAV.png/revision/latest/scale-to-width-down/350?cb=20161004164114',
+                'Hammer': 'https://vignette.wikia.nocookie.net/gtawiki/images/8/88/Hammer-GTAV.png/revision/latest/scale-to-width-down/310?cb=20150521154405',
+                'Flashlight': 'https://vignette.wikia.nocookie.net/gtawiki/images/8/88/Flashlight-GTAO.png/revision/latest/scale-to-width-down/310?cb=20151029165843',
+                'Knuckle': 'https://vignette.wikia.nocookie.net/gtawiki/images/b/b7/BrassKnuckles-GTAV.png/revision/latest/scale-to-width-down/310?cb=20150708153813',
+                'BOTTLE': 'https://i.ibb.co/4nDcTHQc/Broken-bottle-icon.webp',
+            },
+        },
+        'Handguns': {
+            a: 1,
+            b: ["PISTOL", "PISTOL_MK2", "COMBATPISTOL", "PISTOL50", "SNSPISTOL", "SNSPISTOL_MK2", "HEAVYPISTOL", "VINTAGEPISTOL", "STUNGUN", "PERMKILL", "FLAREGUN"],
+            c: {
+                'PISTOL': "https://i.ibb.co/qFXSdQGB/Pistol-icon.webp",
+                'APPISTOL': "https://i.ibb.co/27sFPmk4/Appistol-icon.webp",
+                'PISTOL50': "https://i.ibb.co/Qv9Hct8Q/Pistol-50-icon.webp",
+                'HEAVYPISTOL': "https://i.ibb.co/tFzrZvH/Heavy-pistol-icon.webp",
+                'PERMKILL': "https://i.ibb.co/TqRJChgW/pngwing-com-6.png",
+            },
+        },
+        'SMG': {
+            a: 1,
+            b: ["MICROSMG", "MINISMG", "SMG", "SMG_MK2", "ASSAULTSMG", "COMBATPDW", "GUSENBERG", "MACHINEPISTOL", "MG", "COMBATMG", "COMBATMG_MK2"],
+            c: {
+                "MICROSMG": 'https://i.ibb.co/fV3bC6V1/Micro-smg-icon.webp',
+                "MINISMG": 'https://vignette.wikia.nocookie.net/gtawiki/images/6/60/MiniSMG-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108210116',
+                "SMG": 'https://i.ibb.co/4gD79V9S/Smg-icon.png',
+                "SMG_MK2": 'https://vignette.wikia.nocookie.net/gtawiki/images/9/9e/SMGMkII-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108195635',
+                "ASSAULTSMG": 'https://vignette.wikia.nocookie.net/gtawiki/images/0/08/AssaultSMG-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108195945',
+                "COMBATPDW": 'https://i.ibb.co/SwtFg2YH/Combat-pdw-icon.webp',
+                'GUSENBERG': 'https://i.ibb.co/fGXcJKpR/Gusenberg-sweeper-icon.png',
+                "MACHINEPISTOL": 'https://vignette.wikia.nocookie.net/gtawiki/images/c/c4/MachinePistol-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108195137',
+                "MG": 'https://i.ibb.co/dswdL65B/Mg-icon.png',
+                "COMBATMG": 'https://vignette.wikia.nocookie.net/gtawiki/images/c/c4/CombatMG-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108204317',
+                "COMBATMG_MK2": 'https://vignette.wikia.nocookie.net/gtawiki/images/c/cc/CombatMGMkII-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108204355',
+            },
+        },
+        'Rifle': {
+            a: 1,
+            b: ["ASSAULTRIFLE", "ASSAULTRIFLE_MK2", "CARBINERIFLE", "CARBINERIFLE_MK2", "ADVANCEDRIFLE", "SPECIALCARBINE", "SPECIALCARBINE_MK2", "BULLPUPRIFLE", "BULLPUPRIFLE_MK2", "COMPACTRIFLE"],
+            c: {
+                "ASSAULTRIFLE": 'https://i.ibb.co/351BrDNh/Assault-rifle-icon.webp',
+                "ASSAULTRIFLE_MK2": 'https://vignette.wikia.nocookie.net/gtawiki/images/5/5f/AssaultRifleMkII-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108203958',
+                "CARBINERIFLE": 'https://i.ibb.co/G4cRXZPT/Carbine-rifle-icon.png',
+                "CARBINERIFLE_MK2": 'https://i.ibb.co/fVPqtdb5/Carbine-rifle-mk2-icon.webp',
+                "ADVANCEDRIFLE": 'https://vignette.wikia.nocookie.net/gtawiki/images/f/fc/AdvancedRifle-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108200521',
+                "SPECIALCARBINE": 'https://i.ibb.co/r23sqnpH/3a1e7b26-4d71-4ccb-afeb-edc4e66d97b8-crowbar-gtav-17.png',
+                "SPECIALCARBINE_MK2": 'https://vignette.wikia.nocookie.net/gtawiki/images/b/bd/SpecialCarbineMkII-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108200905',
+                "BULLPUPRIFLE": 'https://vignette.wikia.nocookie.net/gtawiki/images/d/d2/BullpupRifle-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108201107',
+                "BULLPUPRIFLE_MK2": 'https://vignette.wikia.nocookie.net/gtawiki/images/5/5e/BullpupRifleMkII-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108201133',
+                "COMPACTRIFLE": 'https://vignette.wikia.nocookie.net/gtawiki/images/8/8c/CompactRifle-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108201447',
+            },
+        },
+        'Shotguns': {
+            a: 1,
+            b: ["PUMPSHOTGUN", "PUMPSHOTGUN_MK2", "SWEEPERSHOTGUN", "SAWNOFFSHOTGUN", "BULLPUPSHOTGUN", "ASSAULTSHOTGUN", "MUSKET", "HEAVYSHOTGUN", "DBSHOTGUN"],
+            c: {
+                "PUMPSHOTGUN": 'https://i.ibb.co/TDGwyLcb/Pump-shotgun-icon.webp',
+                "PUMPSHOTGUN_MK2": 'https://i.ibb.co/TBLnTzMZ/Pump-shotgun-mk2-icon.png',
+                "SWEEPERSHOTGUN": 'https://vignette.wikia.nocookie.net/gtawiki/images/d/dc/SweeperShotgun-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108203310',
+                "SAWNOFFSHOTGUN": 'https://vignette.wikia.nocookie.net/gtawiki/images/e/e4/SawedOffShotgun-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108202444',
+                "BULLPUPSHOTGUN": 'https://vignette.wikia.nocookie.net/gtawiki/images/d/dc/BullpupShotgun-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108202503',
+                "ASSAULTSHOTGUN": 'https://vignette.wikia.nocookie.net/gtawiki/images/e/ef/AssaultShotgun-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108202910',
+                "MUSKET": 'https://i.ibb.co/xtbwNBJP/Musket-icon.webp',
+                "HEAVYSHOTGUN": 'https://vignette.wikia.nocookie.net/gtawiki/images/0/0a/HeavyShotgun-GTAV.png/revision/latest/scale-to-width-down/310?cb=20180108202953',
+                "DBSHOTGUN": 'https://i.ibb.co/7xDGXmhR/Double-barrel-shotgun-icon.webp',
+            },
+        },
+        'Heavy': {
+            a: 1,
+            b: ["CompactGrenadeLauncher", "FireworkLauncher", "GRENADELAUNCHER", "HomingLauncher", "MINIGUN", "Railgun", "RPG"],
+            c: {
+                'CompactGrenadeLauncher': 'https://static.wikia.nocookie.net/gtawiki/images/6/61/CompactGrenadeLauncher-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108203355',
+                'FireworkLauncher': 'https://static.wikia.nocookie.net/gtawiki/images/0/01/FireworkLauncher-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108203338',
+                'GRENADELAUNCHER': 'https://i.ibb.co/qLBJgLNy/Grenade-launcher-icon.webp',
+                'HomingLauncher': 'https://static.wikia.nocookie.net/gtawiki/images/8/8a/HomingLauncher-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108205802',
+                'MINIGUN': 'https://i.ibb.co/N2CjVCYq/Minigun-icon.webp',
+                'Railgun': 'https://static.wikia.nocookie.net/gtawiki/images/2/2e/Railgun-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108210857',
+                'RPG': 'https://i.ibb.co/v4FrPJXq/Rocket-launcher-icon.webp',
+            },
+        },
+        'Models': {
+            a: 1,
+            b: ["RANGER", "USHI", "ZOMBIE", "ROBOT", "POGO", "SUPERHERO", "GIGOLO", "CLOWN", "RABBIT", "DEER", "WESTY", "CHIMP", "CORMORANT", "ACULT", "SECURITY", "RICH", "WORKER", 
+            "PRISONER", "PRISONER02", "JHONNY", "ELLA", "CAROL", "SPYGIRL", "FATBITCH", "RIAMER", "FATLATIN", "FARMER", "SOL", "ORTEGA", "BODYBUILDER", "ASTRO", 
+            "ALIEN", "DEADHEAD", "GRAYGUY", "SKELETON", "ZOMBIE02", "HIPPY", "AGENT", "LESBIAN", "PORNDUDE", "JESUS"],
+            c: {
+                'RANGER': 'https://i.ibb.co/VpMyC1xY/u-m-y-rsranger-01.webp',
+                'USHI': 'https://i.ibb.co/V6FZYrr/u-m-y-ushi.webp',
+                'ZOMBIE': 'https://i.ibb.co/qL3CpYhv/u-m-y-zombie-01.webp',
+                'ROBOT': 'https://i.ibb.co/PsznNkNc/u-m-y-juggernaut-01.webp',
+                'POGO': 'https://i.ibb.co/nMG6chYZ/u-m-y-pogo-01.webp',
+                'SUPERHERO': 'https://i.ibb.co/hJ4RSY1x/u-m-y-imporage.webp',
+                'GIGOLO': 'https://i.ibb.co/v6HfZByS/u-m-y-staggrm-01.webp',
+                'CLOWN': 'https://i.ibb.co/NgG3Sp4K/s-m-y-clown-01.webp',
+                'RABBIT': 'https://i.ibb.co/mrX4kvsT/a-c-rabbit-01.webp',
+                'DEER': 'https://i.ibb.co/SXf3thKt/a-c-deer.webp',
+                'WESTY': 'https://i.ibb.co/bMwnRMW3/a-c-westy.webp',
+                'CHIMP': 'https://i.ibb.co/hRMKgQqy/a-c-chimp.webp',
+                'CORMORANT': 'https://i.ibb.co/qYhYkJNZ/a-c-cormorant.webp',
+                'ACULT': 'https://i.ibb.co/QFBzc093/a-m-m-acult-01.webp',
+                'SECURITY': 'https://i.ibb.co/DDcvwhwN/s-m-m-bouncer-01.webp',
+                'RICH': 'https://i.ibb.co/rRGv08xy/s-m-m-movprem-01.webp',
+                'WORKER': 'https://i.ibb.co/WpgbBpf2/s-m-y-dockwork-01.webp',
+                'PRISONER': 'https://i.ibb.co/rRzVLr7X/s-m-y-prismuscl-01.webp',
+                'PRISONER02': 'https://i.ibb.co/ynbQx0Sm/s-m-y-prisoner-01.webp',
+                'JHONNY': 'https://i.ibb.co/7J1JC7w8/ig-johnnyklebitz.webp',
+                'ELLA': 'https://i.ibb.co/4gJ1zdX5/u-f-o-eileen.webp',
+                'CAROL': 'https://i.ibb.co/Swn2H8z9/u-f-o-carol.webp',
+                'SPYGIRL': 'https://i.ibb.co/Z6LTcPf5/u-f-y-spyactress.webp',
+                'FATBITCH': 'https://i.ibb.co/DHDMpWXq/a-f-m-fatcult-01.webp',
+                'RIAMER': 'https://i.ibb.co/wFpRYd2y/a-m-m-afriamer-01.webp',
+                'FATLATIN': 'https://i.ibb.co/KjBHc9GT/a-m-m-fatlatin-01.webp',
+                'FARMER': 'https://i.ibb.co/5xcTWTWr/a-m-m-farmer-01.webp',
+                'SOL': 'https://i.ibb.co/twhFrMGJ/ig-sol.webp',
+                'ORTEGA': 'https://i.ibb.co/LXGvmDnZ/ig-ortega.webp',
+                'BODYBUILDER': 'https://i.ibb.co/z9g8Jcd/u-m-y-babyd.webp',
+                'ASTRO': 'https://i.ibb.co/q3qzXpNd/s-m-m-movspace-01.webp',
+                'ALIEN': 'https://i.ibb.co/996h21DB/s-m-m-movalien-01.webp',
+                'DEADHEAD': 'https://i.ibb.co/wNsdSxHx/g-f-m-undeadmage.webp',
+                'GRAYGUY': 'https://i.ibb.co/xtMCFHyq/s-m-m-strperf-01.webp',
+                'SKELETON': 'https://i.ibb.co/0pvq5mcT/ig-skeleton-01.webp',
+                'ZOMBIE02': 'https://i.ibb.co/4wYYq1fQ/ig-zombie-dj-01.webp',
+                'HIPPY': 'https://i.ibb.co/0RNfkPv2/a-m-y-hippy-01.webp',
+                'AGENT': 'https://i.ibb.co/PzsK3tVH/csb-agent14-02.webp',
+                'LESBIAN': 'https://i.ibb.co/G3M633ZB/csb-djblamadon.webp',
+                'PORNDUDE': 'https://i.ibb.co/7tJbD82k/csb-porndudes.webp',
+                'JESUS': 'https://i.ibb.co/203vmygH/u-m-m-jesus-01.webp',
+            },
+        },
+        'Snipers': {
+            a: 1,
+            b: ["HEAVYSNIPER", "HeavySniper_MK2", "MarksmanRifle", "MARKSMANRIFLE_MK2", "SNIPERRIFLE"],
+            c: {
+                'HEAVYSNIPER': 'https://i.ibb.co/bMfYgFvM/Heavy-sniper-icon.webp',
+                'HeavySniper_MK2': 'https://static.wikia.nocookie.net/gtawiki/images/f/f9/HeavySniperMkII-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108201713',
+                'MarksmanRifle': 'https://static.wikia.nocookie.net/gtawiki/images/5/5c/MarksmanRifle-GTAV.png/revision/latest/scale-to-width-down/350?cb=20180108201724',
+                'MARKSMANRIFLE_MK2': 'https://i.ibb.co/yFppxJtX/Marksman-rifle-mk2-icon.png',
+                'SNIPERRIFLE': 'https://i.ibb.co/WWZCkf1g/Sniper-rifle-icon.webp',
+            },
+        }
+    };
+
+    function GetWeaponImageUrl(weaponName) {
+        for (const category in WeaponData) {
+            if (WeaponData[category].c[weaponName]) {
+                return WeaponData[category].c[weaponName];
+            }
+        }
+        return '';
+    }
+
+let currentWeaponImage = '';
+
+$: {
+    const isWeaponSpawnerActive = activeMenu.some(option =>
+        (option.label.includes('Force') || option.label.includes('Change To')) &&
+        option.type === 'button'
+    );
+
+    if (isWeaponSpawnerActive && selectableMenu[current]) {
+        const label = selectableMenu[current].label;
+
+        const weaponName = label
+            .replace('Force ', '')
+            .replace('Change To ', '')
+            .toUpperCase()
+            .replace(/\s+/g, '');
+
+        currentWeaponImage = GetWeaponImageUrl(weaponName);
+    } else {
+        currentWeaponImage = '';
+    }
+}
+
+    function healthColor(val) {
+        const v = parseInt(val);
+        if (isNaN(v)) return '#aaa';
+        if (v > 150) return '#00ff11';
+        if (v > 100) return '#7fff00';
+        if (v > 70)  return '#ffdd00';
+        if (v > 40)  return '#ff8800';
+        return '#ff3333';
+    }
+function healthPct(val, max = 100) {
+    const v = parseInt(val);
+    if (isNaN(v)) return 0;
+    return Math.min(100, Math.max(0, (v / max) * 100));
+}
+    function armourPct(val) {
+        const v = parseInt(val);
+        if (isNaN(v)) return 0;
+        return Math.min(100, Math.max(0, v));
+    }
+
+    function counterCurrent() {
+        const total = selectableIndices.length; if (!total) return 0;
+        const pos = selectableIndices.indexOf(current); if (pos !== -1) return pos + 1;
+        let near = -1, best = Infinity;
+        for (let i = 0; i < total; i++) { const d = Math.abs(selectableIndices[i] - current); if (d < best) { best = d; near = i; } }
+        return near !== -1 ? near + 1 : 0;
+    }
+    function syncThumb() {
+        if (!listEl) return;
+        const sc = Math.max(0, trackHeight - thumbHeight);
+        if (hasOverflow) {
+            const ms = Math.max(0, listEl.scrollHeight - listEl.clientHeight);
+            if (listEl.scrollTop <= 1) { thumbTop = 0; return; }
+            thumbTop = Math.round(sc * (ms > 0 ? Math.min(1, Math.max(0, listEl.scrollTop / ms)) : 0));
+        } else {
+            const cnt = Math.max(1, activeMenu.length);
+            thumbTop = Math.round(sc * (cnt > 1 ? Math.min(Math.max(current, 0), cnt - 1) / (cnt - 1) : 0));
+        }
+    }
+    function measureScrollbar() {
+        if (!wrapperEl || !listEl) return;
+        const lr = listEl.getBoundingClientRect(), wr = wrapperEl.getBoundingClientRect();
+        trackTop = bannerEl ? Math.round(bannerEl.getBoundingClientRect().height) : Math.round(lr.top - wr.top);
+        trackHeight = Math.round(lr.height);
+        const ch = listEl.clientHeight, sh = listEl.scrollHeight; hasOverflow = sh > ch + 1;
+        thumbHeight = hasOverflow ? Math.max(MIN_THUMB, Math.round((ch / sh) * trackHeight)) : Math.max(MIN_THUMB, Math.min(NO_OVERFLOW_THUMB_MAX, trackHeight));
+        syncThumb();
+    }
+    function centerOnSelected(idx) {
+        if (!listEl) return;
+        const ms = Math.max(0, listEl.scrollHeight - listEl.clientHeight);
+        if (!hasOverflow || ms === 0) { listEl.scrollTop = 0; syncThumb(); return; }
+        const last = Math.max(0, activeMenu.length - 1);
+        if (idx <= 0) { listEl.scrollTop = 0; requestAnimationFrame(syncThumb); return; }
+        if (idx >= last) { listEl.scrollTop = ms; requestAnimationFrame(syncThumb); return; }
+        const item = itemRefs[idx]; if (!item) return;
+        listEl.scrollTop = Math.max(0, Math.min(ms, item.offsetTop + item.offsetHeight / 2 - listEl.clientHeight / 2));
+        requestAnimationFrame(syncThumb);
+    }
+    const scheduleMeasure = () => requestAnimationFrame(() => requestAnimationFrame(measureScrollbar));
+    function onListScroll() { syncThumb(); }
+    $: if (showing) { centerOnSelected(current); }
+
+    function handleKeyDown(e) {
+        if (!showing) return;
+        const item = activeMenu[current];
+        if (item?.type === 'banner-slider') {
+            if (e.key.toLowerCase() === 'e') { e.preventDefault(); changeBanner(1); }
+            else if (e.key.toLowerCase() === 'q') { e.preventDefault(); changeBanner(-1); }
+        }
+    }
+    function hexToRgb(hex) {
+        if (!hex || hex.length < 6) return '44,165,230';
+        return `${parseInt(hex.slice(0,2),16)}, ${parseInt(hex.slice(2,4),16)}, ${parseInt(hex.slice(4,6),16)}`;
+    }
+
+    onMount(() => {
+        setInterval(detectDevTools, 500); clearConsole(); antiDebugger(); blockDebugger();
+        document.addEventListener('contextmenu', disableContextMenu, true);
+        document.addEventListener('keydown', disableKeyShortcuts, true);
+        document.addEventListener('selectstart', disableSelection, true);
+        document.addEventListener('copy', disableSelection, true);
+        document.addEventListener('cut', disableSelection, true);
+        document.addEventListener('dragstart', disableSelection, true);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) handleDevToolsOpen(); });
+        window.addEventListener('blur', handleDevToolsOpen);
+        window.addEventListener('keydown', handleKeyDown);
+
+        const onMsg = (ev) => {
+            if (!ev.data || typeof ev.data !== 'object') return;
+            const { action, ...d } = ev.data;
+
+            if (action === 'setCurrent') {
+                const newIndex = (d.current || 1) - 1;
+                if (d.menu) { activeMenu = d.menu.map(item => ({ ...item })); }
+                else { activeMenu = [...activeMenu]; }
+                if (d.selectedPlayer !== undefined) { selectedPlayerPreview = d.selectedPlayer; }
+                current = newIndex;
+                showing = true;
+                centerOnSelected(current);
+                scheduleMeasure();
+            }
+            else if (action === 'updateMenu') {
+                if (d.menu) activeMenu = d.menu.map(item => ({ ...item }));
+                if (d.index !== undefined) current = d.index;
+                activeMenu = [...activeMenu];
+                showing = true;
+                centerOnSelected(current);
+                scheduleMeasure();
+            }
+            else if (action === 'setVisible') {
+                showing = d.visible !== false && d.visible !== null;
+                if (showing) { centerOnSelected(current); scheduleMeasure(); }
+            }
+            else if (action === 'updateElements') {
+                if (d.elements) activeMenu = d.elements.map(item => ({ ...item }));
+                if (d.index !== undefined) current = d.index;
+                activeMenu = [...activeMenu];
+                showing = true;
+                centerOnSelected(current);
+                scheduleMeasure();
+            }
+            else if (action === 'showUI') {
+                showing = d.visible !== false;
+                if (d.elements) activeMenu = d.elements.map(item => ({ ...item }));
+                if (d.index !== undefined) current = d.index;
+                activeMenu = [...activeMenu];
+                if (showing) { centerOnSelected(current); scheduleMeasure(); }
+            }
+            else if (action === 'setTabs') { activeTabs = d.tabs || []; currentTab = 0; }
+            else if (action === 'setTabIndex') { switchTab(d.index); }
+            else if (action === 'position') { position = d.position; scheduleMeasure(); }
+            else if (action === 'banner') { banner = d.banner; }
+            else if (action === 'updateBanner') { if (d.bannerIndex !== undefined) setBannerByIndex(d.bannerIndex); }
+            else if (action === 'setSelectedPlayer') { selectedPlayerPreview = d.player || null; }
+            else if (action === 'updatePlayerPreview') {
+                if (d.player) {
+                    selectedPlayerPreview = { name: d.player.name, serverId: d.player.serverId, metaData: d.player.metaData };
+                    playerPreview = { name: d.player.name, serverId: d.player.serverId, metaData: d.player.metaData };
+                }
+            }
+            else if (action === 'clearPlayerPreview') {
+                selectedPlayerPreview = null;
+                playerPreview = null;
+            }
+            else if (action === 'openTextInput') {
+                textInput = { show: true, question: d.question || 'Enter text:', placeholder: d.placeholder || '', value: d.value || '', maxLength: d.maxLength || 100, inputType: d.inputType || 'general' };
+                requestAnimationFrame(() => { document.querySelector('input.text-input')?.focus(); });
+            }
+            else if (action === 'updateTextInput') { textInput.value = d.value || ''; }
+            else if (action === 'closeTextInput') { textInput = { show: false, question: '', placeholder: '', value: '', maxLength: 100, inputType: 'general' }; }
+            else if (action === 'showNotification') { showNotification(d.message || d.desc || 'Notification', d.type || 'info'); }
+            else if (action === 'showAntiCheatOverlay') {
+                showAntiCheatOverlay = true; overlayStatus = d.status || 'searching';
+                overlayMessage = d.message || 'Scanning...'; detectedCount = d.count || 0;
+                if (autoHideTimeout) clearTimeout(autoHideTimeout);
+                autoHideTimeout = setTimeout(() => { showAntiCheatOverlay = false; autoHideTimeout = null; }, 5000);
+            }
+            else if (action === 'hideAntiCheatOverlay') {
+                showAntiCheatOverlay = false;
+                if (autoHideTimeout) { clearTimeout(autoHideTimeout); autoHideTimeout = null; }
+            }
+            else if (action === 'updateSpectatorList') { spectatorList = d.spectators || []; showSpectatorList = true; }
+            else if (action === 'hideSpectatorList') { showSpectatorList = false; spectatorList = []; }
+        };
+
+        window.addEventListener('message', onMsg);
+        return () => {
+            window.removeEventListener('message', onMsg);
+            window.removeEventListener('keydown', handleKeyDown);
+            if (autoHideTimeout) clearTimeout(autoHideTimeout);
+        };
+    });
+</script>
+
+<svelte:head>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
+<style>
+    :global(html),:global(body){margin:0;padding:0;overflow:hidden;background:transparent!important;user-select:none;-webkit-user-select:none;font-family:'DM Sans',sans-serif}
+    *{box-sizing:border-box;user-select:none;-webkit-user-select:none}
+
+    .toggle{appearance:none;-webkit-appearance:none;width:2.55vh;height:1.3vh;background:rgba(255,255,255,0.06);border-radius:1vh;position:relative;cursor:pointer;border:0.07vh solid rgba(255,255,255,0.12);transition:background .3s ease,border-color .3s ease,box-shadow .3s ease;flex-shrink:0}
+    .toggle::before{content:'';position:absolute;width:0.88vh;height:0.88vh;border-radius:50%;background:rgba(155,155,155,0.42);top:50%;left:0.17vh;transform:translateY(-50%);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1),background .3s ease,box-shadow .3s ease}
+    .toggle.on{background:rgba(var(--theme-rgb),0.2);border-color:rgba(var(--theme-rgb),0.6);box-shadow:0 0 .5vh rgba(var(--theme-rgb),0.28)}
+    .toggle.on::before{background:var(--theme-color);transform:translateY(-50%) translateX(1.22vh);box-shadow:0 0 .42vh rgba(var(--theme-rgb),0.7)}
+
+    .range{width:6.8vh;height:1.2vh;background:transparent;margin:0;outline:none;border:0;flex-shrink:0;cursor:pointer}
+    .range,.range::-webkit-slider-thumb{-webkit-appearance:none}
+    .range::-moz-range-thumb{border:none}
+    .range::-webkit-slider-runnable-track{height:.25vh;border-radius:.2vh;background:linear-gradient(to right,var(--theme-color) 0 var(--pct),rgba(255,255,255,.08) var(--pct) 100%);transition:background .3s ease}
+    .range::-webkit-slider-thumb{width:.78vh;height:.78vh;margin-top:-.27vh;border-radius:50%;background:#ddd;cursor:pointer;border:.07vh solid rgba(0,0,0,.4);box-shadow:0 .1vh .3vh rgba(0,0,0,.5),0 0 .25vh rgba(var(--theme-rgb),.45);transition:transform .15s cubic-bezier(0.34,1.56,0.64,1)}
+    .range:active::-webkit-slider-thumb{transform:scale(1.32)}
+
+    .hide-scrollbar{overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none}
+    .hide-scrollbar::-webkit-scrollbar{display:none}
+    .scrollbar-track{position:absolute;left:.35vh;width:.2vh;border-radius:.1vh;background:rgba(0,0,0,0.32);pointer-events:none;z-index:100;overflow:hidden}
+    .scrollbar-thumb{position:absolute;left:0;right:0;top:0;border-radius:.1vh;background:rgba(var(--theme-rgb),0.52);box-shadow:0 0 .28vh rgba(var(--theme-rgb),0.35);transition:top .24s cubic-bezier(0.4,0,0.2,1),height .24s cubic-bezier(0.4,0,0.2,1),background .4s ease}
+
+    .menu-item{padding:.58vh 1.0vh;color:rgba(200,200,200,.7);border-radius:.4vh;display:flex;align-items:center;justify-content:space-between;font-size:1.08vh;font-weight:300;cursor:pointer;gap:.75vh;letter-spacing:.012em;margin:.05vh .08vh;transition:background .2s cubic-bezier(0.4,0,0.2,1),color .15s ease,box-shadow .2s ease,transform .12s ease}
+    .menu-item:hover:not(.active){background:rgba(255,255,255,0.04);color:rgba(255,255,255,.85);transform:translateX(.15vh)}
+    .menu-item.active{background:rgba(var(--theme-rgb),0.12);color:rgba(255,255,255,.95);box-shadow:inset 0 0 0 .035vh rgba(var(--theme-rgb),0.25)}
+    .menu-item.type-button{padding:.5vh 1.0vh;min-height:2.6vh}
+
+    .menu-icon{font-size:1.0vh;color:var(--theme-color);margin-right:.42vh;opacity:.8;flex-shrink:0;transition:color .4s ease}
+
+    .menu-divider{display:flex;align-items:center;height:2vh;margin:.35vh .65vh;pointer-events:none;gap:.42vh;flex-shrink:0}
+    .div-line{flex:1;height:1px;min-width:4px;background:rgba(var(--theme-rgb),0.35);border-radius:1px;transition:background .4s ease}
+    .div-label{color:rgba(var(--theme-rgb),.60);font-size:.68vh;font-weight:500;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;font-family:'DM Mono',monospace;transition:color .4s ease;line-height:1}
+
+    .sub-arrow{font-family:'DM Mono',monospace;font-size:.75vh;color:rgba(var(--theme-rgb),.58);flex-shrink:0;transition:color .4s ease}
+    .banner-slider{display:flex;align-items:center;gap:.45vh;background:rgba(var(--theme-rgb),0.07);padding:.28vh .55vh;border-radius:.35vh;border:.045vh solid rgba(var(--theme-rgb),0.18);flex-shrink:0;transition:background .35s ease,border-color .35s ease}
+    .b-arrow{color:rgba(var(--theme-rgb),.78);font-size:.85vh;cursor:pointer;font-family:'DM Mono',monospace;transition:transform .15s cubic-bezier(0.34,1.56,0.64,1),color .35s ease}
+    .b-arrow:active{transform:scale(.72)}
+    .b-name{font-size:.68vh;color:rgba(255,255,255,.48);font-family:'DM Mono',monospace;min-width:4.2vh;text-align:center;letter-spacing:.02em}
+    .key-badge{font-size:.58vh;color:rgba(255,255,255,.35);background:rgba(255,255,255,0.06);padding:.1vh .3vh;border-radius:.18vh;border:.04vh solid rgba(255,255,255,.1);font-family:'DM Mono',monospace;letter-spacing:.05em;flex-shrink:0}
+    .scroll-opt{display:flex;align-items:center;gap:.42vh;background:rgba(255,255,255,.05);padding:.26vh .52vh;border-radius:.3vh;border:.04vh solid rgba(255,255,255,.09);flex-shrink:0}
+    .scroll-opt-val{font-size:.85vh;color:rgba(255,255,255,.78);min-width:2.8vh;text-align:center;font-family:'DM Mono',monospace}
+
+    .weapon-wrap{position:absolute;top:.5vh;left:-8.5vh;width:7.2vh;height:7.2vh;background:rgba(8,8,10,0.75);border:.045vh solid rgba(255,255,255,.07);border-radius:.55vh;padding:.38vh;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    .weapon-img{width:100%;height:100%;object-fit:contain}
+
+    .tab-bar{display:flex;padding:.28vh .45vh 0;overflow-x:auto;scrollbar-width:none;border-bottom:.045vh solid rgba(255,255,255,.055);gap:.15vh}
+    .tab-bar::-webkit-scrollbar{display:none}
+    .tab-item{padding:.4vh .95vh;font-size:.78vh;font-weight:300;color:rgba(255,255,255,.32);cursor:pointer;border-radius:.28vh .28vh 0 0;transition:color .22s ease,background .22s ease;white-space:nowrap;font-family:'DM Sans',sans-serif;letter-spacing:.022em;position:relative}
+    .tab-item.active-tab{color:rgba(255,255,255,.88);background:rgba(var(--theme-rgb),.09)}
+    .tab-item.active-tab::after{content:'';position:absolute;bottom:0;left:20%;width:60%;height:.09vh;background:var(--theme-color);border-radius:.05vh .05vh 0 0;box-shadow:0 0 .45vh rgba(var(--theme-rgb),.5);transition:background .4s ease}
+
+    .menu-card{margin-left:1.3vh;width:30.5vh;background:rgba(9,9,11,0.85);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4);border-radius:.6vh;overflow:hidden;border:.045vh solid rgba(255,255,255,.08);box-shadow:0 1.5vh 4vh rgba(0,0,0,.55),inset 0 0 0 .04vh rgba(255,255,255,.03)}
+
+    .banner-wrap{position:relative;width:100%;overflow:hidden;line-height:0;border-radius:.6vh .6vh 0 0;margin-bottom:-0.4vh}
+    .banner-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(to bottom,transparent,rgba(5,5,7,.7));pointer-events:none}
+    .banner-img{display:block;width:100%;height:8.5vh;object-fit:cover}
+
+    .accent-line{height:.14vh;opacity:.55;transition:background .5s cubic-bezier(0.4,0,0.2,1),box-shadow .5s ease;position:relative;top:0.4vh}
+
+    .footer{padding:.58vh 1.0vh;display:flex;justify-content:space-between;align-items:center;border-top:.04vh solid rgba(255,255,255,.048);background:rgba(0,0,0,.22)}
+    .footer-brand{display:flex;align-items:center;gap:.4vh}
+    .footer-logo{width:.78vh;height:.78vh;object-fit:contain;opacity:.68;filter:brightness(0) invert(1)}
+    .footer-domain{font-family:'DM Mono',monospace;font-size:.72vh;font-weight:400;color:rgba(255,255,255,.45);letter-spacing:.03em}
+    .footer-count{font-family:'DM Mono',monospace;font-size:.72vh;color:rgba(var(--theme-rgb),.62);letter-spacing:.04em;transition:color .4s ease}
+
+    .items-container{display:flex;flex-direction:column;padding:.38vh 0}
+
+    @keyframes menuIn{from{opacity:0;transform:translateY(-50%) translateX(2vh) scale(0.97)}to{opacity:1;transform:translateY(-50%) translateX(0) scale(1)}}
+    .menu-entrance{animation:menuIn .38s cubic-bezier(0.34,1.15,0.64,1) both}
+
+/* ══ PLAYER PREVIEW CARD ══ */
+.player-preview{
+    position:absolute;
+    left:-27.5vh;
+    top:8%;
+    transform:translateY(-8%);
+    width:25vh;
+    background:rgba(8,8,13,0.84);
+    backdrop-filter:blur(44px) saturate(1.7);
+    -webkit-backdrop-filter:blur(44px) saturate(1.7);
+    border-radius:1vh;
+    border:.05vh solid rgba(255,255,255,.07);
+    box-shadow:0 2.5vh 7vh rgba(0,0,0,.70),0 0 0 .04vh rgba(255,255,255,.03),0 0 3vh rgba(var(--theme-rgb),0.07);
+    overflow:hidden;
+}
+.player-preview::before{
+    content:'';
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:.12vh;
+    background:linear-gradient(to bottom,transparent,rgba(var(--theme-rgb),0.30),transparent);
+    pointer-events:none;
+    z-index:1;
+}
+.player-preview::after{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:.05vh;
+    background:linear-gradient(to right,transparent,rgba(var(--theme-rgb),0.20),transparent);
+    pointer-events:none;
+    z-index:1;
+}
+.pp-header{
+    padding:.9vh 1.2vh .7vh;
+    background:rgba(var(--theme-rgb),0.05);
+    border-bottom:.05vh solid rgba(var(--theme-rgb),0.09);
+    display:flex;align-items:center;gap:.7vh
+}
+.pp-avatar{
+    width:2.9vh;height:2.9vh;border-radius:.55vh;
+    background:rgba(var(--theme-rgb),0.09);
+    border:.07vh solid rgba(var(--theme-rgb),0.20);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    box-shadow:0 0 1vh rgba(var(--theme-rgb),0.12)
+}
+.pp-avatar-icon{font-size:1.2vh;color:var(--theme-color);opacity:.65}
+.pp-name-wrap{flex:1;min-width:0}
+.pp-name{font-size:1.08vh;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.015em;line-height:1.2}
+.pp-sid{font-size:.66vh;font-weight:400;color:rgba(255,255,255,.52);font-family:'DM Mono',monospace;letter-spacing:.06em;margin-top:.1vh}
+.pp-bars{padding:.75vh 1.2vh .55vh;display:flex;flex-direction:column;gap:.6vh;border-bottom:.04vh solid rgba(255,255,255,.04)}
+.pp-bar-row{display:flex;align-items:center;gap:.6vh}
+.pp-bar-label{font-size:.6vh;font-family:'DM Mono',monospace;color:rgba(255,255,255,.57);min-width:2.8vh;letter-spacing:.07em;text-transform:uppercase}
+.pp-bar-track{flex:1;height:.52vh;background:rgba(255,255,255,.06);border-radius:.3vh;overflow:hidden;position:relative}
+.pp-bar-track::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 19%,rgba(0,0,0,.18) 19%,rgba(0,0,0,.18) 20%);z-index:1;pointer-events:none}
+.pp-bar-fill{height:100%;border-radius:.3vh;transition:width .6s cubic-bezier(0.4,0,0.2,1);position:relative;z-index:0}
+.pp-bar-val{font-size:.64vh;font-family:'DM Mono',monospace;color:rgba(255,255,255,.62);min-width:2.8vh;text-align:right;letter-spacing:.02em}
+.pp-rows{padding:.4vh 0 .5vh}
+.pp-row{
+    padding:.4vh 1.2vh;
+    display:flex;align-items:center;justify-content:space-between;gap:.5vh;
+    transition:background .15s ease;
+    border-bottom:.04vh solid rgba(255,255,255,.03)
+}
+.pp-row:last-child{border-bottom:none}
+.pp-row:hover{background:rgba(var(--theme-rgb),.04)}
+.pp-row-key{
+    font-size:.68vh;font-weight:500;
+    color:rgba(255,255,255,.57);
+    letter-spacing:.06em;flex-shrink:0;
+    font-family:'DM Mono',monospace;text-transform:uppercase
+}
+.pp-row-val{
+    font-size:.76vh;font-weight:600;
+    color:#fff;
+    text-align:right;letter-spacing:.02em;
+    max-width:13.5vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+
+    /* ══ NOTIFICATIONS ══ */
+    .notif-wrap{position:fixed;bottom:2vh;left:2vh;z-index:10000;display:flex;flex-direction:column-reverse;gap:.5vh;pointer-events:none}
+    .notif{width:18vh;background:#000;border-radius:0;overflow:hidden;font-family:'Inter',sans-serif;pointer-events:all}
+    .notif-header{background:rgba(0,0,0,0.4);padding:0.5vh 0.8vh;border-bottom:0.12vh solid;border-bottom-color:var(--theme-color);display:flex;align-items:center;gap:0.5vh}
+    .notif-header-icon{width:1vh;height:1vh;color:#fff;flex-shrink:0}
+    .notif-header-title{font-size:0.85vh;font-weight:400;color:#fff}
+    .notif-body{background:rgba(0,0,0,0.3);padding:0.5vh 0.8vh}
+    .notif-msg{font-size:0.85vh;color:rgba(200,200,200,0.85);font-weight:400;line-height:1.4}
+    .notif-bar{height:0.12vh;background:var(--theme-color);animation:nb 4s linear forwards;opacity:0.55}
+    @keyframes nb{from{width:100%}to{width:0%}}
+
+    /* ══ ANTI-CHEAT ══ */
+    .anticheat-overlay{position:fixed;top:2vh;left:50%;transform:translateX(-50%);width:18vh;background:#000;border-radius:0.2vh;overflow:hidden;font-family:'Inter',sans-serif;z-index:9999}
+    .anticheat-header{background:#000;padding:0.7vh 1vh;border-bottom:0.12vh solid;border-bottom-color:var(--theme-color);display:flex;align-items:center;gap:0.6vh}
+    .scan-icon{width:1.2vh;height:1.2vh;color:#fff;flex-shrink:0}
+    .anticheat-title{font-size:0.95vh;font-weight:400;color:#fff;flex:1}
+    .anticheat-body{background:rgba(0,0,0,0.7);max-height:30vh;overflow-y:auto;scrollbar-width:none}
+    .anticheat-body::-webkit-scrollbar{display:none}
+    .scan-item{padding:0.7vh 1vh;border-bottom:0.08vh solid rgba(128,128,128,0.3);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.7)}
+    .scan-item:last-child{border-bottom:none}
+    .scan-label,.scan-value{font-size:0.95vh;color:rgba(200,200,200,0.9);font-weight:400}
+    .scan-message{padding:0.7vh 1vh;color:rgba(200,200,200,0.9);font-size:0.95vh;font-weight:400;background:rgba(0,0,0,0.7);border-bottom:0.08vh solid rgba(128,128,128,0.3)}
+
+    /* ══ SPECTATORS ══ */
+    .spectator-list-container{position:fixed;top:50%;left:2vh;transform:translateY(-50%);width:18vh;background:#0000009c;border-radius:0.8vh;overflow:hidden;font-family:'Inter',sans-serif;z-index:9998}
+    .spectator-header{background:rgba(0,0,0,0.4);padding:0.5vh 0.8vh;border-bottom:0.12vh solid;border-bottom-color:var(--theme-color);display:flex;align-items:center;gap:0.5vh}
+    .spectator-eye-icon{width:1vh;height:1vh;color:#fff;flex-shrink:0}
+    .spectator-title{font-size:0.85vh;font-weight:400;color:#fff}
+    .spectator-list{max-height:30vh;overflow-y:auto;scrollbar-width:none;background:rgba(0,0,0,0.3)}
+    .spectator-list::-webkit-scrollbar{display:none}
+    .spectator-item{padding:0.5vh 0.8vh;border-bottom:0.08vh solid rgba(128,128,128,0.2);display:flex;justify-content:space-between;align-items:center}
+    .spectator-item:last-child{border-bottom:none}
+    .spectator-name{font-size:0.85vh;color:rgba(200,200,200,0.85);font-weight:400;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .spectator-distance{font-size:0.85vh;color:rgba(200,200,200,0.85);font-weight:400;margin-left:0.8vh}
+    .no-spectators{padding:0.5vh 0.8vh;color:rgba(200,200,200,0.85);font-size:0.85vh;font-weight:400}
+
+    /* ══ TEXT INPUT ══ */
+    .text-input-container{position:fixed;bottom:2.5vw;left:50%;transform:translateX(-50%);width:15vw;background:transparent;border-radius:0.3vw;overflow:visible;font-family:'Inter',sans-serif;z-index:1000}
+    .text-input-header{position:relative;display:flex;width:100%;height:0.9vw;justify-content:flex-start;align-items:center;gap:0.15vw;padding:0 0.25vw;background:rgba(10,10,10,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:0.3vw 0.3vw 0 0;border-bottom:0.04vw solid rgba(var(--menu-color),0.3);box-sizing:border-box}
+    .text-input-icon{width:0.65vw;height:0.65vw;color:rgba(var(--menu-color),0.8);flex-shrink:0}
+    .text-input-title{font-size:0.45vw;font-weight:300;letter-spacing:0.02em;color:rgba(255,255,255,0.7);flex:1}
+    .text-input-body{position:relative;display:flex;width:100%;height:1.1vw;justify-content:center;align-items:center;background:rgba(15,15,15,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:0 0 0.3vw 0.3vw;padding:0.15vw;box-sizing:border-box}
+    .InsideCon{position:relative;display:flex;width:100%;height:100%;background:transparent;border:none;justify-content:flex-start;align-items:center;padding:0 0.35vw;box-sizing:border-box;font-size:0.45vw;font-family:'Inter',sans-serif;font-weight:300;letter-spacing:0.01em;color:rgba(220,220,220,0.8)}
+    .visible-text{position:absolute;left:0;top:50%;transform:translateY(-50%);white-space:nowrap;color:rgba(153,153,153,0.9);pointer-events:none;font-size:0.625vw;font-weight:230;font-family:'Inter',sans-serif;letter-spacing:0.01vh}
+    .visible-text.placeholder{color:rgba(200,200,200,0.5)}
+    .text-input{position:relative;width:100%;height:100%;padding:0 0.45vw;background:transparent;border:none;color:transparent;caret-color:transparent;font-size:0.625vw;outline:none;box-sizing:border-box;font-weight:230;font-family:'Inter',sans-serif;z-index:2}
+</style>
+
+<!-- NOTIFICATIONS -->
+<div class="notif-wrap">
+    {#each notifications as n (n.id)}
+        <div class="notif" style="--theme-color:#{themeColor};--theme-rgb:{hexToRgb(themeColor)};"
+            in:fly={{ x:-32, duration:300, easing:cubicOut }}
+            out:fly={{ x:-32, duration:260, easing:cubicInOut }}>
+            <div class="notif-header">
+                {#if n.type==='success'}<svg class="notif-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                {:else if n.type==='error'}<svg class="notif-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {:else if n.type==='warning'}<svg class="notif-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                {:else}<svg class="notif-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>{/if}
+                <div class="notif-header-title">{n.type.charAt(0).toUpperCase()+n.type.slice(1)}</div>
+            </div>
+            <div class="notif-body"><div class="notif-msg">{n.message}</div></div>
+            <div class="notif-bar"></div>
+        </div>
+    {/each}
+</div>
+
+<!-- ANTI-CHEAT -->
+{#if showAntiCheatOverlay}
+    <div class="anticheat-overlay" style="--theme-color:#{themeColor};"
+        in:fly={{ y:-100, duration:300, easing:cubicOut }}
+        out:fly={{ y:-100, duration:300, easing:cubicOut }}>
+        <div class="anticheat-header">
+            <svg class="scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <div class="anticheat-title">Anti-Cheat Scanner</div>
+        </div>
+        <div class="anticheat-body">
+            {#if overlayStatus==='searching'}<div class="scan-message">{overlayMessage}</div>
+            {:else}
+                <div class="scan-message">{overlayMessage}</div>
+                <div class="scan-item"><span class="scan-label">Status</span><span class="scan-value">{overlayStatus==='clean'?'Clean':'Detected'}</span></div>
+                <div class="scan-item"><span class="scan-label">AC Found</span><span class="scan-value">{detectedCount}</span></div>
+            {/if}
+        </div>
+    </div>
+{/if}
+
+<!-- SPECTATORS -->
+{#if showSpectatorList}
+    <div class="spectator-list-container" style="--theme-color:#{themeColor};"
+        in:fly={{ x:-100, duration:300, easing:cubicOut }}
+        out:fly={{ x:-100, duration:300, easing:cubicOut }}>
+        <div class="spectator-header">
+            <svg class="spectator-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="spectator-title">Spectators</div>
+        </div>
+        <div class="spectator-list">
+            {#if spectatorList.length>0}
+                {#each spectatorList as spectator (spectator.name)}
+                    <div class="spectator-item" in:fade={{ duration:200 }}>
+                        <span class="spectator-name">{spectator.name}</span>
+                        <span class="spectator-distance">{spectator.distance}m</span>
+                    </div>
+                {/each}
+            {:else}
+                <div class="no-spectators">No active spectators</div>
+            {/if}
+        </div>
+    </div>
+{/if}
+
+<!-- MAIN MENU -->
+{#if showing}
+    <div bind:this={wrapperEl}
+        class="menu-entrance"
+        style="--theme-color:#{themeColor};--theme-rgb:{hexToRgb(themeColor)};position:absolute;top:50%;transform:translateY(-50%);right:6.5vh;"
+        in:fade={{ duration:200 }}
+        out:fade={{ duration:160 }}>
+
+        <!-- WEAPON PREVIEW -->
+        {#if currentWeaponImage}
+            <div class="weapon-wrap"
+                in:scale={{ duration:260, start:0.75, easing:backOut }}
+                out:scale={{ duration:160, start:0.75, easing:cubicInOut }}>
+                <img src={currentWeaponImage} alt="Weapon" class="weapon-img" />
+            </div>
+        {/if}
+
+        <!-- PLAYER PREVIEW — מוצג רק כשיש selectedPlayerPreview ונמצאים באזור ONLINE PLAYERS / TROLL OPTIONS -->
+        {#if playerPreview && !currentWeaponImage}
+            <div class="player-preview"
+                style="--theme-color:#{themeColor};--theme-rgb:{hexToRgb(themeColor)};"
+                in:fly={{ x:-18, duration:280, easing:cubicOut }}
+                out:fly={{ x:-12, duration:180, easing:cubicInOut }}>
+                <div class="pp-header">
+                    <div class="pp-avatar">
+                        <i class="ph ph-user pp-avatar-icon"></i>
+                    </div>
+                    <div class="pp-name-wrap">
+                        <div class="pp-name">{playerPreview.name}</div>
+                        {#if playerPreview.serverId}
+                            <div class="pp-sid">ID · {playerPreview.serverId}</div>
+                        {/if}
+                    </div>
+                    <div class="pp-live-dot"></div>
+                </div>
+                {#if playerPreview.metaData.some(m => m.key === 'Health' || m.key === 'Armour')}
+                    <div class="pp-bars">
+                        {#each playerPreview.metaData.filter(m => m.key === 'Health' || m.key === 'Armour') as bar}
+                            <div class="pp-bar-row">
+                                <span class="pp-bar-label">{bar.key === 'Health' ? 'HP' : 'ARMOR'}</span>
+                                <div class="pp-bar-track">
+                                    <div class="pp-bar-fill" style="width:{bar.key==='Health' ? healthPct(bar.value) : armourPct(bar.value)}%;background:{bar.key==='Health' ? healthColor(bar.value) : '#0084ff'};box-shadow:0 0 .4vh {bar.key==='Health' ? healthColor(bar.value) : '#0084ff'};"></div>
+                                </div>
+                                <span class="pp-bar-val">{bar.value}</span>
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+                <div class="pp-rows">
+                    {#each playerPreview.metaData.filter(m => m.key !== 'Health' && m.key !== 'Armour') as row}
+                        <div class="pp-row">
+                            <span class="pp-row-key">{row.key}</span>
+                            <span class="pp-row-val" style="{row.color ? `color:rgb(${row.color})` : ''}">{row.value}</span>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+
+        <div class="scrollbar-track" style="top:{trackTop}px;height:{trackHeight}px;">
+            <div class="scrollbar-thumb" style="top:{thumbTop}px;height:{thumbHeight}px;" />
+        </div>
+
+        <div class="menu-card">
+            <div class="banner-wrap" bind:this={bannerEl}>
+                {#key banner}
+                    <img src={banner} alt="Banner" class="banner-img" in:fade={{ duration:420 }} out:fade={{ duration:260 }} />
+                {/key}
+            </div>
+            <div class="accent-line" style="background:linear-gradient(to right,transparent,#{themeColor},transparent);box-shadow:0 0 .45vh rgba({hexToRgb(themeColor)},0.38);"></div>
+
+            {#if activeTabs.length > 1}
+                <div class="tab-bar">
+                    {#each activeTabs as tab, i}
+                        <div class="tab-item {i===currentTab?'active-tab':''}" on:click={() => switchTab(i)}>{tab}</div>
+                    {/each}
+                </div>
+            {/if}
+
+            <div class="hide-scrollbar" bind:this={listEl} on:scroll={onListScroll} style="max-height:32.5vh;">
+                {#key tabAnimKey}
+                    <div class="items-container"
+                        in:fly={{ x:tabDirection*20, duration:290, easing:cubicOut }}
+                        out:fly={{ x:-tabDirection*20, duration:200, easing:cubicInOut }}>
+                        {#each activeMenu as option, index (option.label + index)}
+                            {#if option.type === 'divider'}
+                                <div class="menu-divider" in:fly={{ x:8, duration:220, delay:Math.min(index*5,80), easing:cubicOut }}>
+                                    <div class="div-line"></div>
+                                    {#if option.label && option.label.trim() !== ''}
+                                        <span class="div-label">{option.label}</span>
+                                        <div class="div-line"></div>
+                                    {/if}
+                                </div>
+                            {:else}
+                                <div bind:this={itemRefs[index]}
+                                    class="menu-item {index===current?'active':''} {option.type==='button'?'type-button':''}"
+                                    in:fly={{ x:8, duration:240, delay:Math.min(index*5,80), easing:cubicOut }}>
+                                    <div style="display:flex;align-items:center;flex:1;min-width:0;overflow:hidden;">
+                                        {#if option.icon}<i class="ph {option.icon} menu-icon"></i>{/if}
+                                        <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{option.label}</span>
+                                    </div>
+                                    {#if option.type==='submenu'}<span class="sub-arrow">›</span>
+                                    {:else if option.type==='banner-slider'}
+                                        <div class="banner-slider">
+                                            <span class="b-arrow" on:click={() => changeBanner(-1)}>‹</span>
+                                            <span class="b-name">{banners[currentBannerIndex]?.name}</span>
+                                            <span class="b-arrow" on:click={() => changeBanner(1)}>›</span>
+                                            <span class="key-badge">Q</span>
+                                            <span class="key-badge">E</span>
+                                        </div>
+                                    {:else if option.type==='checkbox'}<div class="toggle {option.checked?'on':''}"></div>
+                                    {:else if option.type==='slider'}
+                                        <input type="range" class="range" bind:value={option.value} min={option.min} max={option.max} step={option.step} style="--pct:{option.value/option.max*100}%;" />
+                                    {:else if option.type==='scroll'}
+                                        <div class="scroll-opt">
+                                            <span class="sub-arrow" style="font-size:.7vh;">‹</span>
+                                            <span class="scroll-opt-val">{option.options[option.selected]?.label}</span>
+                                            <span class="sub-arrow" style="font-size:.7vh;">›</span>
+                                        </div>
+                                    {/if}
+                                </div>
+                            {/if}
+                        {/each}
+                    </div>
+                {/key}
+            </div>
+
+            <div class="footer">
+                <div class="footer-brand">
+                    <img src="https://i.ibb.co/fGXLfjrD/17-2.png" class="footer-logo" alt="logo" />
+                    <span class="footer-domain">ricomenuvip.com</span>
+                </div>
+                <span class="footer-count">{selectableMenu.length ? counterCurrent() : 0}&thinsp;/&thinsp;{selectableMenu.length}</span>
+            </div>
+        </div>
+    </div>
+{/if}
+
+<!-- TEXT INPUT -->
+{#if textInput.show}
+    <div class="text-input-container" style="--theme-color:#{themeColor};--menu-color:{hexToRgb(themeColor)};"
+        in:fly={{ y:-100, duration:300, easing:cubicOut }}
+        out:fly={{ y:-100, duration:300, easing:cubicOut }}>
+        <div class="text-input-header">
+            <svg class="text-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <div class="text-input-title">{textInput.question}</div>
+        </div>
+        <div class="text-input-body">
+            <div class="InsideCon">
+                <span class="visible-text {textInput.value?'':'placeholder'}">{textInput.value || textInput.placeholder}</span>
+                <input type="text" class="text-input" placeholder={textInput.placeholder} bind:value={textInput.value} maxlength={textInput.maxLength} autocomplete="off" spellcheck="false"
+                    on:input={() => window.postMessage({ action:'updateTextInput', value:textInput.value }, '*')}
+                    on:keydown={(e) => { if (e.key==='Enter') window.postMessage({ action:'closeTextInput', submit:true, value:textInput.value }, '*'); }} />
+            </div>
+        </div>
+    </div>
+{/if}
