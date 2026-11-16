@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4s Menu</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      background: transparent !important;
+      overflow: hidden;
+      font-family: "Segoe UI", Inter, system-ui, sans-serif;
+      color: #fff;
+    }
+    #app { position: absolute; inset: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script src="app.js"></script>
+  <script>
+(function () {
+  window.__AURA_NEXUS = true;
+  window.__AURA_BRAND = window.__AURA_BRAND || "4s Menu";
+
+  function esc(s) { return s == null ? "" : String(s); }
+
+  function scrollSelected(vals, value) {
+    if (!vals || !vals.length) return 0;
+    if (typeof value === "number") {
+      if (value >= 1 && value <= vals.length) return value - 1;
+      if (value >= 0 && value < vals.length) return value;
+      return 0;
+    }
+    var idx = vals.indexOf(value);
+    if (idx >= 0) return idx;
+    for (var i = 0; i < vals.length; i++) {
+      if (String(vals[i]) === String(value)) return i;
+    }
+    return 0;
+  }
+
+  function mapItem(el) {
+    if (!el || typeof el !== "object") return { name: "" };
+    var t = String(el.type || "button").toLowerCase();
+    var out = { name: esc(el.label || el.name || "") };
+    if (el.icon) out.icon = el.icon;
+    if (t === "divider" || t === "separator") {
+      out.separator = true;
+      out.type = "divider";
+      return out;
+    }
+    if (t === "checkbox" || t === "scrollable-checkbox" || t === "slider-checkbox") {
+      out.type = "checkbox";
+      out.checkbox = { checked: el.checked === true };
+    }
+    if (t === "scrollable" || t === "scroll" || t === "scrollable-checkbox") {
+      var opts = el.values || el.options || [];
+      out.type = "scroll";
+      out.slider = {
+        options: opts.map(function (v) {
+          return typeof v === "string" ? { label: v, value: v } : { label: esc(v && (v.label || v.name) || v), value: v };
+        }),
+        value: scrollSelected(opts, el.value) + 1
+      };
+    } else if (t === "slider" || t === "slider-checkbox") {
+      out.type = "slider";
+      out.range = {
+        min: el.min != null ? el.min : 0,
+        max: el.max != null ? el.max : 100,
+        step: el.step != null ? el.step : 1,
+        value: el.value != null ? el.value : 0
+      };
+    }
+    return out;
+  }
+
+  function mapItems(els) {
+    if (!Array.isArray(els)) return [];
+    return els.map(mapItem);
+  }
+
+  function mapTabs(cats) {
+    if (!Array.isArray(cats) || !cats.length) return [{ label: window.__auraSectionTitle || "Main Menu", options: [] }];
+    return cats.map(function (c) {
+      return { label: esc((c && (c.label || c.title || c.name)) || ""), options: [] };
+    });
+  }
+
+  function applyTabs(d) {
+    var tabs = mapTabs(d.categories || d.tabs);
+    if (typeof window.updateMenuData === "function") window.updateMenuData({ tabs: tabs });
+    else if (typeof window.buildMenu === "function") window.buildMenu({ tabs: tabs });
+    var idx = Number(d.categoryIndex);
+    if (isFinite(idx) && typeof window.updateTab === "function") window.updateTab(idx);
+    var bar = document.getElementById("menu-tabs");
+    if (bar) {
+      var one = tabs.length <= 1;
+      bar.querySelectorAll(".tab-item").forEach(function (n) {
+        n.classList.toggle("single", one);
+        n.classList.toggle("full", one);
+      });
+    }
+  }
+
+  function applyMenu(d, open) {
+    if (d && d.visible === false) {
+      if (window.hideMenu) window.hideMenu();
+      return;
+    }
+    if (d.categories || d.tabs) applyTabs(d);
+    else if (d.clearCategories) applyTabs({ categories: [] });
+    var items = mapItems(d.elements || d.menu || []);
+    var idx = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
+    if (typeof window.updateLiveTabContent === "function") window.updateLiveTabContent(items, idx);
+    if (open || d.visible === true) {
+      if (window.showMenu) window.showMenu();
+    }
+    if (typeof window.updateSelection === "function") window.updateSelection(idx);
+  }
+
+  window.addEventListener("message", function (ev) {
+    var d = ev && ev.data;
+    if (!d || typeof d !== "object") return;
+    if (d.__nx) return;
+    if (!d.action && d.type) d.action = d.type;
+    var a = d.action;
+    if (!a) return;
+
+    if (a === "showUI") applyMenu(d, true);
+    else if (a === "updateElements" || a === "setCurrent") applyMenu(d, false);
+    else if (a === "keydown" || a === "setSelection" || a === "updateSelection") {
+      var i = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
+      if (window.updateSelection) window.updateSelection(i);
+    } else if (a === "updateCategories" || a === "setTabs") applyTabs(d);
+    else if (a === "setVisible") {
+      if (d.visible === false) { if (window.hideMenu) window.hideMenu(); }
+      else if (window.showMenu) window.showMenu();
+    } else if (a === "updateBanner" || a === "banner") {
+      if (window.updateMenuBanner) window.updateMenuBanner({ banner: d.bannerLink || d.link || d.banner });
+      if (d.bannerColor && window.updateMenuColors) {
+        var col = d.bannerColor;
+        if (String(col).indexOf(",") >= 0) {
+          var p = String(col).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+          if (p) {
+            function hx(n) { n = Math.max(0, Math.min(255, parseInt(n, 10) || 0)); return ("0" + n.toString(16)).slice(-2); }
+            col = "#" + hx(p[1]) + hx(p[2]) + hx(p[3]);
+          }
+        }
+        window.updateMenuColors({ mainColor: col });
+      }
+    } else if (a === "showNotification" || a === "notify") {
+      if (window.showNotification) {
+        window.showNotification(d.type || "info", d.title || window.__AURA_BRAND, d.message || d.desc || d.description || "", d.duration || 3500);
+      }
+    } else if (a === "showGateToast") {
+      if (window.showNotification) window.showNotification("info", window.__AURA_BRAND, d.message || "", 3000);
+    } else if (a === "displayBinds" || a === "toggleKeybindListUI") {
+      if (d.visible === false) { if (window.hideLiveList) window.hideLiveList("keybinds"); }
+      else if (window.updateLiveList) {
+        var binds = d.binds || d.keybinds || [];
+        window.updateLiveList({
+          id: "keybinds",
+          header: "Keybinds",
+          visible: true,
+          items: binds.map(function (b) {
+            return { label: b.label || b.name || "", value: b.keyLabel || b.key || "-" };
+          }),
+          position: { top: "2vh", left: "2vh" },
+          width: "19vh"
+        });
+      }
+    } else if (a === "updateKeybindList") {
+      if (window.updateLiveList) {
+        window.updateLiveList({
+          id: "keybinds",
+          header: "Keybinds",
+          visible: true,
+          items: (d.keybinds || []).map(function (b) {
+            return { label: b.name || b.label || "", value: b.key || b.keyLabel || "-" };
+          })
+        });
+      }
+    } else if (a === "displaySpectators" || a === "toggleSpectatorListUI" || a === "updateSpectatorList") {
+      if (d.visible === false) { if (window.hideLiveList) window.hideLiveList("spectators"); }
+      else if (window.updateLiveList) {
+        window.updateLiveList({
+          id: "spectators",
+          header: "Spectators",
+          visible: d.visible !== false,
+          items: (d.spectators || []).map(function (s) {
+            return { label: s.name || "Unknown", value: Math.floor(s.distance || 0) + "m" };
+          }),
+          position: { top: "2vh", left: "2vh" },
+          width: "15vh"
+        });
+      }
+    } else if (a === "updateLoader" || a === "showLoading" || a === "updateLoading" || a === "hideLoading" || a === "showProgressBar" || a === "updateProgress") {
+      if (a === "hideLoading" || d.percent >= 100) {
+        if (window.hideProgressBar) window.hideProgressBar();
+      } else {
+        if (window.showProgressBar) window.showProgressBar();
+        if (window.updateProgressBar) {
+          window.updateProgressBar(Number(d.percent != null ? d.percent : d.progress) || 0, d.text || d.status || "", "");
+        }
+      }
+    } else if (a === "openKeySelection" || a === "updateKeySelection" || (a === "updateKeyboard" && d.menuKey)) {
+      if (window.showInput) window.showInput({ header: d.title || "Press a key", value: d.keyName || d.value || "" });
+    } else if (a === "closeKeySelection" || (a === "updateKeyboard" && d.visible === false) || a === "closeTextInput") {
+      if (window.hideInput) window.hideInput();
+    } else if (a === "openTextInput" || (a === "updateKeyboard" && d.visible !== false && !d.menuKey)) {
+      if (window.showInput) window.showInput({ header: d.title || "Input", value: d.value || "" });
+    } else if (a === "updateTextInput") {
+      if (window.updateInput) window.updateInput({ value: d.value || "" });
+    } else if (a === "setArgsPanel" || a === "setDiscordProfile" || a === "updateFooterUser") {
+      var name = d.username || d.name;
+      if (name && window.setDiscordUsername) {}
+      var fl = document.getElementById("footer-left");
+      if (fl && name) fl.textContent = name;
+    } else if (a === "displayFreecam" || a === "updateFreecam") {
+      window.postMessage({ __nx: true, action: "displayFreecam", visible: d.visible !== false && d.hide !== true, options: d.features || d.options || [] }, "*");
+    }
+  }, true);
+
+  window.__auraApplyBanner = function (url, color) {
+    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url });
+  };
+  window.__auraApplyDiscordProfile = function () {
+    var fl = document.getElementById("footer-left");
+    if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
+  };
+  window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
+    if (hide) { if (window.hideProgressBar) window.hideProgressBar(); return; }
+    if (window.showProgressBar) window.showProgressBar();
+    if (window.updateProgressBar) window.updateProgressBar(p, text || "", "");
+  };
+  window.__auraConfirmMenuKey = window.__auraPreviewMenuKey = function (v) {
+    if (window.updateInput) window.updateInput({ value: v || "" });
+  };
+  window.__auraSyncKeyPickerUi = function (preview, v) {
+    if (window.showInput) window.showInput({ header: "Press a key", value: v || "" });
+  };
+  window.__auraSetMenuOpacity = function () {};
+  window.__auraApplyMenuOpacity = function () {};
+  window.__auraApplyTheme = function () {};
+  window.__auraPreloadBanners = function () {};
+})();
+  </script>
+</body>
+</html>
