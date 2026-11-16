@@ -195,23 +195,20 @@
           width: "15vh"
         });
       }
-    } else if (a === "updateLoader" || a === "showLoading" || a === "updateLoading" || a === "hideLoading" || a === "showProgressBar" || a === "updateProgress") {
-      if (a === "hideLoading" || d.percent >= 100) {
-        if (window.hideProgressBar) window.hideProgressBar();
-      } else {
-        if (window.showProgressBar) window.showProgressBar();
-        if (window.updateProgressBar) {
-          window.updateProgressBar(Number(d.percent != null ? d.percent : d.progress) || 0, d.text || d.status || "", "");
-        }
-      }
-    } else if (a === "openKeySelection" || a === "updateKeySelection" || (a === "updateKeyboard" && d.menuKey)) {
-      if (window.showInput) window.showInput({ header: d.title || "Press a key", value: d.keyName || d.value || "" });
-    } else if (a === "closeKeySelection" || (a === "updateKeyboard" && d.visible === false) || a === "closeTextInput") {
-      if (window.hideInput) window.hideInput();
+    } else if (a === "updateLoader" || a === "showLoading" || a === "updateLoading" || a === "hideLoading") {
+      var pr = Number(d.percent != null ? d.percent : d.progress) || 0;
+      var msg = d.text || d.status || d.message || "Please wait, loading menu...";
+      if (window.__auraPaintSharkLoader) window.__auraPaintSharkLoader(pr, msg, d.avatar, a === "hideLoading" || pr >= 100);
+    } else if (a === "openKeySelection" || a === "updateKeySelection" || (a === "updateKeyboard" && d.menuKey === true)) {
+      if (window.__auraSyncKeyPickerUi) window.__auraSyncKeyPickerUi(true, d.keyName || d.value || "...", d.title || "Press a key");
+    } else if (a === "closeKeySelection" || (a === "updateKeyboard" && d.visible === false)) {
+      if (window.__auraHideKeyPick) window.__auraHideKeyPick();
     } else if (a === "openTextInput" || (a === "updateKeyboard" && d.visible !== false && !d.menuKey)) {
-      if (window.showInput) window.showInput({ header: d.title || "Input", value: d.value || "" });
+      if (window.__auraSyncKeyPickerUi) window.__auraSyncKeyPickerUi(true, d.value || "", d.title || "Input");
     } else if (a === "updateTextInput") {
-      if (window.updateInput) window.updateInput({ value: d.value || "" });
+      if (window.__auraPreviewMenuKey) window.__auraPreviewMenuKey(d.value || "");
+    } else if (a === "closeTextInput") {
+      if (window.__auraHideKeyPick) window.__auraHideKeyPick();
     } else if (a === "setArgsPanel" || a === "setDiscordProfile" || a === "updateFooterUser") {
       var name = d.username || d.name;
       if (name && window.setDiscordUsername) {}
@@ -229,17 +226,10 @@
     var fl = document.getElementById("footer-left");
     if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
   };
-  window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
-    if (hide) { if (window.hideProgressBar) window.hideProgressBar(); return; }
-    if (window.showProgressBar) window.showProgressBar();
-    if (window.updateProgressBar) window.updateProgressBar(p, text || "", "");
-  };
-  window.__auraConfirmMenuKey = window.__auraPreviewMenuKey = function (v) {
-    if (window.updateInput) window.updateInput({ value: v || "" });
-  };
-  window.__auraSyncKeyPickerUi = function (preview, v) {
-    if (window.showInput) window.showInput({ header: "Press a key", value: v || "" });
-  };
+  window.__auraPaintSharkLoader = window.__auraPaintSharkLoader;
+  window.__auraConfirmMenuKey = window.__auraConfirmMenuKey;
+  window.__auraPreviewMenuKey = window.__auraPreviewMenuKey;
+  window.__auraSyncKeyPickerUi = window.__auraSyncKeyPickerUi;
   window.__auraSetMenuOpacity = function () {};
   window.__auraApplyMenuOpacity = function () {};
   window.__auraApplyTheme = function () {};
