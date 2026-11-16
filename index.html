@@ -19,15 +19,29 @@
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
     #menu-root { width: 33vh !important; }
-    #menu-root.visible {
+    #menu-root.visible,
+    #menu-root.visible.hiding {
       opacity: 1 !important;
       visibility: visible !important;
     }
     #menu-root.visible #header-wrapper,
+    #menu-root.visible #header-wrapper.hiding,
     #menu-root.visible #menu-container,
-    #menu-root.visible #menu-footer {
+    #menu-root.visible #menu-container.hiding,
+    #menu-root.visible #menu-footer,
+    #menu-root.visible #menu-footer.hiding,
+    #menu-root.visible #menu-scrollbar,
+    #menu-root.visible #menu-scrollbar.hiding {
       opacity: 1 !important;
       visibility: visible !important;
+    }
+    #menu-root.visible #header-wrapper,
+    #menu-root.visible #header-wrapper.hiding,
+    #menu-root.visible #menu-container,
+    #menu-root.visible #menu-container.hiding,
+    #menu-root.visible #menu-footer,
+    #menu-root.visible #menu-footer.hiding {
+      transform: none !important;
     }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
@@ -249,7 +263,7 @@
       align-items: center; justify-content: center; background: transparent; pointer-events: none;
     }
     #SharkLoadingOverlay.active { display: flex !important; }
-    .aura-load { display: flex; flex-direction: column; align-items: center; width: 22vh; pointer-events: none; }
+    .aura-load { display: flex; flex-direction: column; align-items: center; width: 26.7vh; pointer-events: none; }
     #aura-load-av {
       width: 4.4vh; height: 4.4vh; border-radius: 50%; object-fit: cover;
       display: none; margin: 0 0 0.62vh 0; box-shadow: 0 0.12vh 0.35vh rgba(0,0,0,0.5);
@@ -262,14 +276,14 @@
       text-shadow: 0 0.1vh 0.28vh rgba(0,0,0,0.95);
     }
     .aura-load-bar {
-      position: relative; width: 20vh; height: 1.12vh;
+      position: relative; width: 26.7vh; height: 1.48vh;
       background: #000; border-radius: 999px; overflow: hidden;
     }
     #SharkProgressBar {
       position: absolute; left: 0; top: 0; bottom: 0; width: 0; height: 100%;
       background: var(--aura-accent, var(--ui-main, rgb(208,214,224)));
       border-radius: 999px;
-      box-shadow: 0 0 0.4vh var(--aura-accent, var(--ui-main, rgb(208,214,224)));
+      box-shadow: 0 0 0.38vh var(--aura-accent, var(--ui-main, rgb(208,214,224)));
     }
     #SharkLoadingPercent {
       position: absolute; left: 0; right: 0; top: 0; bottom: 0;
@@ -501,6 +515,7 @@
   }
 
   window.__auraCloseMenu = function () {
+    window.__auraClosing = true;
     ["menu-root", "header-wrapper", "menu-container", "menu-footer"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -512,7 +527,17 @@
     });
     try { if (window.hideMenu) window.hideMenu(); } catch (e) {}
   };
+  window.__auraStripHidingIfOpen = function () {
+    if (window.__auraClosing) return;
+    var root = document.getElementById("menu-root");
+    if (!root || !root.classList.contains("visible")) return;
+    ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.classList.contains("hiding")) el.classList.remove("hiding");
+    });
+  };
   window.__auraOpenMenu = function () {
+    window.__auraClosing = false;
     try { if (window.showMenu) window.showMenu(); } catch (e) {}
     var m = document.getElementById("menu-root");
     if (!m) return;
@@ -528,8 +553,9 @@
     if (c) c.style.setProperty("background-color", "rgba(20,20,20,0.86)", "important");
   };
   function forceMenuChrome() {
+    if (window.__auraStripHidingIfOpen) window.__auraStripHidingIfOpen();
     var root = document.getElementById("menu-root");
-    if (!root || !root.classList.contains("visible")) return;
+    if (!root || !root.classList.contains("visible") || window.__auraClosing) return;
     ["header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -537,6 +563,28 @@
       el.classList.remove("hiding");
     });
   }
+  if (window.hideMenu && !window.hideMenu.__auraWrap) {
+    var _hideMenu = window.hideMenu;
+    window.hideMenu = function () {
+      if (!window.__auraClosing) {
+        var root = document.getElementById("menu-root");
+        if (root && root.classList.contains("visible")) return;
+      }
+      return _hideMenu.apply(this, arguments);
+    };
+    window.hideMenu.__auraWrap = true;
+  }
+  try {
+    var _hideObs = new MutationObserver(function () {
+      if (window.__auraStripHidingIfOpen) window.__auraStripHidingIfOpen();
+    });
+    var _bootObs = function () {
+      var r = document.getElementById("menu-root");
+      if (r) _hideObs.observe(r, { attributes: true, attributeFilter: ["class"], subtree: true });
+    };
+    _bootObs();
+    setTimeout(_bootObs, 800);
+  } catch (e) {}
   function pinNotif() {
     var nc = document.getElementById("notification-container");
     if (!nc) return;
