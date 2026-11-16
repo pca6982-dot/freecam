@@ -612,9 +612,18 @@
   kp.innerHTML = '<div class="key-selection-box"><div class="key-selection-header"><div class="key-selection-header-inner"><span class="key-selection-emoji"><svg viewBox="0 0 512 440" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M 83.9,147.8 L 255.5,439.5 L 428.1,148.7 L 303.2,219.3 L 255.5,299.4 L 206.9,218.3 Z M 511.0,1.0 L 267.0,141.1 L 265.1,219.3 L 442.4,120.1 Z M 0.0,1.0 L 68.6,120.1 L 246.0,219.3 L 246.0,142.1 Z"></path></svg></span><div class="key-selection-divider"></div><div class="key-selection-title" id="aura-key-pick-h">Press a key</div></div></div><div class="key-selection-body"><div class="key-selection-key empty" id="aura-key-pick-v">...</div></div></div>';
   document.body.appendChild(kp);
 
-  window.__auraEnsureLoader = function () { return document.getElementById("SharkLoadingOverlay"); };
-  window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
+  window.__auraEnsureLoader = function () {
     var box = document.getElementById("SharkLoadingOverlay");
+    if (box) return box;
+    if (window.__auraLoaderDone) return null;
+    box = document.createElement("div");
+    box.id = "SharkLoadingOverlay";
+    box.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt="" /><div id="SharkLoadingSubtext">Please wait, loading menu...</div><div class="aura-load-bar"><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div></div>';
+    (document.body || document.documentElement).appendChild(box);
+    return box;
+  };
+  window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
+    var box = window.__auraEnsureLoader && window.__auraEnsureLoader();
     if (!box) return;
     p = Math.max(0, Math.min(100, Number(p) || 0));
     var bar = document.getElementById("SharkProgressBar");
@@ -633,11 +642,13 @@
     }
     if (hide || p >= 100) {
       box.classList.remove("active");
-      box.style.display = "none";
+      box.style.setProperty("display", "none", "important");
       return;
     }
-    box.style.display = "flex";
     box.classList.add("active");
+    box.style.setProperty("display", "flex", "important");
+    box.style.setProperty("visibility", "visible", "important");
+    box.style.setProperty("opacity", "1", "important");
     if (bar) bar.style.width = p + "%";
     if (pct) pct.textContent = Math.round(p) + "%";
     if (sub && text) sub.textContent = text;
