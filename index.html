@@ -43,28 +43,12 @@
     #menu-root.visible #menu-footer.hiding {
       transform: translateY(0) !important;
     }
-    #menu-tabs .tab-item {
-      position: relative !important;
-      overflow: hidden !important;
-    }
     .tab-item::before {
-      content: "" !important;
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      background: linear-gradient(to top, rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.42) 0%, transparent 85%) !important;
-      transform: scaleY(0);
-      transform-origin: bottom;
+      background: linear-gradient(to top, rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.3) 0%, transparent 85%) !important;
       z-index: 0 !important;
-      pointer-events: none !important;
     }
-    .tab-item.active::before,
-    .tab-item.selected::before,
-    .tab-item.aura-tab-on::before { transform: scaleY(1) !important; }
-    .tab-item.active,
-    .tab-item.selected,
-    .tab-item.aura-tab-on { color: #fff !important; position: relative !important; }
+    .tab-item.active::before { transform: scaleY(1) !important; }
+    .tab-item.active { color: #fff !important; }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
     }
@@ -285,40 +269,32 @@
       align-items: center; justify-content: center; background: transparent; pointer-events: none;
     }
     #SharkLoadingOverlay.active { display: flex !important; }
-    .aura-load { display: flex; flex-direction: column; align-items: center; width: 15.2vw; pointer-events: none; }
+    .aura-load { display: flex; flex-direction: column; align-items: center; width: 16.5vw; pointer-events: none; }
     #aura-load-av {
-      width: 2.3vw; height: 2.3vw; border-radius: 50%; object-fit: cover;
-      display: none; margin: 0 0 0.42vw 0; box-shadow: 0 0.08vw 0.22vw rgba(0,0,0,0.5);
+      width: 2.1vw; height: 2.1vw; border-radius: 50%; object-fit: cover;
+      display: none; margin: 0 0 0.35vw 0;
     }
     #aura-load-av.show { display: block !important; }
     #SharkLoadingSubtext {
-      margin: 0 0 0.38vw 0; padding: 0; width: 100%;
-      font-size: 0.72vw; font-weight: 500; line-height: 1.15;
-      color: #fff; text-align: center; letter-spacing: 0.01em;
-      text-shadow: 0 0.06vw 0.18vw rgba(0,0,0,0.95);
+      margin: 0 0 0.28vw 0; padding: 0; width: 100%;
+      font-size: 0.62vw; font-weight: 500; line-height: 1.1;
+      color: #fff; text-align: center;
+      text-shadow: 0 0.05vw 0.14vw #000;
     }
     .aura-load-bar {
-      position: relative; width: 15.2vw; height: 0.83vw;
-      overflow: visible;
-    }
-    .aura-load-track {
-      position: absolute; inset: 0; z-index: 0;
-      background: #000; border-radius: 999px;
-      box-shadow: inset 0 0.06vw 0.14vw rgba(0,0,0,0.92);
+      position: relative; width: 16.5vw; height: 0.5vw;
+      background: #000; border-radius: 999px; overflow: hidden;
     }
     #SharkProgressBar {
-      position: absolute; left: 0; top: 0; bottom: 0; width: 0; height: 100%;
-      z-index: 1;
-      background: var(--aura-accent, var(--ui-main, rgb(208,214,224)));
+      position: absolute; left: 0; top: 0; height: 100%; width: 0;
+      background: var(--ui-main, rgb(208,214,224));
       border-radius: 999px;
-      box-shadow: 0 0 0.45vw var(--aura-accent, var(--ui-main, rgb(208,214,224)));
     }
     #SharkLoadingPercent {
-      position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      margin: 0; padding: 0; width: 100%; height: 100%;
-      font-size: 0.55vw; font-weight: 600; line-height: 1; color: #fff;
-      text-shadow: 0 0.05vw 0.16vw #000, 0 0 0.12vw #000;
+      font-size: 0.4vw; font-weight: 600; color: #fff;
+      text-shadow: 0 0.04vw 0.12vw #000;
       pointer-events: none; z-index: 2;
     }
     .key-selection-container {
@@ -389,7 +365,6 @@
       <img id="aura-load-av" alt="" />
       <div id="SharkLoadingSubtext">Please wait, loading menu...</div>
       <div class="aura-load-bar">
-        <div class="aura-load-track"></div>
         <div id="SharkProgressBar"></div>
         <div id="SharkLoadingPercent">0%</div>
       </div>
@@ -525,31 +500,6 @@
         img.src = logo;
       }
     }
-  }
-  function syncTabAccent() {
-    var bar = document.getElementById("menu-tabs");
-    if (!bar) return;
-    var tabs = bar.querySelectorAll(".tab-item");
-    if (!tabs.length) return;
-    if (!bar.__auraTabClick) {
-      bar.__auraTabClick = true;
-      bar.addEventListener("click", function (e) {
-        var t = e.target && e.target.closest && e.target.closest(".tab-item");
-        if (!t) return;
-        bar.querySelectorAll(".tab-item").forEach(function (n) { n.classList.remove("aura-tab-on"); });
-        t.classList.add("aura-tab-on");
-      }, true);
-    }
-    var on = -1;
-    for (var i = 0; i < tabs.length; i++) {
-      if (tabs[i].classList.contains("aura-tab-on")) on = i;
-    }
-    if (on < 0) {
-      for (var k = 0; k < tabs.length; k++) {
-        if (tabs[k].classList.contains("active") || tabs[k].classList.contains("selected")) on = k;
-      }
-    }
-    for (var j = 0; j < tabs.length; j++) tabs[j].classList.toggle("aura-tab-on", j === on);
   }
   function fullTitle() {
     var bar = document.getElementById("menu-tabs");
@@ -727,7 +677,7 @@
     if (window.__auraLoaderDone) return null;
     box = document.createElement("div");
     box.id = "SharkLoadingOverlay";
-    box.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt="" /><div id="SharkLoadingSubtext">Please wait, loading menu...</div><div class="aura-load-bar"><div class="aura-load-track"></div><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div></div>';
+    box.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt="" /><div id="SharkLoadingSubtext">Please wait, loading menu...</div><div class="aura-load-bar"><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div></div>';
     (document.body || document.documentElement).appendChild(box);
     return box;
   };
@@ -763,19 +713,7 @@
     box.style.setProperty("display", "flex", "important");
     box.style.setProperty("visibility", "visible", "important");
     box.style.setProperty("opacity", "1", "important");
-    if (bar) {
-      bar.style.width = p + "%";
-      var cs = getComputedStyle(document.documentElement);
-      var col = (cs.getPropertyValue("--aura-accent") || cs.getPropertyValue("--ui-main") || "").trim();
-      if (!col) {
-        var m = (cs.getPropertyValue("--menu-color") || "").trim();
-        if (m) col = "rgb(" + m + ")";
-      }
-      if (col) {
-        bar.style.background = col;
-        bar.style.boxShadow = "0 0 0.4vh " + col;
-      }
-    }
+    if (bar) bar.style.width = p + "%";
     if (pct) pct.textContent = Math.round(p) + "%";
     if (sub && text) sub.textContent = text;
   };
@@ -1115,7 +1053,6 @@
     wrapNotify();
     brand4s();
     fullTitle();
-    syncTabAccent();
     pinNotif();
     killDupes();
     styleScroll();
