@@ -37,12 +37,24 @@
     }
     #menu-items { background-color: transparent !important; }
     #selection-highlight {
-      z-index: 2 !important;
+      z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.75) !important;
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.88) !important;
       border: none !important;
       box-shadow: none !important;
     }
+    body.aura-space-compact #header-wrapper { margin-bottom: 0.18vh !important; }
+    body.aura-space-compact #menu-footer { margin-top: 0.18vh !important; }
+    body.aura-space-compact #menu-items { padding-bottom: 0 !important; }
+    body.aura-space-compact .menu-item {
+      height: 2.7vh !important;
+      padding-top: 0.55vh !important;
+      padding-bottom: 0.55vh !important;
+    }
+    body.aura-space-compact #selection-highlight { height: 2.15vh !important; }
+    body.aura-space-wide #header-wrapper { margin-bottom: 0.55vh !important; }
+    body.aura-space-wide #menu-footer { margin-top: 0.7vh !important; }
+    body.aura-space-wide .menu-item { height: 3.15vh !important; }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
       display: none !important; width: 0 !important; height: 0 !important;
@@ -269,6 +281,12 @@
 (function () {
   window.__AURA_NEXUS = true;
   window.__AURA_BRAND = window.__AURA_BRAND || "4s Menu";
+  window.__auraSetSelectStyle = function (name) {
+    var n = String(name || "").toLowerCase();
+    var wide = n === "soft" || n === "spaced" || n === "wide";
+    document.body.classList.toggle("aura-space-wide", wide);
+    document.body.classList.toggle("aura-space-compact", !wide);
+  };
 
   function esc(s) { return s == null ? "" : String(s); }
   function rm(n) {
@@ -386,22 +404,29 @@
     });
   }
 
+  window.__auraCloseMenu = function () {
+    ["menu-root", "header-wrapper", "menu-container", "menu-footer"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove("visible");
+      el.classList.add("hiding");
+      el.style.removeProperty("opacity");
+      el.style.removeProperty("visibility");
+      el.style.removeProperty("display");
+    });
+    try { if (window.hideMenu) window.hideMenu(); } catch (e) {}
+  };
   window.__auraOpenMenu = function () {
     try { if (window.showMenu) window.showMenu(); } catch (e) {}
     var m = document.getElementById("menu-root");
     if (!m) return;
     m.classList.add("visible");
     m.classList.remove("hiding");
-    m.style.setProperty("display", "block", "important");
-    m.style.setProperty("opacity", "1", "important");
-    m.style.setProperty("visibility", "visible", "important");
     ["header-wrapper", "menu-container", "menu-footer"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
       el.classList.add("visible");
       el.classList.remove("hiding");
-      el.style.setProperty("opacity", "1", "important");
-      el.style.setProperty("visibility", "visible", "important");
     });
     var c = document.getElementById("menu-container");
     if (c) c.style.setProperty("background-color", "rgba(20,20,20,0.86)", "important");
@@ -721,7 +746,7 @@
 
   function applyMenu(d, open) {
     if (d && d.visible === false) {
-      if (window.hideMenu) window.hideMenu();
+      window.__auraCloseMenu();
       return;
     }
     wrapLive();
@@ -755,7 +780,7 @@
       if (window.updateSelection) window.updateSelection(i);
     } else if (a === "updateCategories" || a === "setTabs") applyTabs(d);
     else if (a === "setVisible") {
-      if (d.visible === false) { if (window.hideMenu) window.hideMenu(); }
+      if (d.visible === false) { window.__auraCloseMenu(); }
       else if (window.showMenu) window.showMenu();
     } else if (a === "updateBanner" || a === "banner") {
       if (window.updateMenuBanner) window.updateMenuBanner({ banner: d.bannerLink || d.link || d.banner });
