@@ -264,39 +264,6 @@
     }
     .slider-component span::before { content: "- " !important; color: rgba(255,255,255,0.7) !important; }
     .slider-component span::after { content: " -" !important; color: rgba(255,255,255,0.7) !important; }
-    #SharkLoadingOverlay {
-      position: fixed; inset: 0; z-index: 2147483646; display: none;
-      align-items: center; justify-content: center; background: transparent; pointer-events: none;
-    }
-    #SharkLoadingOverlay.active { display: flex !important; }
-    .aura-load { display: flex; flex-direction: column; align-items: center; width: 16.5vw; pointer-events: none; }
-    #aura-load-av {
-      width: 2.1vw; height: 2.1vw; border-radius: 50%; object-fit: cover;
-      display: none; margin: 0 0 0.35vw 0;
-    }
-    #aura-load-av.show { display: block !important; }
-    #SharkLoadingSubtext {
-      margin: 0 0 0.28vw 0; padding: 0; width: 100%;
-      font-size: 0.62vw; font-weight: 500; line-height: 1.1;
-      color: #fff; text-align: center;
-      text-shadow: 0 0.05vw 0.14vw #000;
-    }
-    .aura-load-bar {
-      position: relative; width: 16.5vw; height: 0.5vw;
-      background: #000; border-radius: 999px; overflow: hidden;
-    }
-    #SharkProgressBar {
-      position: absolute; left: 0; top: 0; height: 100%; width: 0;
-      background: var(--ui-main, rgb(208,214,224));
-      border-radius: 999px;
-    }
-    #SharkLoadingPercent {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.4vw; font-weight: 600; color: #fff;
-      text-shadow: 0 0.04vw 0.12vw #000;
-      pointer-events: none; z-index: 2;
-    }
     .key-selection-container {
       position: fixed; inset: 0; z-index: 2147483000; display: none;
       background: rgba(0,0,0,0.35); color: #fff;
@@ -360,16 +327,6 @@
 </head>
 <body>
   <div id="app"></div>
-  <div id="SharkLoadingOverlay">
-    <div class="aura-load">
-      <img id="aura-load-av" alt="" />
-      <div id="SharkLoadingSubtext">Please wait, loading menu...</div>
-      <div class="aura-load-bar">
-        <div id="SharkProgressBar"></div>
-        <div id="SharkLoadingPercent">0%</div>
-      </div>
-    </div>
-  </div>
   <script src="app.js"></script>
   <script>
 (function () {
@@ -390,8 +347,7 @@
     }
   }
   function killDupes() {
-    document.querySelectorAll("#progress-container,#progress-box,#progress-bar,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds,.live-list-container").forEach(rm);
-    document.querySelectorAll("#SharkLoadingOverlay").forEach(function (n, i) { if (i > 0) rm(n); });
+    document.querySelectorAll("#progress-container,#progress-box,#progress-bar,#progress-bar-container,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds,.live-list-container,#SharkLoadingOverlay").forEach(rm);
     var keep = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (keep) {
       document.querySelectorAll(".keybindlist-container").forEach(function (n) {
@@ -661,7 +617,6 @@
   }
 
   killDupes();
-  document.querySelectorAll("#SharkLoadingOverlay").forEach(function (n, i) { if (i > 0) rm(n); });
 
   var kp = document.getElementById("aura-key-select");
   if (kp) rm(kp);
@@ -670,56 +625,6 @@
   kp.className = "key-selection-container";
   kp.innerHTML = '<div class="key-selection-box"><div class="key-selection-header"><div class="key-selection-header-inner"><span class="key-selection-emoji"><svg viewBox="0 0 512 440" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M 83.9,147.8 L 255.5,439.5 L 428.1,148.7 L 303.2,219.3 L 255.5,299.4 L 206.9,218.3 Z M 511.0,1.0 L 267.0,141.1 L 265.1,219.3 L 442.4,120.1 Z M 0.0,1.0 L 68.6,120.1 L 246.0,219.3 L 246.0,142.1 Z"></path></svg></span><div class="key-selection-divider"></div><div class="key-selection-title" id="aura-key-pick-h">Press a key</div></div></div><div class="key-selection-body"><div class="key-selection-key empty" id="aura-key-pick-v">...</div></div></div>';
   document.body.appendChild(kp);
-
-  window.__auraEnsureLoader = function () {
-    var box = document.getElementById("SharkLoadingOverlay");
-    if (box) return box;
-    if (window.__auraLoaderDone) return null;
-    box = document.createElement("div");
-    box.id = "SharkLoadingOverlay";
-    box.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt="" /><div id="SharkLoadingSubtext">Please wait, loading menu...</div><div class="aura-load-bar"><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div></div>';
-    (document.body || document.documentElement).appendChild(box);
-    return box;
-  };
-  window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
-    var box = window.__auraEnsureLoader && window.__auraEnsureLoader();
-    if (!box) return;
-    p = Math.max(0, Math.min(100, Number(p) || 0));
-    var track = box.querySelector(".aura-load-bar");
-    var bar = document.getElementById("SharkProgressBar");
-    var pct = document.getElementById("SharkLoadingPercent");
-    var sub = document.getElementById("SharkLoadingSubtext");
-    if (track) {
-      if (bar && bar.parentNode !== track) track.insertBefore(bar, track.firstChild);
-      if (pct && pct.parentNode !== track) track.appendChild(pct);
-    }
-    var img = document.getElementById("aura-load-av");
-    var src = String(avatar || window.__AURA_DISCORD_AVATAR || "");
-    if (img) {
-      if (src.indexOf("http") === 0 && src.indexOf("embed/avatars") < 0) {
-        img.src = src;
-        img.classList.add("show");
-      } else {
-        img.removeAttribute("src");
-        img.classList.remove("show");
-      }
-    }
-    if (hide || p >= 100) {
-      box.classList.remove("active");
-      box.style.setProperty("display", "none", "important");
-      return;
-    }
-    box.classList.add("active");
-    box.style.setProperty("display", "flex", "important");
-    box.style.setProperty("visibility", "visible", "important");
-    box.style.setProperty("opacity", "1", "important");
-    if (bar) bar.style.width = p + "%";
-    if (pct) pct.textContent = Math.round(p) + "%";
-    if (sub && text) sub.textContent = text;
-  };
-  window.showProgressBar = function () { window.__auraPaintSharkLoader(0, "Please wait, loading menu...", null, false); };
-  window.updateProgressBar = function (p, t) { window.__auraPaintSharkLoader(p, t, null, false); };
-  window.hideProgressBar = function () { window.__auraPaintSharkLoader(100, "", null, true); };
 
   window.__auraShowKeyPick = function (title, value) {
     var box = document.getElementById("aura-key-select");
