@@ -18,9 +18,9 @@
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
-    #menu-root { width: 35vh !important; }
+    #menu-root { width: 33vh !important; }
     #menu-root.visible, #menu-root.hiding {
-      transform: scale(var(--menu-scale, 0.98)) !important;
+      transform: scale(var(--menu-scale, 0.94)) !important;
       transform-origin: top left !important;
     }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
@@ -199,25 +199,29 @@
       position: fixed; z-index: 99999; width: 138px;
       background: rgba(0,0,0,0.8); border: 1px solid #2a2a2a; border-radius: 3px;
       overflow: hidden; opacity: 0; pointer-events: none; box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
     }
     .keybindlist-container.show { opacity: 1; pointer-events: auto; }
     .keybind-list-header {
-      display: flex; align-items: center; padding: 6px 6px 7px 5px; min-height: 22px;
-      background: #000; border-bottom: 1px solid #fff; box-sizing: border-box;
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 5px 6px 3px; background: #000;
+      border: none; border-bottom: 1px solid #fff; box-sizing: border-box;
     }
     .keybind-list-title {
-      color: rgba(255,255,255,0.92); font-size: 9px; font-weight: 600; line-height: 12px; margin: 0;
+      color: rgba(255,255,255,0.92); font-size: 9px; font-weight: 600; line-height: 1; margin: 0;
     }
-    .keybind-list-content { padding: 3px 0 4px; max-height: 165px; overflow: hidden; }
+    .keybind-list-content { padding: 3px 0 0; max-height: 165px; overflow: hidden; }
     .keybind-list-row {
-      display: flex; justify-content: space-between; gap: 6px;
-      padding: 3px 6px 3px 5px; box-sizing: border-box;
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 2px 5px 2px 3px; box-sizing: border-box;
     }
     .keybind-list-label, .keybind-list-value {
       color: rgba(255,255,255,0.86); font-size: 9px; font-weight: 500;
       line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .keybind-list-value { flex: 0 0 auto; max-width: 46%; text-align: right; }
+    .keybind-list-label { flex: 1 1 0; min-width: 0; }
+    .keybind-list-value { flex: 0 0 auto; max-width: 46%; margin-left: auto; text-align: right; }
+    #live-list-keybinds, .live-list-container { display: none !important; }
   </style>
 </head>
 <body>
@@ -236,7 +240,9 @@
     }
   }
   function killDupes() {
-    document.querySelectorAll("#progress-container,#progress-box,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds").forEach(rm);
+    document.querySelectorAll("#progress-container,#progress-box,#progress-bar,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds,.live-list-container").forEach(rm);
+    document.querySelectorAll("#SharkLoadingOverlay").forEach(function (n, i) { if (i > 0) rm(n); });
+    document.querySelectorAll(".keybindlist-container").forEach(function (n, i) { if (i > 0) rm(n); });
   }
 
   function wrapLive() {
@@ -247,12 +253,9 @@
       for (var i = 0; i < t.length; i++) {
         var it = t[i];
         if (!it) continue;
+        if (it.checkbox && (it.slider || it.range)) continue;
         var ty = String(it.type || "").toLowerCase();
-        if (!it.checkbox) continue;
         if (ty === "submenu" || ty === "button" || ty === "divider" || ty === "separator" || ty === "") {
-          it.checkbox = undefined;
-        }
-        if (ty && ty !== "checkbox" && ty !== "scrollable-checkbox" && ty !== "slider-checkbox") {
           it.checkbox = undefined;
         }
       }
@@ -357,10 +360,7 @@
     if (!isFinite(n)) return;
     if (n > 1) n = n / 100;
     window.__auraMenuOpacity = n;
-    ["#header-wrapper", "#menu-items", "#menu-footer"].forEach(function (sel) {
-      var el = document.querySelector(sel);
-      if (el) el.style.setProperty("opacity", String(Math.max(0.15, Math.min(1, n))), "important");
-    });
+    document.documentElement.style.setProperty("--aura-panel-alpha", String(Math.max(0.15, Math.min(1, n))));
   }
   function applyKeybindPos(d) {
     var p = (d && d.position) || d || {};
@@ -461,13 +461,16 @@
     window.__auraShowKeyPick(t.header || t.title || "Input", t.value || "");
   };
 
+  document.querySelectorAll(".keybindlist-container,#live-list-keybinds,.live-list-container").forEach(function (n) {
+    if (n && n.id !== "keybindlist-container") rm(n);
+  });
   var kb = document.getElementById("keybindlist-container");
   if (!kb) {
     kb = document.createElement("div");
     kb.id = "keybindlist-container";
     kb.className = "keybindlist-container";
-    kb.style.top = "2vh";
-    kb.style.left = "2vh";
+    kb.style.top = "4vh";
+    kb.style.left = "88vh";
     kb.innerHTML = '<div class="keybind-list-header"><div class="keybind-list-title">Keybinds</div></div><div class="keybind-list-content" id="keybindlist-content"></div>';
     document.body.appendChild(kb);
   }
@@ -668,9 +671,7 @@
         });
       }
     } else if (a === "updateLoader" || a === "showLoading" || a === "updateLoading" || a === "hideLoading") {
-      var pr = Number(d.percent != null ? d.percent : d.progress) || 0;
-      var msg = d.text || d.status || d.message || "Please wait, loading menu...";
-      window.__auraPaintSharkLoader(pr, msg, d.avatar, a === "hideLoading" || pr >= 100);
+      /* loader is painted once from lua ExecJs */
     } else if (a === "openKeySelection" || a === "updateKeySelection" || a === "updateKeyboard" || a === "openTextInput" || a === "updateTextInput") {
       if (d.visible === false) window.__auraHideKeyPick();
       else window.__auraShowKeyPick(d.title || d.header || (d.menuKey ? "Press a key" : "Input"), d.value || d.keyName || "");
