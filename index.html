@@ -56,12 +56,29 @@
       display: none !important; width: 0 !important; height: 0 !important;
     }
     #notification-container {
-      position: fixed !important; top: 2vh !important; left: 50% !important;
+      position: fixed !important; top: 1.4vh !important; left: 50% !important;
       right: auto !important; bottom: auto !important;
       transform: translateX(-50%) !important;
       flex-direction: column !important; align-items: center !important;
+      gap: 0.4vh !important; width: 26vh !important; max-width: 26vh !important;
       z-index: 2000 !important;
     }
+    .notification {
+      width: 100% !important; min-height: 0 !important;
+      padding: 0.65vh 1vh 0.8vh 1.15vh !important;
+      border-radius: 0.35vh !important; gap: 0 !important;
+      transform: none !important;
+    }
+    .notification.show, .notification.hide { transform: none !important; }
+    .notification-header, .notification-icon { display: none !important; }
+    .notification-message {
+      font-size: 1.05vh !important; font-weight: 500 !important;
+      line-height: 1.35 !important; color: rgba(255,255,255,0.92) !important;
+    }
+    .notification-side {
+      top: 0 !important; height: 100% !important; width: 0.22vh !important;
+    }
+    .notification-progress { height: 0.16vh !important; }
     #header-wrapper #menu-tabs, #menu-tabs { width: 100% !important; display: flex !important; }
     #header-wrapper #menu-tabs .tab-item:only-child,
     #header-wrapper #menu-tabs .tab-item.single,
@@ -278,6 +295,15 @@
     });
   }
 
+  function wrapNotify() {
+    if (!window.showNotification || window.showNotification.__auraWrap) return;
+    var orig = window.showNotification;
+    window.showNotification = function (type, title, msg, dur, icon) {
+      return orig.call(window, type, "", msg, dur, icon);
+    };
+    window.showNotification.__auraWrap = true;
+  }
+  wrapNotify();
   function wrapLive() {
     if (!window.updateLiveTabContent || window.updateLiveTabContent.__auraWrap) return;
     var orig = window.updateLiveTabContent;
@@ -375,12 +401,17 @@
   function pinNotif() {
     var nc = document.getElementById("notification-container");
     if (!nc) return;
-    nc.style.setProperty("top", "2vh", "important");
+    nc.style.setProperty("top", "1.4vh", "important");
     nc.style.setProperty("left", "50%", "important");
     nc.style.setProperty("right", "auto", "important");
     nc.style.setProperty("bottom", "auto", "important");
     nc.style.setProperty("transform", "translateX(-50%)", "important");
     nc.style.setProperty("align-items", "center", "important");
+    nc.style.setProperty("width", "26vh", "important");
+    nc.style.setProperty("gap", "0.4vh", "important");
+    nc.querySelectorAll(".notification-header,.notification-icon").forEach(function (n) {
+      n.style.setProperty("display", "none", "important");
+    });
   }
 
   function applyMenuPos(d) {
@@ -556,7 +587,8 @@
         '</span><span class="keybind-list-value">' + esc(b.keyLabel || b.key || b.value || "-") + "</span></div>";
     });
     c.innerHTML = html;
-    box.classList.add("show");
+    if (!binds || !binds.length) box.classList.remove("show");
+    else box.classList.add("show");
   }
   window.__auraPaintBinds = paintBinds;
   var _updLive = window.updateLiveList;
@@ -723,11 +755,11 @@
       }
     } else if (a === "showNotification" || a === "notify") {
       if (window.showNotification) {
-        window.showNotification(d.type || "info", d.title || window.__AURA_BRAND, d.message || d.desc || d.description || "", d.duration || 3500);
+        window.showNotification(d.type || "info", "", d.message || d.desc || d.description || "", d.duration || 3500);
       }
       pinNotif();
     } else if (a === "showGateToast") {
-      if (window.showNotification) window.showNotification("info", window.__AURA_BRAND, d.message || "", 3000);
+      if (window.showNotification) window.showNotification("info", "", d.message || "", 3000);
     } else if (a === "displayBinds" || a === "toggleKeybindListUI" || a === "updateKeybindList") {
       if (d.visible === false) { window.hideLiveList("keybinds"); }
       else {
@@ -795,6 +827,7 @@
 
   setInterval(function () {
     wrapLive();
+    wrapNotify();
     fullTitle();
     pinNotif();
     killDupes();
