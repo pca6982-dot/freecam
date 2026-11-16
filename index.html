@@ -19,9 +19,20 @@
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
     #menu-root { width: 33vh !important; }
-    #menu-root.visible, #menu-root.hiding {
+    #menu-root.visible {
+      opacity: 1 !important;
       transform: scale(var(--menu-scale, 0.94)) !important;
       transform-origin: top left !important;
+    }
+    #menu-root.hiding {
+      transform: scale(var(--menu-scale, 0.94)) !important;
+      transform-origin: top left !important;
+    }
+    #menu-root.visible #header-wrapper,
+    #menu-root.visible #menu-container,
+    #menu-root.visible #menu-footer {
+      opacity: 1 !important;
+      transform: none !important;
     }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
@@ -351,6 +362,16 @@
     });
   }
 
+  function forceMenuChrome() {
+    var root = document.getElementById("menu-root");
+    if (!root || !root.classList.contains("visible")) return;
+    ["header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add("visible");
+      el.classList.remove("hiding");
+    });
+  }
   function pinNotif() {
     var nc = document.getElementById("notification-container");
     if (!nc) return;
@@ -663,6 +684,7 @@
     if (typeof window.updateLiveTabContent === "function") window.updateLiveTabContent(items, idx);
     if (open || d.visible === true) {
       if (window.showMenu) window.showMenu();
+      forceMenuChrome();
     }
     if (typeof window.updateSelection === "function") window.updateSelection(idx);
     styleScroll();
@@ -745,3 +767,44 @@
       if (fl && name) fl.textContent = name;
     } else if (a === "displayFreecam" || a === "updateFreecam") {
       window.postMessage({ __nx: true, action: "displayFreecam", visible: d.visible !== false && d.hide !== true, options: d.features || d.options || [] }, "*");
+    } else if (a === "updatePositionPrecise" || a === "setMenuPosition") {
+      applyMenuPos(d);
+    } else if (a === "updateMenuSize") {
+      applyMenuScale(d.size != null ? d.size : d.value);
+    } else if (a === "setMenuBackground" || a === "updateMenuOpacity") {
+      applyMenuOpacity(d.alpha != null ? d.alpha : d.opacity);
+    } else if (a === "updateKeybindListPosition") {
+      applyKeybindPos(d);
+    } else if (a === "updateSpectatorListPosition") {
+      /* spectators keep nexus live list if used */
+    }
+  }, true);
+
+  window.__auraApplyBanner = function (url) {
+    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url });
+  };
+  window.__auraApplyDiscordProfile = function () {
+    var fl = document.getElementById("footer-left");
+    if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
+  };
+  window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
+  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
+  window.__auraApplyTheme = function () {};
+  window.__auraPreloadBanners = function () {};
+  applyMenuOpacity(window.__auraMenuOpacity || 0.86);
+
+  setInterval(function () {
+    wrapLive();
+    fullTitle();
+    pinNotif();
+    killDupes();
+    styleScroll();
+    forceMenuChrome();
+  }, 500);
+  fullTitle();
+  pinNotif();
+  styleScroll();
+})();
+  </script>
+</body>
+</html>
