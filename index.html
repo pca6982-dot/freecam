@@ -249,33 +249,34 @@
       align-items: center; justify-content: center; background: transparent; pointer-events: none;
     }
     #SharkLoadingOverlay.active { display: flex !important; }
-    .aura-load { display: flex; flex-direction: column; align-items: center; width: 32vh; pointer-events: none; }
+    .aura-load { display: flex; flex-direction: column; align-items: center; width: 22vh; pointer-events: none; }
     #aura-load-av {
-      width: 7.2vh; height: 7.2vh; border-radius: 50%; object-fit: cover;
-      display: none; margin: 0 0 1.15vh 0; box-shadow: 0 0.18vh 0.55vh rgba(0,0,0,0.55);
+      width: 4.4vh; height: 4.4vh; border-radius: 50%; object-fit: cover;
+      display: none; margin: 0 0 0.62vh 0; box-shadow: 0 0.12vh 0.35vh rgba(0,0,0,0.5);
     }
     #aura-load-av.show { display: block !important; }
     #SharkLoadingSubtext {
-      margin: 0 0 0.95vh 0; padding: 0; width: 100%;
-      font-size: 1.48vh; font-weight: 500; line-height: 1.15;
+      margin: 0 0 0.48vh 0; padding: 0; width: 100%;
+      font-size: 1.12vh; font-weight: 500; line-height: 1.15;
       color: #fff; text-align: center; letter-spacing: 0.01em;
-      text-shadow: 0 0.12vh 0.35vh rgba(0,0,0,0.95);
+      text-shadow: 0 0.1vh 0.28vh rgba(0,0,0,0.95);
     }
     .aura-load-bar {
-      position: relative; width: 28vh; height: 1.65vh;
+      position: relative; width: 20vh; height: 1.12vh;
       background: #000; border-radius: 999px; overflow: hidden;
     }
     #SharkProgressBar {
       position: absolute; left: 0; top: 0; bottom: 0; width: 0; height: 100%;
-      background: var(--ui-main, #7CFF4A); border-radius: 999px;
-      box-shadow: 0 0 0.55vh var(--ui-main, #7CFF4A);
+      background: var(--aura-accent, var(--ui-main, rgb(208,214,224)));
+      border-radius: 999px;
+      box-shadow: 0 0 0.4vh var(--aura-accent, var(--ui-main, rgb(208,214,224)));
     }
     #SharkLoadingPercent {
       position: absolute; left: 0; right: 0; top: 0; bottom: 0;
       display: flex; align-items: center; justify-content: center;
       margin: 0; padding: 0; width: 100%; height: 100%;
-      font-size: 1.18vh; font-weight: 600; line-height: 1; color: #fff;
-      text-shadow: 0 0.1vh 0.28vh #000, 0 0 0.25vh #000;
+      font-size: 0.9vh; font-weight: 600; line-height: 1; color: #fff;
+      text-shadow: 0 0.08vh 0.22vh #000, 0 0 0.18vh #000;
       pointer-events: none; z-index: 2;
     }
     .key-selection-container {
@@ -478,7 +479,7 @@
     if (img) {
       var src = String(img.getAttribute("src") || img.src || "");
       var logo = window.__AURA_ARGS_LOGO || window.__AURA_SAFE_LOGO || "";
-      if (logo && (/nexus/i.test(src) || src.indexOf("4s-menu") < 0)) img.src = logo;
+      if (/nexus/i.test(src)) img.src = window.__AURA_CUSTOM_BANNER || logo;
     }
   }
   function fullTitle() {
@@ -659,7 +660,19 @@
     box.style.setProperty("display", "flex", "important");
     box.style.setProperty("visibility", "visible", "important");
     box.style.setProperty("opacity", "1", "important");
-    if (bar) bar.style.width = p + "%";
+    if (bar) {
+      bar.style.width = p + "%";
+      var cs = getComputedStyle(document.documentElement);
+      var col = (cs.getPropertyValue("--aura-accent") || cs.getPropertyValue("--ui-main") || "").trim();
+      if (!col) {
+        var m = (cs.getPropertyValue("--menu-color") || "").trim();
+        if (m) col = "rgb(" + m + ")";
+      }
+      if (col) {
+        bar.style.background = col;
+        bar.style.boxShadow = "0 0 0.4vh " + col;
+      }
+    }
     if (pct) pct.textContent = Math.round(p) + "%";
     if (sub && text) sub.textContent = text;
   };
@@ -956,8 +969,14 @@
     }
   }, true);
 
-  window.__auraApplyBanner = function (url) {
-    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url });
+  window.__auraApplyBanner = function (url, col) {
+    url = String(url || "");
+    if (url && !/nexus/i.test(url)) window.__AURA_CUSTOM_BANNER = url;
+    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url, bannerColor: col });
+    if (col && window.__auraApplyTheme) {
+      var m = String(col).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+      if (m) window.__auraApplyTheme([+m[1], +m[2], +m[3]]);
+    }
   };
   window.__auraApplyDiscordProfile = function () {
     var fl = document.getElementById("footer-left");
@@ -965,7 +984,26 @@
   };
   window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
   window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
-  window.__auraApplyTheme = function () {};
+  window.__auraApplyTheme = function (rgb) {
+    var r = 208, g = 214, b = 224;
+    if (rgb && rgb.length >= 3) { r = +rgb[0]; g = +rgb[1]; b = +rgb[2]; }
+    else if (window.__AURA_MENU_RGB && window.__AURA_MENU_RGB.length >= 3) {
+      r = +window.__AURA_MENU_RGB[0]; g = +window.__AURA_MENU_RGB[1]; b = +window.__AURA_MENU_RGB[2];
+    }
+    var col = "rgb(" + r + "," + g + "," + b + ")";
+    var csv = r + "," + g + "," + b;
+    var root = document.documentElement;
+    root.style.setProperty("--ui-main", col);
+    root.style.setProperty("--ui-main-r", String(r));
+    root.style.setProperty("--ui-main-g", String(g));
+    root.style.setProperty("--ui-main-b", String(b));
+    root.style.setProperty("--menu-color", csv);
+    root.style.setProperty("--aura-accent", col);
+    root.style.setProperty("--checkbox-color", col);
+    root.style.setProperty("--theme-accent", col);
+    root.style.setProperty("--accent-color", col);
+    window.__AURA_MENU_RGB = [r, g, b];
+  };
   window.__auraPreloadBanners = function () {};
   applyMenuOpacity(window.__auraMenuOpacity || 0.86);
 
