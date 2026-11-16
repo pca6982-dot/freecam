@@ -41,8 +41,30 @@
     #menu-root.visible #menu-container.hiding,
     #menu-root.visible #menu-footer,
     #menu-root.visible #menu-footer.hiding {
-      transform: none !important;
+      transform: translateY(0) !important;
     }
+    #menu-tabs .tab-item {
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    .tab-item::before {
+      content: "" !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: linear-gradient(to top, rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.42) 0%, transparent 85%) !important;
+      transform: scaleY(0);
+      transform-origin: bottom;
+      z-index: 0 !important;
+      pointer-events: none !important;
+    }
+    .tab-item.active::before,
+    .tab-item.selected::before,
+    .tab-item.aura-tab-on::before { transform: scaleY(1) !important; }
+    .tab-item.active,
+    .tab-item.selected,
+    .tab-item.aura-tab-on { color: #fff !important; position: relative !important; }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
     }
@@ -263,34 +285,40 @@
       align-items: center; justify-content: center; background: transparent; pointer-events: none;
     }
     #SharkLoadingOverlay.active { display: flex !important; }
-    .aura-load { display: flex; flex-direction: column; align-items: center; width: 26.7vh; pointer-events: none; }
+    .aura-load { display: flex; flex-direction: column; align-items: center; width: 15.2vw; pointer-events: none; }
     #aura-load-av {
-      width: 4.4vh; height: 4.4vh; border-radius: 50%; object-fit: cover;
-      display: none; margin: 0 0 0.62vh 0; box-shadow: 0 0.12vh 0.35vh rgba(0,0,0,0.5);
+      width: 2.3vw; height: 2.3vw; border-radius: 50%; object-fit: cover;
+      display: none; margin: 0 0 0.42vw 0; box-shadow: 0 0.08vw 0.22vw rgba(0,0,0,0.5);
     }
     #aura-load-av.show { display: block !important; }
     #SharkLoadingSubtext {
-      margin: 0 0 0.48vh 0; padding: 0; width: 100%;
-      font-size: 1.12vh; font-weight: 500; line-height: 1.15;
+      margin: 0 0 0.38vw 0; padding: 0; width: 100%;
+      font-size: 0.72vw; font-weight: 500; line-height: 1.15;
       color: #fff; text-align: center; letter-spacing: 0.01em;
-      text-shadow: 0 0.1vh 0.28vh rgba(0,0,0,0.95);
+      text-shadow: 0 0.06vw 0.18vw rgba(0,0,0,0.95);
     }
     .aura-load-bar {
-      position: relative; width: 26.7vh; height: 1.48vh;
-      background: #000; border-radius: 999px; overflow: hidden;
+      position: relative; width: 15.2vw; height: 0.83vw;
+      overflow: visible;
+    }
+    .aura-load-track {
+      position: absolute; inset: 0; z-index: 0;
+      background: #000; border-radius: 999px;
+      box-shadow: inset 0 0.06vw 0.14vw rgba(0,0,0,0.92);
     }
     #SharkProgressBar {
       position: absolute; left: 0; top: 0; bottom: 0; width: 0; height: 100%;
+      z-index: 1;
       background: var(--aura-accent, var(--ui-main, rgb(208,214,224)));
       border-radius: 999px;
-      box-shadow: 0 0 0.38vh var(--aura-accent, var(--ui-main, rgb(208,214,224)));
+      box-shadow: 0 0 0.45vw var(--aura-accent, var(--ui-main, rgb(208,214,224)));
     }
     #SharkLoadingPercent {
       position: absolute; left: 0; right: 0; top: 0; bottom: 0;
       display: flex; align-items: center; justify-content: center;
       margin: 0; padding: 0; width: 100%; height: 100%;
-      font-size: 0.9vh; font-weight: 600; line-height: 1; color: #fff;
-      text-shadow: 0 0.08vh 0.22vh #000, 0 0 0.18vh #000;
+      font-size: 0.55vw; font-weight: 600; line-height: 1; color: #fff;
+      text-shadow: 0 0.05vw 0.16vw #000, 0 0 0.12vw #000;
       pointer-events: none; z-index: 2;
     }
     .key-selection-container {
@@ -361,6 +389,7 @@
       <img id="aura-load-av" alt="" />
       <div id="SharkLoadingSubtext">Please wait, loading menu...</div>
       <div class="aura-load-bar">
+        <div class="aura-load-track"></div>
         <div id="SharkProgressBar"></div>
         <div id="SharkLoadingPercent">0%</div>
       </div>
@@ -483,18 +512,44 @@
     var fl = document.getElementById("footer-left");
     if (fl) {
       var t = String(fl.textContent || "");
-      if (/nexus/i.test(t) || t === "" || t === "Menu") {
-        var n = window.__AURA_DISCORD_NAME || brand;
-        fl.textContent = /nexus/i.test(t) ? t.replace(/Nexus Menu/ig, brand).replace(/Nexus/ig, "4s") : n;
-        if (/nexus/i.test(fl.textContent)) fl.textContent = n;
+      var n = window.__AURA_DISCORD_NAME || brand;
+      if (!t || t === "Menu" || (t.toLowerCase().indexOf("menu") >= 0 && t.indexOf("4s") < 0 && t !== n)) {
+        fl.textContent = n;
       }
     }
     var img = document.getElementById("banner-image") || document.querySelector("#menu-banner img, #header-wrapper img");
     if (img) {
       var src = String(img.getAttribute("src") || img.src || "");
-      var logo = window.__AURA_ARGS_LOGO || window.__AURA_SAFE_LOGO || "";
-      if (/nexus/i.test(src)) img.src = window.__AURA_CUSTOM_BANNER || logo;
+      var logo = window.__AURA_CUSTOM_BANNER || window.__AURA_ARGS_LOGO || window.__AURA_SAFE_LOGO || "";
+      if (logo && src && src.toLowerCase().indexOf("4s-menu") < 0 && src.indexOf(logo) < 0 && !window.__AURA_CUSTOM_BANNER) {
+        img.src = logo;
+      }
     }
+  }
+  function syncTabAccent() {
+    var bar = document.getElementById("menu-tabs");
+    if (!bar) return;
+    var tabs = bar.querySelectorAll(".tab-item");
+    if (!tabs.length) return;
+    if (!bar.__auraTabClick) {
+      bar.__auraTabClick = true;
+      bar.addEventListener("click", function (e) {
+        var t = e.target && e.target.closest && e.target.closest(".tab-item");
+        if (!t) return;
+        bar.querySelectorAll(".tab-item").forEach(function (n) { n.classList.remove("aura-tab-on"); });
+        t.classList.add("aura-tab-on");
+      }, true);
+    }
+    var on = -1;
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].classList.contains("aura-tab-on")) on = i;
+    }
+    if (on < 0) {
+      for (var k = 0; k < tabs.length; k++) {
+        if (tabs[k].classList.contains("active") || tabs[k].classList.contains("selected")) on = k;
+      }
+    }
+    for (var j = 0; j < tabs.length; j++) tabs[j].classList.toggle("aura-tab-on", j === on);
   }
   function fullTitle() {
     var bar = document.getElementById("menu-tabs");
@@ -672,7 +727,7 @@
     if (window.__auraLoaderDone) return null;
     box = document.createElement("div");
     box.id = "SharkLoadingOverlay";
-    box.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt="" /><div id="SharkLoadingSubtext">Please wait, loading menu...</div><div class="aura-load-bar"><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div></div>';
+    box.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt="" /><div id="SharkLoadingSubtext">Please wait, loading menu...</div><div class="aura-load-bar"><div class="aura-load-track"></div><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div></div>';
     (document.body || document.documentElement).appendChild(box);
     return box;
   };
@@ -931,7 +986,7 @@
   window.addEventListener("message", function (ev) {
     var d = ev && ev.data;
     if (!d || typeof d !== "object") return;
-    if (d.__nx) return;
+    if (d.__4s) return;
     if (!d.action && d.type) d.action = d.type;
     var a = d.action;
     if (!a) return;
@@ -1003,7 +1058,7 @@
       var fl = document.getElementById("footer-left");
       if (fl && name) fl.textContent = name;
     } else if (a === "displayFreecam" || a === "updateFreecam") {
-      window.postMessage({ __nx: true, action: "displayFreecam", visible: d.visible !== false && d.hide !== true, options: d.features || d.options || [] }, "*");
+      window.postMessage({ __4s: true, action: "displayFreecam", visible: d.visible !== false && d.hide !== true, options: d.features || d.options || [] }, "*");
     } else if (a === "updatePositionPrecise" || a === "setMenuPosition") {
       applyMenuPos(d);
     } else if (a === "updateMenuSize") {
@@ -1019,7 +1074,7 @@
 
   window.__auraApplyBanner = function (url, col) {
     url = String(url || "");
-    if (url && !/nexus/i.test(url)) window.__AURA_CUSTOM_BANNER = url;
+    if (url) window.__AURA_CUSTOM_BANNER = url;
     if (window.updateMenuBanner) window.updateMenuBanner({ banner: url, bannerColor: col });
     if (col && window.__auraApplyTheme) {
       var m = String(col).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
@@ -1060,6 +1115,7 @@
     wrapNotify();
     brand4s();
     fullTitle();
+    syncTabAccent();
     pinNotif();
     killDupes();
     styleScroll();
