@@ -41,15 +41,13 @@
       background-color: rgba(20, 20, 20, 0.86) !important;
     }
     #menu-items { background-color: transparent !important; }
+    #items-list { position: relative !important; z-index: 1 !important; }
     #selection-highlight {
-      z-index: 2 !important;
+      z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.45) !important;
-      border: 0.1vh solid rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.75) !important;
-      box-shadow: 0 0 0.25vh rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.45) !important;
-    }
-    .menu-item.selected, .menu-item.active {
-      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.35) !important;
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.82) !important;
+      border: none !important;
+      box-shadow: none !important;
     }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
@@ -364,9 +362,19 @@
       thumb.style.setProperty("box-shadow", "none", "important");
     }
     var items = document.getElementById("menu-items");
-    if (items) {
-      bar.style.setProperty("top", items.offsetTop + "px", "important");
-      bar.style.setProperty("height", items.offsetHeight + "px", "important");
+    var root = document.getElementById("menu-root");
+    if (items && root) {
+      var rr = root.getBoundingClientRect();
+      var ir = items.getBoundingClientRect();
+      var s = 1;
+      var tr = window.getComputedStyle(root).transform;
+      if (tr && tr !== "none") {
+        var m = tr.match(/matrix\(([^,]+)/);
+        if (m) s = parseFloat(m[1]) || 1;
+      }
+      if (s < 0.2) s = 1;
+      bar.style.setProperty("top", ((ir.top - rr.top) / s) + "px", "important");
+      bar.style.setProperty("height", (ir.height / s) + "px", "important");
     }
   }
 
@@ -833,11 +841,3 @@
     killDupes();
     styleScroll();
     forceMenuChrome();
-  }, 500);
-  fullTitle();
-  pinNotif();
-  styleScroll();
-})();
-  </script>
-</body>
-</html>
