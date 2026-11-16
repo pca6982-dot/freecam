@@ -43,18 +43,21 @@
       border: none !important;
       box-shadow: none !important;
     }
-    body.aura-space-compact #header-wrapper { margin-bottom: 0.18vh !important; }
-    body.aura-space-compact #menu-footer { margin-top: 0.18vh !important; }
-    body.aura-space-compact #menu-items { padding-bottom: 0 !important; }
-    body.aura-space-compact .menu-item {
-      height: 2.7vh !important;
-      padding-top: 0.55vh !important;
-      padding-bottom: 0.55vh !important;
+    body.aura-space-compact #header-wrapper { margin-bottom: 0.15vh !important; }
+    body.aura-space-compact #menu-footer { margin-top: 0.15vh !important; }
+    body.aura-space-compact #menu-items {
+      min-height: 0 !important; height: auto !important; padding-bottom: 0 !important;
     }
-    body.aura-space-compact #selection-highlight { height: 2.15vh !important; }
-    body.aura-space-wide #header-wrapper { margin-bottom: 0.55vh !important; }
-    body.aura-space-wide #menu-footer { margin-top: 0.7vh !important; }
-    body.aura-space-wide .menu-item { height: 3.15vh !important; }
+    body.aura-space-compact .menu-item {
+      height: 2.65vh !important;
+      padding-top: 0.5vh !important;
+      padding-bottom: 0.5vh !important;
+    }
+    body.aura-space-compact #selection-highlight { height: 2.1vh !important; }
+    body.aura-space-wide #header-wrapper { margin-bottom: 0.7vh !important; }
+    body.aura-space-wide #menu-footer { margin-top: 0.85vh !important; }
+    body.aura-space-wide #menu-items { min-height: 33vh !important; }
+    body.aura-space-wide .menu-item { height: 3.2vh !important; }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
       display: none !important; width: 0 !important; height: 0 !important;
@@ -286,6 +289,16 @@
     var wide = n === "soft" || n === "spaced" || n === "wide";
     document.body.classList.toggle("aura-space-wide", wide);
     document.body.classList.toggle("aura-space-compact", !wide);
+    var header = document.getElementById("header-wrapper");
+    var footer = document.getElementById("menu-footer");
+    var items = document.getElementById("menu-items");
+    if (header) header.style.setProperty("margin-bottom", wide ? "0.7vh" : "0.15vh", "important");
+    if (footer) footer.style.setProperty("margin-top", wide ? "0.85vh" : "0.15vh", "important");
+    if (items) {
+      items.style.setProperty("min-height", wide ? "33vh" : "0", "important");
+      items.style.setProperty("height", wide ? "" : "auto", "important");
+      items.style.setProperty("padding-bottom", "0", "important");
+    }
   };
 
   function esc(s) { return s == null ? "" : String(s); }
@@ -299,10 +312,11 @@
     document.querySelectorAll("#progress-container,#progress-box,#progress-bar,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds,.live-list-container").forEach(rm);
     document.querySelectorAll("#SharkLoadingOverlay").forEach(function (n, i) { if (i > 0) rm(n); });
     var keep = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
-    document.querySelectorAll(".keybindlist-container,#keybindlist-container,#aura-keybind-hud").forEach(function (n) {
-      if (keep && n === keep) return;
-      rm(n);
-    });
+    if (keep) {
+      document.querySelectorAll(".keybindlist-container").forEach(function (n) {
+        if (n !== keep) rm(n);
+      });
+    }
   }
 
   function wrapNotify() {
@@ -564,7 +578,6 @@
   window.hideProgressBar = function () { window.__auraPaintSharkLoader(100, "", null, true); };
 
   window.__auraShowKeyPick = function (title, value) {
-    killDupes();
     var box = document.getElementById("aura-key-select");
     var h = document.getElementById("aura-key-pick-h");
     var v = document.getElementById("aura-key-pick-v");
@@ -630,8 +643,7 @@
         '</span><span class="keybind-list-value">' + esc(b.keyLabel || b.key || b.value || "-") + "</span></div>";
     });
     c.innerHTML = html;
-    if (!binds || !binds.length) box.classList.remove("show");
-    else box.classList.add("show");
+    box.classList.add("show");
   }
   window.__auraPaintBinds = paintBinds;
   var _updLive = window.updateLiveList;
@@ -871,15 +883,3 @@
     wrapLive();
     wrapNotify();
     fullTitle();
-    pinNotif();
-    killDupes();
-    styleScroll();
-    forceMenuChrome();
-  }, 500);
-  fullTitle();
-  pinNotif();
-  styleScroll();
-})();
-  </script>
-</body>
-</html>
