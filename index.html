@@ -457,6 +457,25 @@
     }
   }
 
+  function brand4s() {
+    var brand = window.__AURA_BRAND || "4s Menu";
+    try { document.title = brand; } catch (e) {}
+    var fl = document.getElementById("footer-left");
+    if (fl) {
+      var t = String(fl.textContent || "");
+      if (/nexus/i.test(t) || t === "" || t === "Menu") {
+        var n = window.__AURA_DISCORD_NAME || brand;
+        fl.textContent = /nexus/i.test(t) ? t.replace(/Nexus Menu/ig, brand).replace(/Nexus/ig, "4s") : n;
+        if (/nexus/i.test(fl.textContent)) fl.textContent = n;
+      }
+    }
+    var img = document.getElementById("banner-image") || document.querySelector("#menu-banner img, #header-wrapper img");
+    if (img) {
+      var src = String(img.getAttribute("src") || img.src || "");
+      var logo = window.__AURA_ARGS_LOGO || window.__AURA_SAFE_LOGO || "";
+      if (logo && (/nexus/i.test(src) || src.indexOf("4s-menu") < 0)) img.src = logo;
+    }
+  }
   function fullTitle() {
     var bar = document.getElementById("menu-tabs");
     if (!bar) return;
@@ -932,12 +951,14 @@
   setInterval(function () {
     wrapLive();
     wrapNotify();
+    brand4s();
     fullTitle();
     pinNotif();
     killDupes();
     styleScroll();
     forceMenuChrome();
   }, 500);
+  brand4s();
   fullTitle();
   pinNotif();
   styleScroll();
