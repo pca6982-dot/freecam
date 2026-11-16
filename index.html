@@ -23,6 +23,14 @@
       transform: scale(var(--menu-scale, 0.94)) !important;
       transform-origin: top left !important;
     }
+    #header-wrapper, #menu-footer {
+      background-color: rgba(20, 20, 20, var(--aura-chrome-alpha, 0.90)) !important;
+      opacity: 1 !important;
+    }
+    #menu-items, #items-list {
+      background-color: rgba(20, 20, 20, var(--aura-content-alpha, 0.86)) !important;
+      opacity: 1 !important;
+    }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
       display: none !important; width: 0 !important; height: 0 !important;
@@ -357,11 +365,30 @@
   }
   function applyMenuOpacity(n) {
     n = Number(n);
-    if (!isFinite(n)) return;
+    if (!isFinite(n)) n = window.__auraMenuOpacity || 0.86;
     if (n > 1) n = n / 100;
+    n = Math.max(0.15, Math.min(1, n));
     window.__auraMenuOpacity = n;
-    document.documentElement.style.setProperty("--aura-panel-alpha", String(Math.max(0.15, Math.min(1, n))));
+    var chrome = Math.max(0.18, Math.min(1, n + 0.04));
+    var contentBg = "rgba(20,20,20," + n + ")";
+    var chromeBg = "rgba(20,20,20," + chrome + ")";
+    var root = document.documentElement.style;
+    root.setProperty("--aura-content-alpha", String(n));
+    root.setProperty("--aura-chrome-alpha", String(chrome));
+    root.setProperty("--ui-back", chromeBg);
+    document.querySelectorAll("#header-wrapper,#menu-footer").forEach(function (el) {
+      el.style.setProperty("background", chromeBg, "important");
+      el.style.setProperty("background-color", chromeBg, "important");
+      el.style.setProperty("opacity", "1", "important");
+    });
+    document.querySelectorAll("#menu-items,#items-list").forEach(function (el) {
+      el.style.setProperty("background", contentBg, "important");
+      el.style.setProperty("background-color", contentBg, "important");
+      el.style.setProperty("opacity", "1", "important");
+    });
   }
+  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
+  window.__auraSetMenuOpacity = function (v) { applyMenuOpacity(v); };
   function applyKeybindPos(d) {
     var p = (d && d.position) || d || {};
     var box = document.getElementById("keybindlist-container");
@@ -695,30 +722,3 @@
       /* spectators keep nexus live list if used */
     }
   }, true);
-
-  window.__auraApplyBanner = function (url) {
-    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url });
-  };
-  window.__auraApplyDiscordProfile = function () {
-    var fl = document.getElementById("footer-left");
-    if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
-  };
-  window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
-  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
-  window.__auraApplyTheme = function () {};
-  window.__auraPreloadBanners = function () {};
-
-  setInterval(function () {
-    wrapLive();
-    fullTitle();
-    pinNotif();
-    killDupes();
-    styleScroll();
-  }, 500);
-  fullTitle();
-  pinNotif();
-  styleScroll();
-})();
-  </script>
-</body>
-</html>
