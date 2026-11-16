@@ -39,7 +39,7 @@
     #selection-highlight {
       z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.88) !important;
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.52) !important;
       border: none !important;
       box-shadow: none !important;
     }
@@ -97,6 +97,62 @@
     #items-list .menu-item, #items-list .menu-item .name, .menu-item, .menu-item .name {
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
       font-size: 1.2vh !important; font-weight: 500 !important; letter-spacing: 0 !important;
+    }
+    .menu-item {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    .menu-item .name { flex: 1 1 auto !important; min-width: 0 !important; }
+    .components-container {
+      margin-left: auto !important;
+      flex: 0 0 auto !important;
+      justify-content: flex-end !important;
+      gap: 0.4vh !important;
+    }
+    .components-container .slider-component { order: 30 !important; }
+    .component .slider-component, .slider-component {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      width: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      flex: 0 0 auto !important;
+    }
+    .component .slider-component span, .slider-component span {
+      min-width: 0 !important;
+      width: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      text-align: right !important;
+      white-space: nowrap !important;
+    }
+    .separator-container {
+      display: flex !important;
+      align-items: center !important;
+      width: 100% !important;
+      gap: 0.7vh !important;
+    }
+    .separator-bar {
+      flex: 1 1 auto !important;
+      height: 0.08vh !important;
+      min-height: 1px !important;
+      max-height: 1px !important;
+      background-color: rgba(255,255,255,0.38) !important;
+      min-width: 1.2vh !important;
+      border-radius: 1vh !important;
+    }
+    .separator-container, .separator-text, .menu-item.separator {
+      font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.02em !important;
+      font-size: 1.05vh !important;
+    }
+    .separator-text {
+      color: rgba(255,255,255,0.78) !important;
+      font-weight: 500 !important;
+      padding: 0 0.35vh !important;
     }
     html body #menu-root .component input[type="checkbox"],
     #items-list .component input[type="checkbox"],
