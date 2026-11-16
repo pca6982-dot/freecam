@@ -21,18 +21,13 @@
     #menu-root { width: 33vh !important; }
     #menu-root.visible {
       opacity: 1 !important;
-      transform: scale(var(--menu-scale, 0.94)) !important;
-      transform-origin: top left !important;
-    }
-    #menu-root.hiding {
-      transform: scale(var(--menu-scale, 0.94)) !important;
-      transform-origin: top left !important;
+      visibility: visible !important;
     }
     #menu-root.visible #header-wrapper,
     #menu-root.visible #menu-container,
     #menu-root.visible #menu-footer {
       opacity: 1 !important;
-      transform: none !important;
+      visibility: visible !important;
     }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
@@ -391,6 +386,26 @@
     });
   }
 
+  window.__auraOpenMenu = function () {
+    try { if (window.showMenu) window.showMenu(); } catch (e) {}
+    var m = document.getElementById("menu-root");
+    if (!m) return;
+    m.classList.add("visible");
+    m.classList.remove("hiding");
+    m.style.setProperty("display", "block", "important");
+    m.style.setProperty("opacity", "1", "important");
+    m.style.setProperty("visibility", "visible", "important");
+    ["header-wrapper", "menu-container", "menu-footer"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add("visible");
+      el.classList.remove("hiding");
+      el.style.setProperty("opacity", "1", "important");
+      el.style.setProperty("visibility", "visible", "important");
+    });
+    var c = document.getElementById("menu-container");
+    if (c) c.style.setProperty("background-color", "rgba(20,20,20,0.86)", "important");
+  };
   function forceMenuChrome() {
     var root = document.getElementById("menu-root");
     if (!root || !root.classList.contains("visible")) return;
@@ -718,8 +733,7 @@
     if (list) list.innerHTML = "";
     if (typeof window.updateLiveTabContent === "function") window.updateLiveTabContent(items, idx);
     if (open || d.visible === true) {
-      if (window.showMenu) window.showMenu();
-      forceMenuChrome();
+      window.__auraOpenMenu();
     }
     if (typeof window.updateSelection === "function") window.updateSelection(idx);
     styleScroll();
@@ -841,3 +855,6 @@
   pinNotif();
   styleScroll();
 })();
+  </script>
+</body>
+</html>
