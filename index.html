@@ -26,8 +26,19 @@
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
     }
-    #menu-container, #menu-items {
+    #menu-container {
       background-color: rgba(20, 20, 20, 0.86) !important;
+    }
+    #menu-items { background-color: transparent !important; }
+    #selection-highlight {
+      z-index: 2 !important;
+      pointer-events: none !important;
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.45) !important;
+      border: 0.1vh solid rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.75) !important;
+      box-shadow: 0 0 0.25vh rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.45) !important;
+    }
+    .menu-item.selected, .menu-item.active {
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.35) !important;
     }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
@@ -113,7 +124,8 @@
     #menu-scrollbar, #menu-scrollbar.visible, #menu-scrollbar.hiding {
       width: 0.85vh !important; left: -1.13vh !important;
       display: flex !important; flex-direction: column !important; align-items: center !important;
-      background: transparent !important; opacity: 1 !important; border-radius: 0 !important;
+      background: transparent !important; border-radius: 0 !important;
+      bottom: auto !important;
     }
     #menu-scrollbar::before, #menu-scrollbar::after { content: none !important; display: none !important; }
     #menu-scrollbar .aura-sb-up, #menu-scrollbar .aura-sb-down {
@@ -248,7 +260,11 @@
   function killDupes() {
     document.querySelectorAll("#progress-container,#progress-box,#progress-bar,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds,.live-list-container").forEach(rm);
     document.querySelectorAll("#SharkLoadingOverlay").forEach(function (n, i) { if (i > 0) rm(n); });
-    document.querySelectorAll(".keybindlist-container").forEach(function (n, i) { if (i > 0) rm(n); });
+    var keep = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
+    document.querySelectorAll(".keybindlist-container,#keybindlist-container,#aura-keybind-hud").forEach(function (n) {
+      if (keep && n === keep) return;
+      rm(n);
+    });
   }
 
   function wrapLive() {
@@ -309,6 +325,11 @@
       thumb.style.setProperty("border-radius", "0.06vh", "important");
       thumb.style.setProperty("background", "var(--ui-main)", "important");
       thumb.style.setProperty("box-shadow", "none", "important");
+    }
+    var items = document.getElementById("menu-items");
+    if (items) {
+      bar.style.setProperty("top", items.offsetTop + "px", "important");
+      bar.style.setProperty("height", items.offsetHeight + "px", "important");
     }
   }
 
@@ -378,15 +399,18 @@
     document.querySelectorAll("#header-wrapper,#menu-footer").forEach(function (el) {
       el.style.setProperty("background-color", chromeBg, "important");
     });
-    document.querySelectorAll("#menu-container,#menu-items").forEach(function (el) {
+    document.querySelectorAll("#menu-container").forEach(function (el) {
       el.style.setProperty("background-color", contentBg, "important");
+    });
+    document.querySelectorAll("#menu-items").forEach(function (el) {
+      el.style.setProperty("background-color", "transparent", "important");
     });
   }
   window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
   window.__auraSetMenuOpacity = function (v) { applyMenuOpacity(v); };
   function applyKeybindPos(d) {
     var p = (d && d.position) || d || {};
-    var box = document.getElementById("keybindlist-container");
+    var box = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (!box) return;
     if (p.x != null && isFinite(Number(p.x))) box.style.left = Number(p.x) + "vh";
     if (p.y != null && isFinite(Number(p.y))) box.style.top = Number(p.y) + "vh";
@@ -483,22 +507,26 @@
     window.__auraShowKeyPick(t.header || t.title || "Input", t.value || "");
   };
 
-  document.querySelectorAll(".keybindlist-container,#live-list-keybinds,.live-list-container").forEach(function (n) {
-    if (n && n.id !== "keybindlist-container") rm(n);
-  });
-  var kb = document.getElementById("keybindlist-container");
-  if (!kb) {
-    kb = document.createElement("div");
-    kb.id = "keybindlist-container";
+  function ensureKeybindHud() {
+    killDupes();
+    var kb = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
+    if (!kb) {
+      kb = document.createElement("div");
+      kb.style.top = "4vh";
+      kb.style.left = "88vh";
+      document.body.appendChild(kb);
+    }
+    kb.id = "aura-keybind-hud";
     kb.className = "keybindlist-container";
-    kb.style.top = "4vh";
-    kb.style.left = "88vh";
-    kb.innerHTML = '<div class="keybind-list-header"><div class="keybind-list-title">Keybinds</div></div><div class="keybind-list-content" id="keybindlist-content"></div>';
-    document.body.appendChild(kb);
+    if (!kb.querySelector("#keybindlist-content")) {
+      kb.innerHTML = '<div class="keybind-list-header"><div class="keybind-list-title">Keybinds</div></div><div class="keybind-list-content" id="keybindlist-content"></div>';
+    }
+    return kb;
   }
+  ensureKeybindHud();
   function paintBinds(binds) {
-    var c = document.getElementById("keybindlist-content");
-    var box = document.getElementById("keybindlist-container");
+    var box = ensureKeybindHud();
+    var c = box.querySelector("#keybindlist-content") || document.getElementById("keybindlist-content");
     if (!c || !box) return;
     var html = "";
     (binds || []).forEach(function (b) {
@@ -509,6 +537,7 @@
     c.innerHTML = html;
     box.classList.add("show");
   }
+  window.__auraPaintBinds = paintBinds;
   var _updLive = window.updateLiveList;
   window.updateLiveList = function (t) {
     if (!t) return;
@@ -516,7 +545,7 @@
       var nx = document.getElementById("live-list-keybinds");
       if (nx) rm(nx);
       if (t.visible === false) {
-        var box = document.getElementById("keybindlist-container");
+        var box = ensureKeybindHud();
         if (box) box.classList.remove("show");
         return;
       }
@@ -525,11 +554,22 @@
     }
     if (_updLive) return _updLive(t);
   };
+  if (window.createLiveList && !window.createLiveList.__auraWrap) {
+    var _createLive = window.createLiveList;
+    window.createLiveList = function (t) {
+      if (t && t.id === "keybinds") { ensureKeybindHud(); return; }
+      return _createLive.apply(this, arguments);
+    };
+    window.createLiveList.__auraWrap = true;
+  }
+  var _hideLive = window.hideLiveList;
   window.hideLiveList = function (id) {
     if (id === "keybinds") {
-      var box = document.getElementById("keybindlist-container");
+      var box = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
       if (box) box.classList.remove("show");
+      return;
     }
+    if (_hideLive) return _hideLive(id);
   };
 
   function scrollSelected(vals, value) {
@@ -705,43 +745,3 @@
       if (fl && name) fl.textContent = name;
     } else if (a === "displayFreecam" || a === "updateFreecam") {
       window.postMessage({ __nx: true, action: "displayFreecam", visible: d.visible !== false && d.hide !== true, options: d.features || d.options || [] }, "*");
-    } else if (a === "updatePositionPrecise" || a === "setMenuPosition") {
-      applyMenuPos(d);
-    } else if (a === "updateMenuSize") {
-      applyMenuScale(d.size != null ? d.size : d.value);
-    } else if (a === "setMenuBackground" || a === "updateMenuOpacity") {
-      applyMenuOpacity(d.alpha != null ? d.alpha : d.opacity);
-    } else if (a === "updateKeybindListPosition") {
-      applyKeybindPos(d);
-    } else if (a === "updateSpectatorListPosition") {
-      /* spectators keep nexus live list if used */
-    }
-  }, true);
-
-  window.__auraApplyBanner = function (url) {
-    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url });
-  };
-  window.__auraApplyDiscordProfile = function () {
-    var fl = document.getElementById("footer-left");
-    if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
-  };
-  window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
-  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
-  window.__auraApplyTheme = function () {};
-  window.__auraPreloadBanners = function () {};
-  applyMenuOpacity(window.__auraMenuOpacity || 0.86);
-
-  setInterval(function () {
-    wrapLive();
-    fullTitle();
-    pinNotif();
-    killDupes();
-    styleScroll();
-  }, 500);
-  fullTitle();
-  pinNotif();
-  styleScroll();
-})();
-  </script>
-</body>
-</html>
