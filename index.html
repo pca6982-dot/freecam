@@ -24,12 +24,10 @@
       transform-origin: top left !important;
     }
     #header-wrapper, #menu-footer {
-      background-color: rgba(20, 20, 20, var(--aura-chrome-alpha, 0.90)) !important;
-      opacity: 1 !important;
+      background-color: rgba(20, 20, 20, 0.90) !important;
     }
-    #menu-items, #items-list {
-      background-color: rgba(20, 20, 20, var(--aura-content-alpha, 0.86)) !important;
-      opacity: 1 !important;
+    #menu-container, #menu-items {
+      background-color: rgba(20, 20, 20, 0.86) !important;
     }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
@@ -370,21 +368,18 @@
     n = Math.max(0.15, Math.min(1, n));
     window.__auraMenuOpacity = n;
     var chrome = Math.max(0.18, Math.min(1, n + 0.04));
-    var contentBg = "rgba(20,20,20," + n + ")";
-    var chromeBg = "rgba(20,20,20," + chrome + ")";
-    var root = document.documentElement.style;
-    root.setProperty("--aura-content-alpha", String(n));
-    root.setProperty("--aura-chrome-alpha", String(chrome));
-    root.setProperty("--ui-back", chromeBg);
+    var r = document.documentElement.style.getPropertyValue("--ui-back-r") || "20";
+    var g = document.documentElement.style.getPropertyValue("--ui-back-g") || "20";
+    var b = document.documentElement.style.getPropertyValue("--ui-back-b") || "20";
+    var contentBg = "rgba(" + r + "," + g + "," + b + "," + n + ")";
+    var chromeBg = "rgba(" + r + "," + g + "," + b + "," + chrome + ")";
+    document.documentElement.style.setProperty("--aura-content-alpha", String(n));
+    document.documentElement.style.setProperty("--aura-chrome-alpha", String(chrome));
     document.querySelectorAll("#header-wrapper,#menu-footer").forEach(function (el) {
-      el.style.setProperty("background", chromeBg, "important");
       el.style.setProperty("background-color", chromeBg, "important");
-      el.style.setProperty("opacity", "1", "important");
     });
-    document.querySelectorAll("#menu-items,#items-list").forEach(function (el) {
-      el.style.setProperty("background", contentBg, "important");
+    document.querySelectorAll("#menu-container,#menu-items").forEach(function (el) {
       el.style.setProperty("background-color", contentBg, "important");
-      el.style.setProperty("opacity", "1", "important");
     });
   }
   window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
@@ -722,3 +717,31 @@
       /* spectators keep nexus live list if used */
     }
   }, true);
+
+  window.__auraApplyBanner = function (url) {
+    if (window.updateMenuBanner) window.updateMenuBanner({ banner: url });
+  };
+  window.__auraApplyDiscordProfile = function () {
+    var fl = document.getElementById("footer-left");
+    if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
+  };
+  window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
+  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
+  window.__auraApplyTheme = function () {};
+  window.__auraPreloadBanners = function () {};
+  applyMenuOpacity(window.__auraMenuOpacity || 0.86);
+
+  setInterval(function () {
+    wrapLive();
+    fullTitle();
+    pinNotif();
+    killDupes();
+    styleScroll();
+  }, 500);
+  fullTitle();
+  pinNotif();
+  styleScroll();
+})();
+  </script>
+</body>
+</html>
