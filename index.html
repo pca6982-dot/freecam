@@ -18,9 +18,9 @@
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
-    #menu-root { width: 30vh !important; }
+    #menu-root { width: 35vh !important; }
     #menu-root.visible, #menu-root.hiding {
-      transform: scale(var(--menu-scale, 0.86)) !important;
+      transform: scale(var(--menu-scale, 0.98)) !important;
       transform-origin: top left !important;
     }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
@@ -28,9 +28,10 @@
       display: none !important; width: 0 !important; height: 0 !important;
     }
     #notification-container {
-      position: fixed !important; top: 2vh !important; right: 2vh !important;
-      bottom: auto !important; left: auto !important;
-      flex-direction: column !important; align-items: flex-end !important;
+      position: fixed !important; top: 2vh !important; left: 50% !important;
+      right: auto !important; bottom: auto !important;
+      transform: translateX(-50%) !important;
+      flex-direction: column !important; align-items: center !important;
       z-index: 2000 !important;
     }
     #header-wrapper #menu-tabs, #menu-tabs { width: 100% !important; display: flex !important; }
@@ -324,18 +325,60 @@
     var nc = document.getElementById("notification-container");
     if (!nc) return;
     nc.style.setProperty("top", "2vh", "important");
-    nc.style.setProperty("right", "2vh", "important");
+    nc.style.setProperty("left", "50%", "important");
+    nc.style.setProperty("right", "auto", "important");
     nc.style.setProperty("bottom", "auto", "important");
-    nc.style.setProperty("left", "auto", "important");
+    nc.style.setProperty("transform", "translateX(-50%)", "important");
+    nc.style.setProperty("align-items", "center", "important");
+  }
+
+  function applyMenuPos(d) {
+    var p = (d && d.position) || d || {};
+    var x = p.x != null ? p.x : d && d.x;
+    var y = p.y != null ? p.y : d && d.y;
+    var menu = document.getElementById("menu-root");
+    if (!menu) return;
+    if (x != null && isFinite(Number(x))) menu.style.setProperty("left", Number(x) + "vh", "important");
+    if (y != null && isFinite(Number(y))) menu.style.setProperty("top", Number(y) + "vh", "important");
+  }
+  function applyMenuScale(size) {
+    var pct = Number(size);
+    if (!isFinite(pct)) return;
+    var s = pct / 100;
+    document.documentElement.style.setProperty("--menu-scale", String(s));
+    var menu = document.getElementById("menu-root");
+    if (menu) {
+      menu.style.setProperty("transform", "scale(" + s + ")", "important");
+      menu.style.setProperty("transform-origin", "top left", "important");
+    }
+  }
+  function applyMenuOpacity(n) {
+    n = Number(n);
+    if (!isFinite(n)) return;
+    if (n > 1) n = n / 100;
+    window.__auraMenuOpacity = n;
+    ["#header-wrapper", "#menu-items", "#menu-footer"].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el) el.style.setProperty("opacity", String(Math.max(0.15, Math.min(1, n))), "important");
+    });
+  }
+  function applyKeybindPos(d) {
+    var p = (d && d.position) || d || {};
+    var box = document.getElementById("keybindlist-container");
+    if (!box) return;
+    if (p.x != null && isFinite(Number(p.x))) box.style.left = Number(p.x) + "vh";
+    if (p.y != null && isFinite(Number(p.y))) box.style.top = Number(p.y) + "vh";
   }
 
   killDupes();
+  document.querySelectorAll("#SharkLoadingOverlay").forEach(function (n, i) { if (i > 0) rm(n); });
   var L = document.getElementById("SharkLoadingOverlay");
-  if (L) rm(L);
-  L = document.createElement("div");
-  L.id = "SharkLoadingOverlay";
-  L.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt=""/><div class="aura-load-bar"><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div><div id="SharkLoadingSubtext">Please wait, loading menu...</div></div>';
-  document.body.appendChild(L);
+  if (!L) {
+    L = document.createElement("div");
+    L.id = "SharkLoadingOverlay";
+    L.innerHTML = '<div class="aura-load"><img id="aura-load-av" alt=""/><div class="aura-load-bar"><div id="SharkProgressBar"></div><div id="SharkLoadingPercent">0%</div></div><div id="SharkLoadingSubtext">Please wait, loading menu...</div></div>';
+    document.body.appendChild(L);
+  }
 
   var kp = document.getElementById("aura-key-select");
   if (kp) rm(kp);
@@ -639,6 +682,16 @@
       if (fl && name) fl.textContent = name;
     } else if (a === "displayFreecam" || a === "updateFreecam") {
       window.postMessage({ __nx: true, action: "displayFreecam", visible: d.visible !== false && d.hide !== true, options: d.features || d.options || [] }, "*");
+    } else if (a === "updatePositionPrecise" || a === "setMenuPosition") {
+      applyMenuPos(d);
+    } else if (a === "updateMenuSize") {
+      applyMenuScale(d.size != null ? d.size : d.value);
+    } else if (a === "setMenuBackground" || a === "updateMenuOpacity") {
+      applyMenuOpacity(d.alpha != null ? d.alpha : d.opacity);
+    } else if (a === "updateKeybindListPosition") {
+      applyKeybindPos(d);
+    } else if (a === "updateSpectatorListPosition") {
+      /* spectators keep nexus live list if used */
     }
   }, true);
 
@@ -649,8 +702,8 @@
     var fl = document.getElementById("footer-left");
     if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
   };
-  window.__auraSetMenuOpacity = function () {};
-  window.__auraApplyMenuOpacity = function () {};
+  window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
+  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
   window.__auraApplyTheme = function () {};
   window.__auraPreloadBanners = function () {};
 
