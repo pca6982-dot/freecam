@@ -754,17 +754,16 @@
     var rows = list.querySelectorAll(".menu-item");
     if (!rows.length) rows = list.children;
     var row = rows[idx];
-    if (hi && row) hi.style.top = row.offsetTop + "px";
     var wrap = document.getElementById("menu-items");
-    if (wrap && row && list) {
-      var vis = wrap.clientHeight || wrap.offsetHeight || 0;
-      var rh = row.offsetHeight || 0;
+    if (row && hi) {
       var y = row.offsetTop || 0;
-      var off = 0;
-      if (vis > 0 && y + rh > vis) off = y + rh - vis;
-      if (y < off) off = y;
-      list.style.transform = "translateY(" + (-off) + "px)";
-      if (hi) hi.style.top = (y - off) + "px";
+      if (wrap) {
+        var vis = wrap.clientHeight || wrap.offsetHeight || 0;
+        var rh = row.offsetHeight || 0;
+        if (vis > 0 && y + rh > vis) wrap.scrollTop = y + rh - vis;
+        else if (y < (wrap.scrollTop || 0)) wrap.scrollTop = y;
+      }
+      hi.style.top = y + "px";
     }
     var n = rows.length;
     var foot = document.getElementById("footer-right");
