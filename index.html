@@ -39,7 +39,7 @@
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
-    #root { position: absolute; inset: 0; pointer-events: none; background: transparent !important; }
+    #root { position: absolute; inset: 0; pointer-events: none; background: transparent !important; overflow: visible !important; }
     #menu-root, #notification-container { pointer-events: auto; }
     #menu-root {
       font-family: var(--ui-font-family);
@@ -49,6 +49,7 @@
       left: 14.25vh;
       width: 33vh !important;
       z-index: 1000;
+      overflow: visible !important;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -339,11 +340,16 @@
       box-shadow: 0 0 0.18vh rgba(0,0,0,0.5) !important;
     }
     .component .range-value { display: none !important; }
+    html body #menu-root.visible #menu-scrollbar,
+    html body #menu-root.visible #menu-scrollbar.visible,
+    html body #menu-root.visible #menu-scrollbar.hiding,
     #menu-scrollbar, #menu-scrollbar.visible, #menu-scrollbar.hiding {
       width: 0.55vh !important; left: -1.45vh !important;
       display: flex !important; flex-direction: column !important; align-items: center !important;
       background: transparent !important; border-radius: 0 !important;
-      bottom: auto !important;
+      bottom: auto !important; height: 39vh !important; top: 13.25vh;
+      opacity: 1 !important; visibility: visible !important;
+      pointer-events: none !important; z-index: 20 !important;
     }
     #menu-scrollbar::before, #menu-scrollbar::after { content: none !important; display: none !important; }
     #menu-scrollbar .aura-sb-up, #menu-scrollbar .aura-sb-down {
@@ -365,7 +371,11 @@
       background: var(--ui-main, #d0d6e0) !important; border-radius: 0.06vh !important;
       box-shadow: none !important; left: 0 !important; width: 100% !important; min-height: 1.2vh !important;
     }
-    #live-list-keybinds, .live-list-container#live-list-keybinds { display: none !important; }
+    #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
+    .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
+    .keybindlist-container:not(.KBLWrapper) {
+      display: none !important; opacity: 0 !important; visibility: hidden !important;
+    }
     #aura-loader, .loading-scale-layer, .zt-load-screen, .zt-card.zt-loading,
     .shark-load-inner, #SharkLoadingOverlay {
       display: none !important; opacity: 0 !important; visibility: hidden !important;
@@ -536,7 +546,11 @@
       font-weight: 350;
       color: #fff;
     }
-    #live-list-keybinds, .live-list-container#live-list-keybinds { display: none !important; }
+    #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
+    .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
+    .keybindlist-container:not(.KBLWrapper) {
+      display: none !important; opacity: 0 !important; visibility: hidden !important;
+    }
     #aura-player-info{
       position:fixed!important;z-index:2147483000!important;display:none;flex-direction:column;
       width:13.6vw;max-width:13.6vw;overflow:hidden!important;border-radius:.28vw;
@@ -554,8 +568,9 @@
     #aura-player-info .api-row .api-l{display:flex;align-items:center;gap:.22vw;color:#fff;font-size:.46vw;font-weight:500}
     #aura-player-info svg{display:block!important;width:.5vw!important;height:.5vw!important;max-width:.5vw!important;max-height:.5vw!important;flex:0 0 .5vw!important;overflow:visible}
     #aura-player-info .api-row .api-v{color:#fff;font-size:.46vw;font-weight:600;text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .player-info-container,#player-info-container,.player-info-content{
+    .player-info-container,#player-info-container,.player-info-content,[id="player-info-container"]{
       display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+      height:0!important;width:0!important;overflow:hidden!important;
     }
   </style>
 </head>
@@ -597,6 +612,11 @@
       </div>
     </div>
   </div>
+  <div id="aura-player-info"></div>
+  <div id="aura-keybind-hud" class="KBLWrapper keybindlist-container">
+    <div class="Header"><span class="Icon"><i class="fa-solid fa-keyboard"></i></span><span>Keybinds</span></div>
+    <div class="Keybinds" id="keybindlist-content"></div>
+  </div>
   <div id="notification-container"></div>
   <div id="progress-container">
     <div id="progress-box">
@@ -622,12 +642,32 @@
     document.documentElement.style.setProperty("background", "transparent", "important");
     document.body.style.setProperty("background", "transparent", "important");
   }
-  document.querySelectorAll(".PWrapper,.menu-wrapper").forEach(function (w) {
-    w.style.setProperty("display", "none", "important");
-    w.style.setProperty("opacity", "0", "important");
-    w.style.setProperty("visibility", "hidden", "important");
-  });
+  window.__auraPrepPage = function () {
+    document.body.classList.add("aura-dui");
+    document.documentElement.style.setProperty("background", "transparent", "important");
+    document.body.style.setProperty("background", "transparent", "important");
+    document.querySelectorAll(".PWrapper,.menu-wrapper").forEach(function (w) {
+      w.style.setProperty("display", "none", "important");
+      w.style.setProperty("opacity", "0", "important");
+      w.style.setProperty("visibility", "hidden", "important");
+    });
+    if (window.__auraKillCinemaPlayerInfo) window.__auraKillCinemaPlayerInfo();
+    document.querySelectorAll(".keybind-list-header,.keybind-list-title,.live-list-container,.keybindlist-container:not(.KBLWrapper)").forEach(function (n) {
+      n.style.setProperty("display", "none", "important");
+    });
+    var bar = document.getElementById("menu-scrollbar");
+    if (bar) {
+      bar.classList.add("visible");
+      bar.style.setProperty("opacity", "1", "important");
+      bar.style.setProperty("display", "flex", "important");
+      bar.style.setProperty("visibility", "visible", "important");
+    }
+    var root = document.getElementById("menu-root");
+    if (root) root.style.setProperty("overflow", "visible", "important");
+  };
+  window.__auraPrepPage();
 
+  window.__auraPaintSelection = function (idx) { paintSelection(idx); };
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
     var list = document.getElementById("items-list");
@@ -636,8 +676,23 @@
     var rows = list.querySelectorAll(".menu-item");
     var row = rows[idx];
     if (hi && row) hi.style.top = row.offsetTop + "px";
+    var n = rows.length;
     var foot = document.getElementById("footer-right");
-    if (foot && rows.length) foot.textContent = (idx + 1) + "/" + rows.length;
+    if (foot && n) foot.textContent = (idx + 1) + "/" + n;
+    var thumb = document.getElementById("scrollbar-thumb");
+    var bar = document.getElementById("menu-scrollbar");
+    if (bar) {
+      bar.classList.add("visible");
+      bar.style.setProperty("opacity", "1", "important");
+      bar.style.setProperty("display", "flex", "important");
+    }
+    if (thumb && n) {
+      var vis = Math.min(9, n);
+      var h = Math.max(12, (vis / n) * 100);
+      var t = (idx / Math.max(1, n - 1)) * (100 - h);
+      thumb.style.height = h + "%";
+      thumb.style.top = t + "%";
+    }
   }
 
   if (typeof window.showMenu !== "function") {
@@ -802,7 +857,11 @@
     bar.style.setProperty("align-items", "center", "important");
     bar.style.setProperty("background", "transparent", "important");
     bar.style.setProperty("opacity", "1", "important");
+    bar.style.setProperty("visibility", "visible", "important");
     bar.style.setProperty("border-radius", "0", "important");
+    bar.classList.add("visible");
+    var menuRoot = document.getElementById("menu-root");
+    if (menuRoot) menuRoot.style.setProperty("overflow", "visible", "important");
     if (!bar.querySelector(".aura-sb-up")) {
       var up = document.createElement("div");
       up.className = "aura-sb-up";
@@ -831,7 +890,7 @@
     }
     var items = document.getElementById("menu-items");
     var root = document.getElementById("menu-root");
-    if (items && root) {
+    if (items && root && items.offsetHeight > 0) {
       var top = 0, n = items;
       while (n && n !== root) {
         top += n.offsetTop;
@@ -839,6 +898,9 @@
       }
       bar.style.setProperty("top", top + "px", "important");
       bar.style.setProperty("height", items.offsetHeight + "px", "important");
+    } else {
+      bar.style.setProperty("top", "13.25vh", "important");
+      bar.style.setProperty("height", "39vh", "important");
     }
   }
 
@@ -909,7 +971,7 @@
     if (!m) return;
     m.classList.add("visible");
     m.classList.remove("hiding");
-    ["header-wrapper", "menu-container", "menu-footer"].forEach(function (id) {
+    ["header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
       el.classList.add("visible");
@@ -917,6 +979,7 @@
     });
     var c = document.getElementById("menu-container");
     if (c) c.style.setProperty("background-color", "rgba(20,20,20,0.86)", "important");
+    if (typeof styleScroll === "function") styleScroll();
   };
   function forceMenuChrome() {
     if (window.__auraStripHidingIfOpen) window.__auraStripHidingIfOpen();
@@ -1431,7 +1494,6 @@
     }
   };
   window.__auraEnsurePlayerInfo = function () {
-    window.__auraKillCinemaPlayerInfo();
     var el = document.getElementById("aura-player-info");
     if (!el) {
       el = document.createElement("div");
@@ -1496,6 +1558,9 @@
     el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
     el.style.setProperty("top", y, "important");
     window.__auraLastPlayerInfo = d;
+    requestAnimationFrame(function () {
+      if (window.__auraKillCinemaPlayerInfo) window.__auraKillCinemaPlayerInfo();
+    });
   };
 
   window.__auraApplyBanner = function (url, col) {
