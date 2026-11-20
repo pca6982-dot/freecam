@@ -471,7 +471,12 @@
       background: transparent;
       border: none;
     }
-    .KBLWrapper.show, .keybindlist-container.show { opacity: 1; pointer-events: auto; }
+    .KBLWrapper.show, .keybindlist-container.show, #aura-keybind-hud.show {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: flex !important;
+      pointer-events: none !important;
+    }
     .KBLWrapper .Header, .keybindlist-container .Header {
       position: relative;
       display: flex;
@@ -559,7 +564,10 @@
       left:calc(var(--aura-menu-x, 14.25vh) + 33vh + 0.55vh)!important;
       top:var(--aura-menu-y, 21.5vh)!important;
     }
-    #aura-player-info.show{display:flex!important;visibility:visible!important;opacity:1!important}
+    #aura-player-info.show{
+      display:flex!important;visibility:visible!important;opacity:1!important;
+      z-index:2147483646!important;pointer-events:none!important;
+    }
     #aura-player-info .api-close,#aura-player-info .api-head,#aura-player-info .api-name,#aura-player-info .api-bar{display:none}
     #aura-player-info .api-sec{display:flex;align-items:center;gap:.28vw;margin:.18vw 0 .12vw}
     #aura-player-info .api-sec span{flex:1;height:.03vw;background:rgba(255,255,255,.55)}
@@ -695,30 +703,37 @@
     }
   }
 
-  if (typeof window.showMenu !== "function") {
-    window.showMenu = function () {
-      window.__auraClosing = false;
-      ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (!el) return;
-        el.classList.add("visible");
-        el.classList.remove("hiding");
-      });
-    };
-  }
-  if (typeof window.hideMenu !== "function") {
-    window.hideMenu = function () {
-      ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (!el) return;
-        el.classList.remove("visible");
-        el.classList.add("hiding");
-      });
-    };
-  }
-  if (typeof window.updateSelection !== "function") {
-    window.updateSelection = function (idx) { paintSelection(idx); };
-  }
+  window.showMenu = function () {
+    window.__auraClosing = false;
+    ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add("visible");
+      el.classList.remove("hiding");
+    });
+    if (typeof styleScroll === "function") styleScroll();
+  };
+  window.hideMenu = function () {
+    if (!window.__auraClosing) return;
+    ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove("visible");
+      el.classList.add("hiding");
+    });
+  };
+  window.updateSelection = function (idx) { paintSelection(idx); };
+  window.setSelection = function (idx, _opts) {
+    if (idx && typeof idx === "object") idx = idx.index != null ? idx.index : idx.current;
+    paintSelection(Math.max(0, Number(idx) || 0));
+  };
+  window.addEventListener("keydown", function (e) {
+    var k = e.key || "";
+    if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight" || k === "Enter" || k === "Backspace") {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true);
   if (typeof window.updateMenuBanner !== "function") {
     window.updateMenuBanner = function (d) {
       d = d || {};
@@ -980,6 +995,7 @@
     var c = document.getElementById("menu-container");
     if (c) c.style.setProperty("background-color", "rgba(20,20,20,0.86)", "important");
     if (typeof styleScroll === "function") styleScroll();
+    if (window.__auraLastBinds && window.__auraPaintBinds) window.__auraPaintBinds(window.__auraLastBinds);
   };
   function forceMenuChrome() {
     if (window.__auraStripHidingIfOpen) window.__auraStripHidingIfOpen();
@@ -1232,6 +1248,7 @@
   }
   ensureKeybindHud();
   function paintBinds(binds) {
+    window.__auraLastBinds = binds || [];
     var box = ensureKeybindHud();
     var c = box.querySelector("#keybindlist-content") || document.getElementById("keybindlist-content");
     if (!c || !box) return;
@@ -1243,6 +1260,10 @@
     });
     c.innerHTML = html;
     box.classList.add("show");
+    box.style.setProperty("opacity", "1", "important");
+    box.style.setProperty("display", "flex", "important");
+    box.style.setProperty("visibility", "visible", "important");
+    box.style.setProperty("z-index", "2147483645", "important");
   }
   window.__auraPaintBinds = paintBinds;
   var _updLive = window.updateLiveList;
@@ -1549,19 +1570,34 @@
     el.style.setProperty("visibility", "visible", "important");
     el.style.setProperty("opacity", "1", "important");
     el.style.setProperty("position", "fixed", "important");
-    el.style.setProperty("z-index", "2147483000", "important");
+    el.style.setProperty("z-index", "2147483646", "important");
     el.style.setProperty("overflow", "hidden", "important");
     el.style.setProperty("width", "13.6vw", "important");
     el.style.setProperty("max-width", "13.6vw", "important");
     document.documentElement.style.setProperty("--aura-menu-x", x);
     document.documentElement.style.setProperty("--aura-menu-y", y);
-    el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
-    el.style.setProperty("top", y, "important");
+    if (m && m.getBoundingClientRect) {
+      var r = m.getBoundingClientRect();
+      if (r && r.width > 0) {
+        el.style.setProperty("left", (r.right + Math.max(6, r.width * 0.02)) + "px", "important");
+        el.style.setProperty("top", r.top + "px", "important");
+      } else {
+        el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
+        el.style.setProperty("top", y, "important");
+      }
+    } else {
+      el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
+      el.style.setProperty("top", y, "important");
+    }
     window.__auraLastPlayerInfo = d;
     requestAnimationFrame(function () {
       if (window.__auraKillCinemaPlayerInfo) window.__auraKillCinemaPlayerInfo();
     });
   };
+  window.showPlayerInfo = function (d) { window.__auraShowPlayerInfo(d); };
+  window.hidePlayerInfo = function () { window.__auraHidePlayerInfo(); };
+  window.createPlayerInfo = function () { return window.__auraEnsurePlayerInfo(); };
+  window.updatePlayerInfo = function (d) { window.__auraShowPlayerInfo(d); };
 
   window.__auraApplyBanner = function (url, col) {
     url = String(url || "");
