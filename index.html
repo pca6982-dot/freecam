@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4s Menu</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@350;400;500;600&display=swap" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <style id="aura-4s-css">
     :root {
@@ -18,6 +18,7 @@
       --ui-back-g: 20;
       --ui-back-b: 20;
       --checkbox-color: var(--ui-main);
+      --menu-color: 208, 214, 224;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     html, body {
@@ -94,8 +95,8 @@
       overflow: hidden;
       position: relative;
     }
-    #menu-banner { padding: 0; overflow: hidden; }
-    #banner-image { width: 100%; height: 10vh; object-fit: cover; display: block; background: #1a1a1a; }
+    #menu-banner { padding: 0; overflow: hidden; height: 10vh; min-height: 10vh; }
+    #banner-image { width: 100%; height: 10vh !important; min-height: 10vh; object-fit: cover; display: block; background: #1a1a1a; }
     #menu-tabs { display: flex; width: 100%; }
     .tab-item {
       flex: 1; min-width: 0; padding: 0.8vh 0; font-size: 1.1vh; text-align: center;
@@ -177,24 +178,30 @@
       position: fixed !important; top: 1.4vh !important; left: 50% !important;
       right: auto !important; bottom: auto !important;
       transform: translateX(-50%) !important;
-      flex-direction: column !important; align-items: center !important;
+      display: flex !important; flex-direction: column !important; align-items: center !important;
       gap: 0.4vh !important; width: 26vh !important; max-width: 26vh !important;
-      z-index: 2000 !important;
+      z-index: 2000 !important; pointer-events: none !important;
     }
     .notification {
+      position: relative !important; display: flex !important; flex-direction: column !important;
       width: 100% !important; min-height: 0 !important;
       padding: 0.65vh 1vh 0.8vh 1.15vh !important;
       border-radius: 0.35vh !important; gap: 0 !important;
-      transform: none !important;
+      background-color: rgba(20, 20, 20, 0.92) !important;
+      overflow: hidden !important; box-sizing: border-box !important;
+      transform: none !important; opacity: 0;
     }
-    .notification.show, .notification.hide { transform: none !important; }
+    .notification.show { opacity: 1 !important; transform: none !important; }
+    .notification.hide { opacity: 0 !important; transform: none !important; }
     .notification-header, .notification-icon { display: none !important; }
     .notification-message {
       font-size: 1.05vh !important; font-weight: 500 !important;
       line-height: 1.35 !important; color: rgba(255,255,255,0.92) !important;
     }
     .notification-side {
-      top: 0 !important; height: 100% !important; width: 0.22vh !important;
+      position: absolute !important; top: 0 !important; left: 0 !important;
+      height: 100% !important; width: 0.22vh !important;
+      background: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
     }
     .notification-progress { height: 0.16vh !important; }
     #header-wrapper #menu-tabs, #menu-tabs { width: 100% !important; display: flex !important; }
@@ -360,7 +367,7 @@
     }
     #live-list-keybinds, .live-list-container#live-list-keybinds { display: none !important; }
     #aura-loader, .loading-scale-layer, .zt-load-screen, .zt-card.zt-loading,
-    .shark-load-inner, .input-overlay, #SharkLoadingOverlay {
+    .shark-load-inner, #SharkLoadingOverlay {
       display: none !important; opacity: 0 !important; visibility: hidden !important;
       pointer-events: none !important;
     }
@@ -434,34 +441,110 @@
       animation: aura-blink 1s steps(2, start) infinite;
     }
     @keyframes aura-blink { to { visibility: hidden; } }
-    .keybindlist-container {
-      position: fixed; z-index: 99999; width: 138px;
-      background: rgba(0,0,0,0.8); border: 1px solid #2a2a2a; border-radius: 3px;
-      overflow: hidden; opacity: 0; pointer-events: none; box-sizing: border-box;
-      font-family: "Segoe UI", Arial, sans-serif;
+    .KBLWrapper, .keybindlist-container {
+      position: fixed;
+      display: flex;
+      left: var(--kbl-x, 82%);
+      top: var(--kbl-y, 3%);
+      right: auto;
+      width: 7.0313vw;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: Inter, "Segoe UI", sans-serif;
+      border-radius: 0.1563vw;
+      overflow: hidden;
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      box-sizing: border-box;
+      background: transparent;
+      border: none;
     }
-    .keybindlist-container.show { opacity: 1; pointer-events: auto; }
-    .keybind-list-header {
-      display: flex; align-items: center; gap: 5px;
-      padding: 5px 5px 6px 3px; background: #000;
-      border: none; border-bottom: 1px solid #fff; box-sizing: border-box;
+    .KBLWrapper.show, .keybindlist-container.show { opacity: 1; pointer-events: auto; }
+    .KBLWrapper .Header, .keybindlist-container .Header {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: 1.0417vw;
+      justify-content: flex-start;
+      align-items: center;
+      background-color: #000c;
+      border-bottom: 0.0521vw solid rgb(var(--menu-color));
     }
-    .keybind-list-title {
-      color: rgba(255,255,255,0.92); font-size: 9px; font-weight: 600; line-height: 1; margin: 0;
+    .KBLWrapper .Header .Icon, .keybindlist-container .Header .Icon {
+      margin-left: 0.25vw;
+      color: rgb(var(--menu-color));
+      display: flex;
+      align-items: center;
     }
-    .keybind-list-content { padding: 3px 0 0; max-height: 165px; overflow: hidden; }
-    .keybind-list-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 6px;
-      padding: 2px 5px 2px 3px; box-sizing: border-box;
+    .KBLWrapper .Header .Icon svg, .keybindlist-container .Header .Icon svg,
+    .KBLWrapper .Header .Icon i, .keybindlist-container .Header .Icon i {
+      width: 0.72vw;
+      height: 0.72vw;
+      font-size: 0.72vw;
     }
-    .keybind-list-label, .keybind-list-value {
-      color: rgba(255,255,255,0.86); font-size: 9px; font-weight: 500;
-      line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    .KBLWrapper .Header span, .keybindlist-container .Header span {
+      margin-left: 0.1042vw;
+      font-size: 0.5208vw;
+      font-weight: 350;
+      color: #fff;
     }
-    .keybind-list-label { flex: 1 1 0; min-width: 0; }
-    .keybind-list-value { flex: 0 0 auto; max-width: 46%; margin-left: auto; text-align: right; }
-    #live-list-keybinds, .live-list-container { display: none !important; }
-    #aura-player-info{position:fixed!important;z-index:2147483000!important;display:none;flex-direction:column;width:13.6vw;max-width:13.6vw;overflow:hidden!important;border-radius:.28vw;background:rgba(8,8,10,.62);box-shadow:0 .2vw .6vw rgba(0,0,0,.4);font-family:Inter,system-ui,sans-serif;pointer-events:none;padding:.18vw .5vw .32vw}
+    .KBLWrapper .Keybinds, .keybindlist-container .Keybinds {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: auto;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 0.2083vw;
+      background-color: #00000080;
+      padding: 0.1042vw;
+    }
+    .KBLWrapper .Keybinds .Keybind, .keybindlist-container .Keybinds .Keybind {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: 0.7813vw;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .KBLWrapper .Keybinds .Keybind .Label, .keybindlist-container .Keybinds .Keybind .Label {
+      position: absolute;
+      display: flex;
+      left: 0.25vw;
+      font-size: 0.5208vw;
+      font-weight: 350;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 58%;
+    }
+    .KBLWrapper .Keybinds .Keybind .Elements, .keybindlist-container .Keybinds .Keybind .Elements {
+      position: absolute;
+      display: flex;
+      right: 0.25vw;
+      justify-content: flex-end;
+      align-items: center;
+      flex-direction: row;
+      gap: 0.1042vw;
+    }
+    .KBLWrapper .Keybinds .Keybind .Elements span, .keybindlist-container .Keybinds .Keybind .Elements span {
+      font-size: 0.5208vw;
+      font-weight: 350;
+      color: #fff;
+    }
+    #live-list-keybinds, .live-list-container#live-list-keybinds { display: none !important; }
+    #aura-player-info{
+      position:fixed!important;z-index:2147483000!important;display:none;flex-direction:column;
+      width:13.6vw;max-width:13.6vw;overflow:hidden!important;border-radius:.28vw;
+      background:rgba(8,8,10,.62);box-shadow:0 .2vw .6vw rgba(0,0,0,.4);
+      font-family:Inter,system-ui,sans-serif;pointer-events:none;padding:.18vw .5vw .32vw;
+      left:calc(var(--aura-menu-x, 14.25vh) + 33vh + 0.55vh)!important;
+      top:var(--aura-menu-y, 21.5vh)!important;
+    }
     #aura-player-info.show{display:flex!important;visibility:visible!important;opacity:1!important}
     #aura-player-info .api-close,#aura-player-info .api-head,#aura-player-info .api-name,#aura-player-info .api-bar{display:none}
     #aura-player-info .api-sec{display:flex;align-items:center;gap:.28vw;margin:.18vw 0 .12vw}
@@ -633,14 +716,15 @@
     };
   }
   if (typeof window.showNotification !== "function") {
-    window.showNotification = function (type, title, msg) {
+    window.showNotification = function (type, title, msg, dur) {
       var nc = document.getElementById("notification-container");
       if (!nc) return;
+      nc.style.display = "flex";
       var n = document.createElement("div");
       n.className = "notification show";
-      n.innerHTML = '<div class="notification-message">' + String(msg || title || "") + "</div>";
+      n.innerHTML = '<div class="notification-side"></div><div class="notification-message">' + String(msg || title || "") + "</div>";
       nc.appendChild(n);
-      setTimeout(function () { n.classList.add("hide"); setTimeout(function () { n.remove(); }, 400); }, 2800);
+      setTimeout(function () { n.classList.add("hide"); setTimeout(function () { n.remove(); }, 400); }, Math.max(1200, Number(dur) || 3500));
     };
   }
   if (typeof window.updateProgressBar !== "function") {
@@ -662,7 +746,7 @@
     }
   }
   function killDupes() {
-    document.querySelectorAll("#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,.input-overlay,#aura-key-pick,#live-list-keybinds,.live-list-container,#SharkLoadingOverlay").forEach(rm);
+    document.querySelectorAll("#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,#SharkLoadingOverlay").forEach(rm);
     var keep = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (keep) {
       document.querySelectorAll(".keybindlist-container").forEach(function (n) {
@@ -887,8 +971,23 @@
     var y = p.y != null ? p.y : d && d.y;
     var menu = document.getElementById("menu-root");
     if (!menu) return;
-    if (x != null && isFinite(Number(x))) menu.style.setProperty("left", Number(x) + "vh", "important");
-    if (y != null && isFinite(Number(y))) menu.style.setProperty("top", Number(y) + "vh", "important");
+    if (x != null && isFinite(Number(x))) {
+      var xv = Number(x) + "vh";
+      menu.style.setProperty("left", xv, "important");
+      document.documentElement.style.setProperty("--aura-menu-x", xv);
+    }
+    if (y != null && isFinite(Number(y))) {
+      var yv = Number(y) + "vh";
+      menu.style.setProperty("top", yv, "important");
+      document.documentElement.style.setProperty("--aura-menu-y", yv);
+    }
+    var pi = document.getElementById("aura-player-info");
+    if (pi && pi.classList.contains("show")) {
+      var mx = menu.style.getPropertyValue("left") || "14.25vh";
+      var my = menu.style.getPropertyValue("top") || "21.5vh";
+      pi.style.setProperty("left", "calc(" + mx + " + 33vh + 0.55vh)", "important");
+      pi.style.setProperty("top", my, "important");
+    }
   }
   function applyMenuScale(size) {
     var pct = Number(size);
@@ -931,8 +1030,14 @@
     var p = (d && d.position) || d || {};
     var box = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (!box) return;
-    if (p.x != null && isFinite(Number(p.x))) box.style.left = Number(p.x) + "vh";
-    if (p.y != null && isFinite(Number(p.y))) box.style.top = Number(p.y) + "vh";
+    if (p.x != null && isFinite(Number(p.x))) {
+      box.style.left = Number(p.x) + "%";
+      box.style.setProperty("--kbl-x", Number(p.x) + "%");
+    }
+    if (p.y != null && isFinite(Number(p.y))) {
+      box.style.top = Number(p.y) + "%";
+      box.style.setProperty("--kbl-y", Number(p.y) + "%");
+    }
   }
 
   killDupes();
@@ -1023,6 +1128,17 @@
     if (on === false) window.__auraHideKeyPick();
     else window.__auraShowKeyPick(title || "Press a key", v || "...");
   };
+  window.__auraEnsureSharkInputWrapper = function () {
+    var box = document.getElementById("aura-key-select");
+    if (box) box.classList.add("active");
+  };
+  window.__auraSyncSectionTitle = function () {
+    var t = document.querySelector("#menu-tabs .tab-item");
+    var label = window.__auraSectionTitle || "Main Menu";
+    if (t) t.textContent = label;
+    fullTitle();
+  };
+  window.__auraSyncMainIcons = function () {};
   window.showInput = function (t) {
     t = t || {};
     window.__auraShowKeyPick(t.header || t.title || t.placeholder || "Input", t.value || "");
@@ -1038,14 +1154,14 @@
     var kb = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (!kb) {
       kb = document.createElement("div");
-      kb.style.top = "4vh";
-      kb.style.left = "88vh";
+      kb.style.top = "3%";
+      kb.style.left = "82%";
       document.body.appendChild(kb);
     }
     kb.id = "aura-keybind-hud";
-    kb.className = "keybindlist-container";
+    kb.className = "KBLWrapper keybindlist-container";
     if (!kb.querySelector("#keybindlist-content")) {
-      kb.innerHTML = '<div class="keybind-list-header"><div class="keybind-list-title">Keybinds</div></div><div class="keybind-list-content" id="keybindlist-content"></div>';
+      kb.innerHTML = '<div class="Header"><span class="Icon"><i class="fa-solid fa-keyboard"></i></span><span>Keybinds</span></div><div class="Keybinds" id="keybindlist-content"></div>';
     }
     return kb;
   }
@@ -1057,8 +1173,8 @@
     var html = "";
     (binds || []).forEach(function (b) {
       b = b || {};
-      html += '<div class="keybind-list-row"><span class="keybind-list-label">' + esc(b.label || b.name || "") +
-        '</span><span class="keybind-list-value">' + esc(b.keyLabel || b.key || b.value || "-") + "</span></div>";
+      html += '<div class="Keybind"><div class="Label">' + esc(b.label || b.name || "") +
+        '</div><div class="Elements"><span>' + esc(b.keyLabel || b.key || b.value || "-") + "</span></div></div>";
     });
     c.innerHTML = html;
     box.classList.add("show");
@@ -1176,7 +1292,10 @@
     else if (typeof window.buildMenu === "function") window.buildMenu({ tabs: tabs });
     var idx = Number(d.categoryIndex);
     if (isFinite(idx) && typeof window.updateTab === "function") window.updateTab(idx);
-    fullTitle();
+    var active = tabs[isFinite(idx) ? idx : 0];
+    if (active && active.label) window.__auraSectionTitle = active.label;
+    if (window.__auraSyncSectionTitle) window.__auraSyncSectionTitle();
+    else fullTitle();
   }
 
   function applyMenu(d, open) {
@@ -1345,6 +1464,15 @@
     var y = (m && m.style.getPropertyValue("top")) || "21.5vh";
     el.classList.add("show");
     el.style.setProperty("display", "flex", "important");
+    el.style.setProperty("visibility", "visible", "important");
+    el.style.setProperty("opacity", "1", "important");
+    el.style.setProperty("position", "fixed", "important");
+    el.style.setProperty("z-index", "2147483000", "important");
+    el.style.setProperty("overflow", "hidden", "important");
+    el.style.setProperty("width", "13.6vw", "important");
+    el.style.setProperty("max-width", "13.6vw", "important");
+    document.documentElement.style.setProperty("--aura-menu-x", x);
+    document.documentElement.style.setProperty("--aura-menu-y", y);
     el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
     el.style.setProperty("top", y, "important");
     window.__auraLastPlayerInfo = d;
