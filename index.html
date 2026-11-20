@@ -109,7 +109,7 @@
     }
     .tab-item.active { color: #fff !important; font-weight: 500 !important; }
     .tab-item > * { position: relative; z-index: 1; }
-    #header-wrapper, #menu-footer {
+    #header-wrapper {
       background-color: rgba(20, 20, 20, 0.90) !important;
       border-radius: 0.45vh;
     }
@@ -133,10 +133,16 @@
     .menu-item { padding: 1vh; height: 3vh; box-sizing: border-box; }
     #menu-footer {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 0.45vh 0.95vh; font-size: 1.15vh; margin-top: 0.45vh; height: 1.95vh;
+      padding: 0.28vh 0.85vh; font-size: 1.02vh; margin-top: 0.45vh; height: 1.62vh;
+      background-color: rgba(8, 8, 10, 0.94) !important;
+      border-radius: 0.2vh;
     }
-    #footer-left { font-weight: 500; }
-    #footer-right { font-family: monospace; }
+    #footer-left, #footer-right {
+      color: #b8c0c8 !important;
+      font-weight: 400 !important;
+    }
+    #footer-left { font-weight: 400; }
+    #footer-right { font-family: inherit; }
     #menu-scrollbar {
       position: absolute;
       left: -1.13vh;
@@ -260,6 +266,9 @@
     #items-list .menu-item, #items-list .menu-item .name, .menu-item, .menu-item .name {
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
       font-size: 1.2vh !important; font-weight: 500 !important; letter-spacing: 0 !important;
+    }
+    #items-list .menu-item .name, .menu-item .name {
+      color: #c5ccd4 !important;
     }
     .menu-item {
       display: flex !important;
