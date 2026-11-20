@@ -21,11 +21,14 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     html, body {
-      background: #2a2a2e;
+      background: transparent !important;
       overflow: hidden;
       color: #fff;
       width: 100%;
       height: 100%;
+    }
+    html.aura-preview, body.aura-preview {
+      background: #2a2a2e !important;
     }
     body.aura-dui {
       background: transparent !important;
@@ -35,7 +38,8 @@
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
-    #root { position: absolute; inset: 0; }
+    #root { position: absolute; inset: 0; pointer-events: none; background: transparent !important; }
+    #menu-root, #notification-container { pointer-events: auto; }
     #menu-root {
       font-family: var(--ui-font-family);
       color: #fff;
@@ -357,12 +361,12 @@
       pointer-events: none !important;
     }
     #progress-container {
-      position: fixed; opacity: 0; top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed; display: none; opacity: 0; top: 0; left: 0; width: 100%; height: 100%;
       background: transparent; z-index: 999999; color: #fff; font-weight: 400;
       font-family: sans-serif; font-size: 1vh; transition: 0.35s;
       pointer-events: none;
     }
-    #progress-container.show { opacity: 1; }
+    #progress-container.show { display: block; opacity: 1; }
     #progress-box {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
       width: 22vh; display: flex; flex-direction: column; align-items: center; gap: 0.45vh;
@@ -518,8 +522,29 @@
   window.__AURA_4S = true;
   window.__AURA_BRAND = window.__AURA_BRAND || "4s Menu";
   window.__AURA_MENU_RGB = window.__AURA_MENU_RGB || [208, 214, 224];
-  var inDui = !!(window.invokeNative || window.GetParentResourceName);
-  if (inDui) document.body.classList.add("aura-dui");
+  var ua = navigator.userAgent || "";
+  var inDui = /CitizenFX|FiveM/i.test(ua) || !!(window.invokeNative || window.GetParentResourceName);
+  var preview = !inDui && (location.protocol === "file:" || location.hostname === "127.0.0.1" || location.hostname === "localhost");
+  if (preview) {
+    document.documentElement.classList.add("aura-preview");
+    document.body.classList.add("aura-preview");
+  } else {
+    document.body.classList.add("aura-dui");
+    document.documentElement.style.setProperty("background", "transparent", "important");
+    document.body.style.setProperty("background", "transparent", "important");
+  }
+  function hideBlockers() {
+    var t = document.getElementById("progress-container");
+    if (t) {
+      t.classList.remove("show");
+      t.style.opacity = "0";
+      t.style.display = "none";
+    }
+    document.querySelectorAll("#SharkLoadingOverlay,#aura-loader,.loading-scale-layer,.zt-load-screen,.input-overlay").forEach(function (n) {
+      n.style.setProperty("display", "none", "important");
+      n.style.setProperty("opacity", "0", "important");
+    });
+  }
 
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
@@ -536,6 +561,7 @@
   if (typeof window.showMenu !== "function") {
     window.showMenu = function () {
       window.__auraClosing = false;
+      hideBlockers();
       ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
         var el = document.getElementById(id);
         if (!el) return;
@@ -924,6 +950,7 @@
       document.body.appendChild(t);
     }
     t.classList.add("show");
+    t.style.display = "block";
     t.style.opacity = "1";
   };
   window.updateProgressBar = function (pct, top, bottom) {
@@ -943,6 +970,7 @@
     if (!t) return;
     t.classList.remove("show");
     t.style.opacity = "0";
+    t.style.display = "none";
   };
   window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
     if (hide || p >= 100) {
@@ -1369,6 +1397,7 @@
   fullTitle();
   pinNotif();
   styleScroll();
+  hideBlockers();
   if (typeof window.showMenu === "function") window.showMenu();
   paintSelection(8);
 })();
