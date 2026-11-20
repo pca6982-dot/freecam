@@ -129,7 +129,7 @@
       z-index: 1;
     }
     #menu-items { position: relative; max-height: 39vh; overflow: hidden; background-color: transparent !important; }
-    #items-list { position: relative; transition: transform 0.25s ease-out; }
+    #items-list { position: relative; transition: transform 0.38s cubic-bezier(0.33, 0.0, 0.2, 1); }
     .menu-item { padding: 1vh; height: 3vh; box-sizing: border-box; }
     #menu-footer {
       display: flex; justify-content: space-between; align-items: center;
@@ -178,7 +178,7 @@
       top: 72%;
       background: #fff;
       border-radius: 1vh;
-      transition: top 0.25s ease-out, height 0.25s ease-out;
+      transition: top 0.38s cubic-bezier(0.33, 0.0, 0.2, 1), height 0.38s cubic-bezier(0.33, 0.0, 0.2, 1);
     }
     .menu-item { position: relative; z-index: 1; }
     #selection-highlight {
@@ -192,7 +192,7 @@
       background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.52) !important;
       border: none !important;
       box-shadow: none !important;
-      transition: top 0.25s ease-out !important;
+      transition: top 0.38s cubic-bezier(0.33, 0.0, 0.2, 1) !important;
     }
     body.aura-space-compact #header-wrapper { margin-bottom: 0.15vh !important; }
     body.aura-space-compact #menu-footer { margin-top: 0.15vh !important; }
@@ -533,7 +533,8 @@
     @keyframes aura-blink { to { visibility: hidden; } }
     #aura-keybind-hud.KBLWrapper, .KBLWrapper {
       position: fixed !important;
-      display: none;
+      display: flex;
+      opacity: 0;
       left: var(--kbl-x, 82%) !important;
       top: var(--kbl-y, 3%) !important;
       right: auto !important;
