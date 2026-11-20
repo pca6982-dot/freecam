@@ -129,7 +129,7 @@
       z-index: 1;
     }
     #menu-items { position: relative; max-height: 39vh; overflow: hidden; background-color: transparent !important; }
-    #items-list { position: relative; transition: transform 0.16s cubic-bezier(0.25, 0.1, 0.25, 1); }
+    #items-list { position: relative; transition: none; }
     .menu-item { padding: 1vh; height: 3vh; box-sizing: border-box; }
     #menu-footer {
       display: flex; justify-content: space-between; align-items: center;
@@ -198,7 +198,7 @@
       background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.52) !important;
       border: none !important;
       box-shadow: none !important;
-      transition: top 0.16s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+      transition: none !important;
     }
     body.aura-space-compact #header-wrapper { margin-bottom: 0 !important; border-radius: 0.45vh 0.45vh 0 0 !important; }
     body.aura-space-compact #menu-container { border-radius: 0 !important; }
@@ -270,7 +270,7 @@
       font-size: 1.2vh !important; font-weight: 500 !important; letter-spacing: 0 !important;
     }
     #items-list .menu-item .name, .menu-item .name {
-      color: #c5ccd4 !important;
+      color: #f3f5f8 !important;
     }
     .menu-item {
       display: flex !important;
@@ -819,10 +819,12 @@
 
   window.__auraPaintSelection = function (idx) { paintSelection(idx); };
   var _selIdx = -1;
+  var _listOff = 0;
+  var _listN = -1;
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
-    if (idx === _selIdx) return;
     _selIdx = idx;
+    window.__selIdx = idx;
     var list = document.getElementById("items-list");
     var hi = document.getElementById("selection-highlight");
     if (!list) return;
@@ -830,19 +832,26 @@
     if (!rows.length) rows = list.children;
     var row = rows[idx];
     var wrap = document.getElementById("menu-items");
+    var n = rows.length || 0;
+    if (n !== _listN) { _listOff = 0; _listN = n; }
     if (row && wrap) {
       var y = row.offsetTop || 0;
       var vis = wrap.clientHeight || wrap.offsetHeight || 0;
       var rh = row.offsetHeight || 0;
-      var off = 0;
-      if (vis > 0 && y + rh > vis) off = y + rh - vis;
+      var off = _listOff || 0;
       if (y < off) off = y;
+      else if (vis > 0 && (y + rh) > (off + vis)) off = Math.max(0, y + rh - vis);
+      if (off < 0) off = 0;
+      _listOff = off;
+      list.style.setProperty("transition", "none", "important");
       list.style.transform = "translateY(" + (-off) + "px)";
-      if (hi) hi.style.top = (y - off) + "px";
+      if (hi) {
+        hi.style.setProperty("transition", "none", "important");
+        hi.style.top = (y - off) + "px";
+      }
     } else if (row && hi) {
       hi.style.top = (row.offsetTop || 0) + "px";
     }
-    var n = rows.length;
     var foot = document.getElementById("footer-right");
     if (foot && n) foot.textContent = (idx + 1) + "/" + n;
     var thumb = document.getElementById("scrollbar-thumb");
