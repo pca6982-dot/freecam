@@ -842,11 +842,12 @@
       if (y < off) off = y;
       else if (vis > 0 && (y + rh) > (off + vis)) off = Math.max(0, y + rh - vis);
       if (off < 0) off = 0;
+      var moved = off !== _listOff;
       _listOff = off;
-      list.style.setProperty("transition", "none", "important");
+      list.style.setProperty("transition", moved ? "transform 0.14s cubic-bezier(0.22,1,0.32,1)" : "none", "important");
       list.style.transform = "translateY(" + (-off) + "px)";
       if (hi) {
-        hi.style.setProperty("transition", "none", "important");
+        hi.style.setProperty("transition", "top 0.12s cubic-bezier(0.22,1,0.32,1)", "important");
         hi.style.top = (y - off) + "px";
       }
     } else if (row && hi) {
@@ -975,6 +976,46 @@
     var wide = n === "soft" || n === "spaced" || n === "wide";
     document.body.classList.toggle("aura-space-wide", wide);
     document.body.classList.toggle("aura-space-compact", !wide);
+    var root = document.getElementById("menu-root");
+    var h = document.getElementById("header-wrapper");
+    var c = document.getElementById("menu-container");
+    var f = document.getElementById("menu-footer");
+    function spacer(id, after, hh) {
+      if (!after || !after.parentNode) return;
+      var sp = document.getElementById(id);
+      if (!sp) {
+        sp = document.createElement("div");
+        sp.id = id;
+        after.parentNode.insertBefore(sp, after.nextSibling);
+      }
+      sp.style.setProperty("display", hh ? "block" : "none", "important");
+      sp.style.setProperty("height", hh || "0", "important");
+      sp.style.setProperty("width", "100%", "important");
+      sp.style.setProperty("background", "transparent", "important");
+      sp.style.setProperty("background-color", "transparent", "important");
+      sp.style.setProperty("pointer-events", "none", "important");
+      sp.style.setProperty("flex-shrink", "0", "important");
+    }
+    if (root) {
+      root.style.setProperty("display", "flex", "important");
+      root.style.setProperty("flex-direction", "column", "important");
+      root.style.setProperty("background", "transparent", "important");
+      root.style.setProperty("background-color", "transparent", "important");
+      root.style.setProperty("gap", wide ? "0.82vh" : "0", "important");
+    }
+    if (wide) {
+      if (h) { h.style.setProperty("margin-bottom", "0.82vh", "important"); h.style.setProperty("border-radius", "0.45vh", "important"); }
+      if (c) { c.style.setProperty("border-radius", "0.45vh", "important"); }
+      if (f) { f.style.setProperty("margin-top", "0.95vh", "important"); f.style.setProperty("border-radius", "0.45vh", "important"); }
+      spacer("aura-space-top", h, "0.82vh");
+      spacer("aura-space-bot", c, "0.95vh");
+    } else {
+      if (h) { h.style.setProperty("margin-bottom", "0", "important"); h.style.setProperty("border-radius", "0.45vh 0.45vh 0 0", "important"); }
+      if (c) { c.style.setProperty("border-radius", "0", "important"); }
+      if (f) { f.style.setProperty("margin-top", "0", "important"); f.style.setProperty("border-radius", "0 0 0.45vh 0.45vh", "important"); }
+      spacer("aura-space-top", h, "");
+      spacer("aura-space-bot", c, "");
+    }
   };
 
   function esc(s) { return s == null ? "" : String(s); }
@@ -1701,6 +1742,9 @@
         var si = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
         if (window.updateSelection) window.updateSelection(si);
       } else applyMenu(d, false);
+    }
+    else if (a === "setSelectStyle" || a === "updateSelectStyle") {
+      if (window.__auraSetSelectStyle) window.__auraSetSelectStyle(d.style || d.name || d.value);
     }
     else if (a === "keydown" || a === "setSelection" || a === "updateSelection") {
       var i = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
