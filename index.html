@@ -100,6 +100,13 @@
       pointer-events: none !important;
     }
     .tab-item.active::before { transform: scaleY(1) !important; }
+    .tab-item.single::before,
+    .tab-item.full::before,
+    .tab-item:only-child::before {
+      display: none !important;
+      transform: none !important;
+      background: none !important;
+    }
     .tab-item.active { color: #fff !important; font-weight: 500 !important; }
     .tab-item > * { position: relative; z-index: 1; }
     #header-wrapper, #menu-footer {
@@ -287,8 +294,8 @@
       align-items: center !important;
       gap: 0.4vh !important;
     }
-    .components-container .component { order: 10 !important; }
-    .components-container .slider-component { order: 30 !important; }
+    .components-container .slider-component { order: 1 !important; }
+    .components-container .component { order: 20 !important; }
     .component .slider-component, .slider-component {
       display: flex !important;
       align-items: center !important;
@@ -763,12 +770,6 @@
     var foot = document.getElementById("footer-right");
     if (foot && n) foot.textContent = (idx + 1) + "/" + n;
     var thumb = document.getElementById("scrollbar-thumb");
-    var bar = document.getElementById("menu-scrollbar");
-    if (bar) {
-      bar.classList.add("visible");
-      bar.style.setProperty("opacity", "1", "important");
-      bar.style.setProperty("display", "flex", "important");
-    }
     if (thumb && n) {
       var vis2 = Math.min(9, n);
       var h = Math.max(12, (vis2 / n) * 100);
@@ -776,7 +777,6 @@
       thumb.style.height = h + "%";
       thumb.style.top = t + "%";
     }
-    if (typeof styleScroll === "function") styleScroll();
   }
 
   window.showMenu = function () {
@@ -919,8 +919,18 @@
       row.style.setProperty("direction", "ltr", "important");
       var name = row.querySelector(":scope > .name") || row.querySelector(".name");
       var comps = row.querySelector(":scope > .components-container") || row.querySelector(".components-container");
-      if (name) row.appendChild(name);
-      if (comps) row.appendChild(comps);
+      if (!comps) {
+        comps = document.createElement("div");
+        comps.className = "components-container";
+      }
+      var boxes = row.querySelectorAll("input[type='checkbox'], .component");
+      for (var b = 0; b < boxes.length; b++) {
+        var el = boxes[b];
+        var hold = el.classList && el.classList.contains("component") ? el : (el.parentNode && el.parentNode.classList && el.parentNode.classList.contains("component") ? el.parentNode : el);
+        if (hold && !comps.contains(hold)) comps.appendChild(hold);
+      }
+      if (name) row.insertBefore(name, row.firstChild);
+      row.appendChild(comps);
     }
   }
   function wrapLive() {
