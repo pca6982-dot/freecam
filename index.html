@@ -129,7 +129,7 @@
       z-index: 1;
     }
     #menu-items { position: relative; max-height: 39vh; overflow: hidden; background-color: transparent !important; }
-    #items-list { position: relative; }
+    #items-list { position: relative; transition: transform 0.25s ease-out; }
     .menu-item { padding: 1vh; height: 3vh; box-sizing: border-box; }
     #menu-footer {
       display: flex; justify-content: space-between; align-items: center;
@@ -178,6 +178,7 @@
       top: 72%;
       background: #fff;
       border-radius: 1vh;
+      transition: top 0.25s ease-out, height 0.25s ease-out;
     }
     .menu-item { position: relative; z-index: 1; }
     #selection-highlight {
@@ -191,6 +192,7 @@
       background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.52) !important;
       border: none !important;
       box-shadow: none !important;
+      transition: top 0.25s ease-out !important;
     }
     body.aura-space-compact #header-wrapper { margin-bottom: 0.15vh !important; }
     body.aura-space-compact #menu-footer { margin-top: 0.15vh !important; }
@@ -765,15 +767,17 @@
     if (!rows.length) rows = list.children;
     var row = rows[idx];
     var wrap = document.getElementById("menu-items");
-    if (row && hi) {
+    if (row && wrap) {
       var y = row.offsetTop || 0;
-      if (wrap) {
-        var vis = wrap.clientHeight || wrap.offsetHeight || 0;
-        var rh = row.offsetHeight || 0;
-        if (vis > 0 && y + rh > vis) wrap.scrollTop = y + rh - vis;
-        else if (y < (wrap.scrollTop || 0)) wrap.scrollTop = y;
-      }
-      hi.style.top = y + "px";
+      var vis = wrap.clientHeight || wrap.offsetHeight || 0;
+      var rh = row.offsetHeight || 0;
+      var off = 0;
+      if (vis > 0 && y + rh > vis) off = y + rh - vis;
+      if (y < off) off = y;
+      list.style.transform = "translateY(" + (-off) + "px)";
+      if (hi) hi.style.top = (y - off) + "px";
+    } else if (row && hi) {
+      hi.style.top = (row.offsetTop || 0) + "px";
     }
     var n = rows.length;
     var foot = document.getElementById("footer-right");
