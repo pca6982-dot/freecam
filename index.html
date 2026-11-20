@@ -753,8 +753,11 @@
   window.__auraPrepPage();
 
   window.__auraPaintSelection = function (idx) { paintSelection(idx); };
+  var _selIdx = -1;
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
+    if (idx === _selIdx) return;
+    _selIdx = idx;
     var list = document.getElementById("items-list");
     var hi = document.getElementById("selection-highlight");
     if (!list) return;
@@ -871,6 +874,7 @@
           '</span><div class="components-container">' + extra + "</div></div>";
       }
       list.innerHTML = html;
+      _selIdx = -1;
       paintSelection(idx || 0);
     };
   }
@@ -1572,6 +1576,7 @@
     if (open || d.visible === true) {
       window.__auraOpenMenu();
     }
+    _selIdx = -1;
     if (typeof window.updateSelection === "function") window.updateSelection(idx);
     orderItemRows();
     styleScroll();
@@ -1595,7 +1600,7 @@
     }
     else if (a === "keydown" || a === "setSelection" || a === "updateSelection") {
       var i = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
-      if (window.updateSelection) window.updateSelection(i);
+      paintSelection(i);
     } else if (a === "updateCategories" || a === "setTabs") applyTabs(d);
     else if (a === "setVisible") {
       if (d.visible === false) { window.__auraCloseMenu(); }
