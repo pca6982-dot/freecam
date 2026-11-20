@@ -48,11 +48,15 @@
       left: 14.25vh;
       width: 33vh !important;
       z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
     #menu-root.visible,
     #menu-root.visible.hiding {
       opacity: 1 !important;
       visibility: visible !important;
+      pointer-events: auto;
     }
     #menu-root.visible #header-wrapper,
     #menu-root.visible #header-wrapper.hiding,
@@ -472,7 +476,7 @@
 </head>
 <body>
   <div id="root">
-    <div id="menu-root" class="visible">
+    <div id="menu-root">
       <div id="header-wrapper" class="visible">
         <div id="menu-banner">
           <img id="banner-image" alt="4s Menu" src="https://pca6982-dot.github.io/cinema/4s-menu.jpg" />
@@ -533,18 +537,11 @@
     document.documentElement.style.setProperty("background", "transparent", "important");
     document.body.style.setProperty("background", "transparent", "important");
   }
-  function hideBlockers() {
-    var t = document.getElementById("progress-container");
-    if (t) {
-      t.classList.remove("show");
-      t.style.opacity = "0";
-      t.style.display = "none";
-    }
-    document.querySelectorAll("#SharkLoadingOverlay,#aura-loader,.loading-scale-layer,.zt-load-screen,.input-overlay").forEach(function (n) {
-      n.style.setProperty("display", "none", "important");
-      n.style.setProperty("opacity", "0", "important");
-    });
-  }
+  document.querySelectorAll(".PWrapper,.menu-wrapper").forEach(function (w) {
+    w.style.setProperty("display", "none", "important");
+    w.style.setProperty("opacity", "0", "important");
+    w.style.setProperty("visibility", "hidden", "important");
+  });
 
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
@@ -561,7 +558,6 @@
   if (typeof window.showMenu !== "function") {
     window.showMenu = function () {
       window.__auraClosing = false;
-      hideBlockers();
       ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
         var el = document.getElementById(id);
         if (!el) return;
@@ -1397,9 +1393,10 @@
   fullTitle();
   pinNotif();
   styleScroll();
-  hideBlockers();
-  if (typeof window.showMenu === "function") window.showMenu();
-  paintSelection(8);
+  if (preview) {
+    if (typeof window.showMenu === "function") window.showMenu();
+    paintSelection(8);
+  }
 })();
   </script>
 </body>
