@@ -5,20 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4s Menu</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <style id="aura-4s-css">
-    :root { --ui-font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif; }
+    :root {
+      --ui-font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif;
+      --ui-main: rgb(208, 214, 224);
+      --ui-main-r: 208;
+      --ui-main-g: 214;
+      --ui-main-b: 224;
+      --ui-back: #141414;
+      --ui-back-r: 20;
+      --ui-back-g: 20;
+      --ui-back-b: 20;
+      --checkbox-color: var(--ui-main);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     html, body {
-      background: transparent !important;
+      background: #2a2a2e;
       overflow: hidden;
       color: #fff;
+      width: 100%;
+      height: 100%;
+    }
+    body.aura-dui {
+      background: transparent !important;
     }
     html, body, #app, #menu-root, #menu-root *, #menu-footer, .tab-item, .menu-item, .menu-item .name,
     .notification, .input-overlay, .live-list-container, .keybindlist-container, #footer-left, #footer-right {
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
     }
     #app { position: absolute; inset: 0; pointer-events: none; }
-    #menu-root { width: 33vh !important; }
+    #root { position: absolute; inset: 0; }
+    #menu-root {
+      font-family: var(--ui-font-family);
+      color: #fff;
+      position: fixed;
+      top: 21.5vh;
+      left: 14.25vh;
+      width: 33vh !important;
+      z-index: 1000;
+    }
     #menu-root.visible,
     #menu-root.visible.hiding {
       opacity: 1 !important;
@@ -51,11 +77,72 @@
     .tab-item.active { color: #fff !important; }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
+      border-radius: 0.45vh;
     }
+    #header-wrapper { overflow: hidden; margin-bottom: 0.45vh; }
     #menu-container {
       background-color: rgba(20, 20, 20, 0.86) !important;
+      border-radius: 0.45vh;
+      overflow: hidden;
+      position: relative;
     }
-    #menu-items { background-color: transparent !important; }
+    #menu-banner { padding: 0; overflow: hidden; }
+    #banner-image { width: 100%; height: 10vh; object-fit: cover; display: block; background: #1a1a1a; }
+    #menu-tabs { display: flex; width: 100%; }
+    .tab-item {
+      flex: 1; min-width: 0; padding: 0.8vh 0; font-size: 1.1vh; text-align: center;
+      color: rgba(255,255,255,0.6); position: relative; overflow: hidden;
+    }
+    #menu-items { position: relative; max-height: 39vh; overflow: hidden; background-color: transparent !important; }
+    #items-list { position: relative; }
+    .menu-item { padding: 1vh; height: 3vh; box-sizing: border-box; }
+    #menu-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.45vh 0.95vh; font-size: 1.15vh; margin-top: 0.45vh; height: 1.95vh;
+    }
+    #footer-left { font-weight: 500; }
+    #footer-right { font-family: monospace; }
+    #menu-scrollbar {
+      position: absolute;
+      left: calc(33vh + 0.35vh);
+      top: 13.25vh;
+      width: 0.45vh;
+      height: 39vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #menu-scrollbar .aura-sb-up,
+    #menu-scrollbar .aura-sb-down {
+      width: 0;
+      height: 0;
+      border-left: 0.22vh solid transparent;
+      border-right: 0.22vh solid transparent;
+    }
+    #menu-scrollbar .aura-sb-up { border-bottom: 0.32vh solid #fff; margin-bottom: 0.25vh; }
+    #menu-scrollbar .aura-sb-down { border-top: 0.32vh solid #fff; margin-top: 0.25vh; }
+    #scrollbar-track {
+      flex: 1;
+      width: 0.18vh;
+      background: rgba(255,255,255,0.18);
+      border-radius: 1vh;
+      position: relative;
+    }
+    #scrollbar-thumb {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 28%;
+      top: 72%;
+      background: #fff;
+      border-radius: 1vh;
+    }
+    .menu-item { position: relative; z-index: 1; }
+    #selection-highlight {
+      position: absolute; margin-top: 0.2vh; left: 0.2vh; right: 0.2vh; height: 2.4vh;
+      border-radius: 0.4vh;
+    }
+    .components-container { display: flex; align-items: center; }
     #selection-highlight {
       z-index: 0 !important;
       pointer-events: none !important;
@@ -124,6 +211,15 @@
       align-items: center !important;
     }
     .menu-item .name { flex: 1 1 auto !important; min-width: 0 !important; }
+    .menu-vehicle-icon, i.menu-vehicle-icon, .menu-item .menu-vehicle-icon {
+      display: inline-flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      color: #fff !important;
+      flex-shrink: 0 !important;
+      font-size: 1.24vh !important;
+      line-height: 1 !important;
+    }
     .components-container {
       margin-left: auto !important;
       flex: 0 0 auto !important;
@@ -357,10 +453,58 @@
     .keybind-list-label { flex: 1 1 0; min-width: 0; }
     .keybind-list-value { flex: 0 0 auto; max-width: 46%; margin-left: auto; text-align: right; }
     #live-list-keybinds, .live-list-container { display: none !important; }
+    #aura-player-info{position:fixed!important;z-index:2147483000!important;display:none;flex-direction:column;width:13.6vw;max-width:13.6vw;overflow:hidden!important;border-radius:.28vw;background:rgba(8,8,10,.62);box-shadow:0 .2vw .6vw rgba(0,0,0,.4);font-family:Inter,system-ui,sans-serif;pointer-events:none;padding:.18vw .5vw .32vw}
+    #aura-player-info.show{display:flex!important;visibility:visible!important;opacity:1!important}
+    #aura-player-info .api-close,#aura-player-info .api-head,#aura-player-info .api-name,#aura-player-info .api-bar{display:none}
+    #aura-player-info .api-sec{display:flex;align-items:center;gap:.28vw;margin:.18vw 0 .12vw}
+    #aura-player-info .api-sec span{flex:1;height:.03vw;background:rgba(255,255,255,.55)}
+    #aura-player-info .api-sec b{color:#fff;font-size:.5vw;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+    #aura-player-info .api-row{display:flex;justify-content:space-between;align-items:center;gap:.28vw;min-height:.7vw;padding:.04vw 0}
+    #aura-player-info .api-row .api-l{display:flex;align-items:center;gap:.22vw;color:#fff;font-size:.46vw;font-weight:500}
+    #aura-player-info svg{display:block!important;width:.5vw!important;height:.5vw!important;max-width:.5vw!important;max-height:.5vw!important;flex:0 0 .5vw!important;overflow:visible}
+    #aura-player-info .api-row .api-v{color:#fff;font-size:.46vw;font-weight:600;text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .player-info-container{display:none!important}
   </style>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="root">
+    <div id="menu-root" class="visible">
+      <div id="header-wrapper" class="visible">
+        <div id="menu-banner">
+          <img id="banner-image" alt="4s Menu" src="https://pca6982-dot.github.io/cinema/4s-menu.jpg" />
+        </div>
+        <div id="menu-tabs">
+          <div class="tab-item active single full">Main Menu</div>
+        </div>
+      </div>
+      <div id="menu-container" class="visible">
+        <div id="menu-items">
+          <div id="selection-highlight"></div>
+          <div id="items-list">
+            <div class="menu-item"><span class="name">Self</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Server</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Weapon</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Vehicle</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Combat</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Exploit</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Misc</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Server Triggers</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name">Settings</span><div class="components-container"></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="menu-footer" class="visible">
+        <span id="footer-left">4s Menu</span>
+        <span id="footer-right">9/9</span>
+      </div>
+      <div id="menu-scrollbar" class="visible">
+        <div class="aura-sb-up"></div>
+        <div id="scrollbar-track"><div id="scrollbar-thumb"></div></div>
+        <div class="aura-sb-down"></div>
+      </div>
+    </div>
+  </div>
+  <div id="notification-container"></div>
   <div id="progress-container">
     <div id="progress-box">
       <img id="progress-avatar" alt="" />
@@ -369,11 +513,118 @@
       <div id="progress-percent-text">0%</div>
     </div>
   </div>
-  <script src="app.js"></script>
   <script>
 (function () {
   window.__AURA_4S = true;
   window.__AURA_BRAND = window.__AURA_BRAND || "4s Menu";
+  window.__AURA_MENU_RGB = window.__AURA_MENU_RGB || [208, 214, 224];
+  var inDui = !!(window.invokeNative || window.GetParentResourceName);
+  if (inDui) document.body.classList.add("aura-dui");
+
+  function paintSelection(idx) {
+    idx = Math.max(0, Number(idx) || 0);
+    var list = document.getElementById("items-list");
+    var hi = document.getElementById("selection-highlight");
+    if (!list) return;
+    var rows = list.querySelectorAll(".menu-item");
+    var row = rows[idx];
+    if (hi && row) hi.style.top = row.offsetTop + "px";
+    var foot = document.getElementById("footer-right");
+    if (foot && rows.length) foot.textContent = (idx + 1) + "/" + rows.length;
+  }
+
+  if (typeof window.showMenu !== "function") {
+    window.showMenu = function () {
+      window.__auraClosing = false;
+      ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add("visible");
+        el.classList.remove("hiding");
+      });
+    };
+  }
+  if (typeof window.hideMenu !== "function") {
+    window.hideMenu = function () {
+      ["menu-root", "header-wrapper", "menu-container", "menu-footer", "menu-scrollbar"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove("visible");
+        el.classList.add("hiding");
+      });
+    };
+  }
+  if (typeof window.updateSelection !== "function") {
+    window.updateSelection = function (idx) { paintSelection(idx); };
+  }
+  if (typeof window.updateMenuBanner !== "function") {
+    window.updateMenuBanner = function (d) {
+      d = d || {};
+      var img = document.getElementById("banner-image");
+      var url = d.banner || d.bannerLink || d.link;
+      if (img && url) img.src = url;
+    };
+  }
+  if (typeof window.updateMenuColors !== "function") {
+    window.updateMenuColors = function (d) {
+      d = d || {};
+      if (d.mainColor && window.__auraApplyTheme) {
+        var s = String(d.mainColor);
+        if (s.charAt(0) === "#") {
+          s = s.replace("#", "");
+          if (s.length === 3) s = s.split("").map(function (c) { return c + c; }).join("");
+          var n = parseInt(s, 16);
+          window.__auraApplyTheme([n >> 16 & 255, n >> 8 & 255, n & 255]);
+        }
+      }
+    };
+  }
+  if (typeof window.updateLiveTabContent !== "function") {
+    window.updateLiveTabContent = function (items, idx) {
+      var list = document.getElementById("items-list");
+      if (!list) return;
+      items = items || [];
+      var html = "";
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i] || {};
+        if (it.separator || it.type === "divider") {
+          html += '<div class="menu-item separator"><div class="separator-container"><div class="separator-bar"></div><span class="separator-text">' +
+            String(it.name || it.label || "") + '</span><div class="separator-bar"></div></div></div>';
+          continue;
+        }
+        var extra = "";
+        if (it.inVehicle || it.vehicle) extra += '<i class="fa-solid fa-car menu-vehicle-icon"></i>';
+        if (it.inRadio) extra += '<i class="fa-solid fa-walkie-talkie menu-vehicle-icon"></i>';
+        if (it.checkbox) {
+          extra += '<div class="component"><input type="checkbox"' + (it.checkbox.checked ? " checked" : "") + "></div>";
+        }
+        if (it.slider && it.slider.options) {
+          var lab = it.slider.options[Math.max(0, (it.slider.value || 1) - 1)];
+          lab = (lab && (lab.label || lab.value)) || lab || "";
+          extra += '<div class="slider-component"><span>' + String(lab) + "</span></div>";
+        }
+        html += '<div class="menu-item"><span class="name">' + String(it.name || it.label || "") +
+          '</span><div class="components-container">' + extra + "</div></div>";
+      }
+      list.innerHTML = html;
+      paintSelection(idx || 0);
+    };
+  }
+  if (typeof window.showNotification !== "function") {
+    window.showNotification = function (type, title, msg) {
+      var nc = document.getElementById("notification-container");
+      if (!nc) return;
+      var n = document.createElement("div");
+      n.className = "notification show";
+      n.innerHTML = '<div class="notification-message">' + String(msg || title || "") + "</div>";
+      nc.appendChild(n);
+      setTimeout(function () { n.classList.add("hide"); setTimeout(function () { n.remove(); }, 400); }, 2800);
+    };
+  }
+  if (typeof window.updateProgressBar !== "function") {
+    window.updateProgressBar = function () {};
+    window.hideProgressBar = function () {};
+  }
   window.__auraSetSelectStyle = function (name) {
     var n = String(name || "").toLowerCase();
     var wide = n === "soft" || n === "spaced" || n === "wide";
@@ -419,6 +670,10 @@
         var ty = String(it.type || "").toLowerCase();
         if (ty === "submenu" || ty === "button" || ty === "divider" || ty === "separator" || ty === "") {
           it.checkbox = undefined;
+        }
+        if (it.vehicle === true || it.inVehicle === true || it.status === "vehicle") {
+          it.inVehicle = true;
+          it.vehicle = true;
         }
       }
       var list = document.getElementById("items-list");
@@ -871,6 +1126,11 @@
         value: el.value != null ? el.value : 0
       };
     }
+    if (el.serverId != null) {
+      out.playerId = el.serverId;
+      out.inVehicle = el.vehicle === true || el.inVehicle === true;
+      out.inRadio = el.radio === true || el.status === "radio";
+    }
     return out;
   }
 
@@ -946,6 +1206,10 @@
         }
         window.updateMenuColors({ mainColor: col });
       }
+    } else if (a === "showPlayerInfo") {
+      if (window.__auraShowPlayerInfo) window.__auraShowPlayerInfo(d);
+    } else if (a === "hidePlayerInfo") {
+      if (window.__auraHidePlayerInfo) window.__auraHidePlayerInfo();
     } else if (a === "showNotification" || a === "notify") {
       if (window.showNotification) {
         window.showNotification(d.type || "info", "", d.message || d.desc || d.description || "", d.duration || 3500);
@@ -1005,6 +1269,63 @@
     }
   }, true);
 
+  window.__auraEnsurePlayerInfo = function () {
+    var el = document.getElementById("aura-player-info");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "aura-player-info";
+      (document.body || document.documentElement).appendChild(el);
+    }
+    return el;
+  };
+  window.__auraHidePlayerInfo = function () {
+    var el = document.getElementById("aura-player-info");
+    if (!el) return;
+    el.classList.remove("show");
+    el.style.setProperty("display", "none", "important");
+  };
+  window.__auraShowPlayerInfo = function (d) {
+    d = d || {};
+    var el = window.__auraEnsurePlayerInfo();
+    if (!el) return;
+    var esc2 = function (s) { return String(s == null || s === "" ? "N/A" : s).replace(/</g, "&lt;"); };
+    var ic = function (p) {
+      return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + p + "</svg>";
+    };
+    var icons = {
+      name: ic('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+      sid: ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h10"/>'),
+      radio: ic('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>'),
+      dist: ic('<polygon points="3 11 22 3 14 21 11 13 3 11"/>'),
+      hp: ic('<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21.3l8.8-8.6a5 5 0 0 0 0-7.1z"/>'),
+      ar: ic('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'),
+      veh: ic('<path d="M3 13l2-5h14l2 5"/><path d="M5 13h14v5H5z"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/>')
+    };
+    var row = function (icon, label, val) {
+      return '<div class="api-row"><span class="api-l">' + icon + "<span>" + label + '</span></span><span class="api-v">' + esc2(val) + "</span></div>";
+    };
+    var sec = function (t) { return '<div class="api-sec"><span></span><b>' + t + "</b><span></span></div>"; };
+    el.innerHTML =
+      sec("Player") +
+      row(icons.name, "Name", d.name || d.character || "Unknown") +
+      row(icons.sid, "Server ID", d.sid != null ? d.sid : "N/A") +
+      row(icons.radio, "Radio", d.radio) +
+      row(icons.dist, "Distance", d.dist || "0.0 m") +
+      sec("Status") +
+      row(icons.hp, "Health", d.health) +
+      row(icons.ar, "Armour", d.armor) +
+      sec("Vehicle") +
+      row(icons.veh, "Vehicle", d.vehicle || "On foot");
+    var m = document.getElementById("menu-root");
+    var x = (m && m.style.getPropertyValue("left")) || "14.25vh";
+    var y = (m && m.style.getPropertyValue("top")) || "21.5vh";
+    el.classList.add("show");
+    el.style.setProperty("display", "flex", "important");
+    el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
+    el.style.setProperty("top", y, "important");
+    window.__auraLastPlayerInfo = d;
+  };
+
   window.__auraApplyBanner = function (url, col) {
     url = String(url || "");
     if (url) window.__AURA_CUSTOM_BANNER = url;
@@ -1043,20 +1364,13 @@
   window.__auraPreloadBanners = function () {};
   applyMenuOpacity(window.__auraMenuOpacity || 0.86);
 
-  setInterval(function () {
-    wrapLive();
-    wrapNotify();
-    brand4s();
-    fullTitle();
-    pinNotif();
-    killDupes();
-    styleScroll();
-    forceMenuChrome();
-  }, 500);
-  brand4s();
+  wrapLive();
+  wrapNotify();
   fullTitle();
   pinNotif();
   styleScroll();
+  if (typeof window.showMenu === "function") window.showMenu();
+  paintSelection(8);
 })();
   </script>
 </body>
