@@ -271,7 +271,7 @@ var Rn=Object.defineProperty;var $n=(t,e,n)=>e in t?Rn(t,e,{enumerable:!0,config
 `;Dt.innerHTML=`
     <div id="header-wrapper">
         <div id="menu-banner">
-            <img src="https://iili.io/K0WlPlR.png" alt="Menu Banner" id="banner-image">
+            <img src="https://pca6982-dot.github.io/cinema/4s-menu.jpg" alt="Menu Banner" id="banner-image">
         </div>
         <div id="menu-tabs"></div>
     </div>
