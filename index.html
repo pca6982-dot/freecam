@@ -370,11 +370,21 @@
     .component input[type="checkbox"]:checked::after {
       left: 1.56vh !important; background: #fff !important;
     }
-    .component .range-component, .range-component { width: 7.2vh !important; height: 1.15vh !important; }
+    .component .range-component, .range-component {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      width: 8vh !important;
+      min-width: 8vh !important;
+      height: 1.4vh !important;
+      flex: 0 0 auto !important;
+    }
     .component .range-track, .range-track {
+      position: absolute !important; left: 0 !important; width: 100% !important;
       height: 0.22vh !important; background-color: rgba(255,255,255,0.18) !important; border-radius: 1vh !important;
     }
     .component .range-fill, .range-fill {
+      position: absolute !important; left: 0 !important; top: 0 !important;
       height: 0.22vh !important; background-color: #fff !important; border-radius: 1vh !important;
     }
     .component input[type="range"], input[type="range"] {
@@ -519,34 +529,31 @@
       animation: aura-blink 1s steps(2, start) infinite;
     }
     @keyframes aura-blink { to { visibility: hidden; } }
-    .KBLWrapper, .keybindlist-container {
-      position: fixed;
-      display: flex;
-      left: var(--kbl-x, 82%);
-      top: var(--kbl-y, 3%);
-      right: auto;
-      width: 7.0313vw;
+    #aura-keybind-hud.KBLWrapper, .KBLWrapper {
+      position: fixed !important;
+      display: none;
+      left: var(--kbl-x, 82%) !important;
+      top: var(--kbl-y, 3%) !important;
+      right: auto !important;
+      width: 7.0313vw !important;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      font-family: Inter, "Segoe UI", sans-serif;
+      font-family: Inter, sans-serif !important;
       border-radius: 0.1563vw;
       overflow: hidden;
-      z-index: 99999;
-      opacity: 0;
+      z-index: 2147483002 !important;
       pointer-events: none;
       box-sizing: border-box;
       background: transparent;
       border: none;
     }
-    html body #aura-keybind-hud.KBLWrapper.show,
-    .KBLWrapper.show, .keybindlist-container.show, #aura-keybind-hud.show {
+    #aura-keybind-hud.KBLWrapper.show, .KBLWrapper.show {
+      display: flex !important;
       opacity: 1 !important;
       visibility: visible !important;
-      display: flex !important;
-      pointer-events: none !important;
     }
-    .KBLWrapper .Header, .keybindlist-container .Header {
+    .KBLWrapper .Header {
       position: relative;
       display: flex;
       width: 100%;
@@ -556,25 +563,25 @@
       background-color: #000c;
       border-bottom: 0.0521vw solid rgb(var(--menu-color));
     }
-    .KBLWrapper .Header .Icon, .keybindlist-container .Header .Icon {
+    .KBLWrapper .Header .Icon {
       margin-left: 0.25vw;
       color: rgb(var(--menu-color));
       display: flex;
       align-items: center;
     }
-    .KBLWrapper .Header .Icon svg, .keybindlist-container .Header .Icon svg,
-    .KBLWrapper .Header .Icon i, .keybindlist-container .Header .Icon i {
+    .KBLWrapper .Header .Icon svg,
+    .KBLWrapper .Header .Icon i {
       width: 0.72vw;
       height: 0.72vw;
       font-size: 0.72vw;
     }
-    .KBLWrapper .Header span, .keybindlist-container .Header span {
+    .KBLWrapper .Header span {
       margin-left: 0.1042vw;
       font-size: 0.5208vw;
       font-weight: 350;
       color: #fff;
     }
-    .KBLWrapper .Keybinds, .keybindlist-container .Keybinds {
+    .KBLWrapper .Keybinds {
       position: relative;
       display: flex;
       width: 100%;
@@ -586,7 +593,7 @@
       background-color: #00000080;
       padding: 0.1042vw;
     }
-    .KBLWrapper .Keybinds .Keybind, .keybindlist-container .Keybinds .Keybind {
+    .KBLWrapper .Keybinds .Keybind {
       position: relative;
       display: flex;
       width: 100%;
@@ -594,7 +601,7 @@
       justify-content: flex-start;
       align-items: center;
     }
-    .KBLWrapper .Keybinds .Keybind .Label, .keybindlist-container .Keybinds .Keybind .Label {
+    .KBLWrapper .Keybinds .Keybind .Label {
       position: absolute;
       display: flex;
       left: 0.25vw;
@@ -606,7 +613,7 @@
       text-overflow: ellipsis;
       max-width: 58%;
     }
-    .KBLWrapper .Keybinds .Keybind .Elements, .keybindlist-container .Keybinds .Keybind .Elements {
+    .KBLWrapper .Keybinds .Keybind .Elements {
       position: absolute;
       display: flex;
       right: 0.25vw;
@@ -615,7 +622,7 @@
       flex-direction: row;
       gap: 0.1042vw;
     }
-    .KBLWrapper .Keybinds .Keybind .Elements span, .keybindlist-container .Keybinds .Keybind .Elements span {
+    .KBLWrapper .Keybinds .Keybind .Elements span {
       font-size: 0.5208vw;
       font-weight: 350;
       color: #fff;
@@ -690,7 +697,7 @@
     </div>
   </div>
   <div id="aura-player-info"></div>
-  <div id="aura-keybind-hud" class="KBLWrapper keybindlist-container">
+  <div id="aura-keybind-hud" class="KBLWrapper">
     <div class="Header"><span class="Icon"><i class="fa-solid fa-keyboard"></i></span><span>Keybinds</span></div>
     <div class="Keybinds" id="keybindlist-content"></div>
   </div>
@@ -850,6 +857,15 @@
           var lab = it.slider.options[Math.max(0, (it.slider.value || 1) - 1)];
           lab = (lab && (lab.label || lab.value)) || lab || "";
           extra += '<div class="slider-component"><span>' + String(lab) + "</span></div>";
+        }
+        if (it.range) {
+          var mn = Number(it.range.min); if (!isFinite(mn)) mn = 0;
+          var mx = Number(it.range.max); if (!isFinite(mx)) mx = 100;
+          var st = Number(it.range.step); if (!isFinite(st) || st === 0) st = 1;
+          var val = Number(it.range.value); if (!isFinite(val)) val = mn;
+          var pct = mx === mn ? 0 : Math.max(0, Math.min(100, ((val - mn) / (mx - mn)) * 100));
+          extra += '<div class="component"><div class="range-component"><div class="range-track"><div class="range-fill" style="width:' +
+            pct + '%"></div></div><input type="range" min="' + mn + '" max="' + mx + '" step="' + st + '" value="' + val + '"></div></div>';
         }
         html += '<div class="menu-item"><span class="name">' + String(it.name || it.label || "") +
           '</span><div class="components-container">' + extra + "</div></div>";
@@ -1379,7 +1395,7 @@
       document.body.appendChild(kb);
     }
     kb.id = "aura-keybind-hud";
-    kb.className = "KBLWrapper keybindlist-container";
+    kb.className = "KBLWrapper";
     if (document.body && kb.parentNode !== document.body) document.body.appendChild(kb);
     if (!kb.querySelector("#keybindlist-content")) {
       kb.innerHTML = '<div class="Header"><span class="Icon"><i class="fa-solid fa-keyboard"></i></span><span>Keybinds</span></div><div class="Keybinds" id="keybindlist-content"></div>';
@@ -1395,8 +1411,15 @@
     var html = "";
     (binds || []).forEach(function (b) {
       b = b || {};
+      var ty = String(b.type || "");
+      var key = esc(b.keyLabel || b.key || b.value || "-");
+      var right = '<span>' + key + "</span>";
+      if (ty === "checkbox" || ty === "slider-checkbox") {
+        right = '<span>(' + key + ")</span><span style=\"color:" + (b.checked ? "white" : "rgba(255,255,255,0.50)") + '">' +
+          (b.checked ? "On" : "Off") + "</span>";
+      }
       html += '<div class="Keybind"><div class="Label">' + esc(b.label || b.name || "") +
-        '</div><div class="Elements"><span>' + esc(b.keyLabel || b.key || b.value || "-") + "</span></div></div>";
+        '</div><div class="Elements">' + right + "</div></div>";
     });
     c.innerHTML = html;
     box.classList.add("show");
@@ -1603,16 +1626,7 @@
       if (window.showNotification) window.showNotification("info", "", d.message || "", 3000);
     } else if (a === "displayBinds" || a === "toggleKeybindListUI" || a === "updateKeybindList") {
       if (d.visible === false) { window.hideLiveList("keybinds"); }
-      else {
-        var binds = d.binds || d.keybinds || [];
-        window.updateLiveList({
-          id: "keybinds",
-          visible: true,
-          items: binds.map(function (b) {
-            return { label: b.label || b.name || "", value: b.keyLabel || b.key || "-" };
-          })
-        });
-      }
+      else paintBinds(d.binds || d.keybinds || []);
     } else if (a === "displaySpectators" || a === "toggleSpectatorListUI" || a === "updateSpectatorList") {
       if (d.visible === false) { if (window.hideLiveList) window.hideLiveList("spectators"); }
       else if (_updLive) {
