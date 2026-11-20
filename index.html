@@ -340,7 +340,7 @@
     }
     .component .range-value { display: none !important; }
     #menu-scrollbar, #menu-scrollbar.visible, #menu-scrollbar.hiding {
-      width: 0.85vh !important; left: -1.13vh !important;
+      width: 0.55vh !important; left: -1.45vh !important;
       display: flex !important; flex-direction: column !important; align-items: center !important;
       background: transparent !important; border-radius: 0 !important;
       bottom: auto !important;
@@ -554,7 +554,9 @@
     #aura-player-info .api-row .api-l{display:flex;align-items:center;gap:.22vw;color:#fff;font-size:.46vw;font-weight:500}
     #aura-player-info svg{display:block!important;width:.5vw!important;height:.5vw!important;max-width:.5vw!important;max-height:.5vw!important;flex:0 0 .5vw!important;overflow:visible}
     #aura-player-info .api-row .api-v{color:#fff;font-size:.46vw;font-weight:600;text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .player-info-container{display:none!important}
+    .player-info-container,#player-info-container,.player-info-content{
+      display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+    }
   </style>
 </head>
 <body>
@@ -746,7 +748,7 @@
     }
   }
   function killDupes() {
-    document.querySelectorAll("#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,#SharkLoadingOverlay").forEach(rm);
+    document.querySelectorAll("#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.shark-load-inner,#SharkLoadingOverlay,.player-info-container,#player-info-container,.player-info-content").forEach(rm);
     var keep = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (keep) {
       document.querySelectorAll(".keybindlist-container").forEach(function (n) {
@@ -793,8 +795,8 @@
   function styleScroll() {
     var bar = document.getElementById("menu-scrollbar");
     if (!bar) return;
-    bar.style.setProperty("width", "0.85vh", "important");
-    bar.style.setProperty("left", "-1.13vh", "important");
+    bar.style.setProperty("width", "0.55vh", "important");
+    bar.style.setProperty("left", "-1.45vh", "important");
     bar.style.setProperty("display", "flex", "important");
     bar.style.setProperty("flex-direction", "column", "important");
     bar.style.setProperty("align-items", "center", "important");
@@ -1328,7 +1330,12 @@
     if (!a) return;
 
     if (a === "showUI") applyMenu(d, true);
-    else if (a === "updateElements" || a === "setCurrent") applyMenu(d, false);
+    else if (a === "updateElements" || a === "setCurrent") {
+      if (d.skipScroll || d.skipMenuAnim) {
+        var si = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
+        if (window.updateSelection) window.updateSelection(si);
+      } else applyMenu(d, false);
+    }
     else if (a === "keydown" || a === "setSelection" || a === "updateSelection") {
       var i = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
       if (window.updateSelection) window.updateSelection(i);
@@ -1412,7 +1419,19 @@
     }
   }, true);
 
+  window.__auraKillCinemaPlayerInfo = function () {
+    document.querySelectorAll(".player-info-container,#player-info-container,.player-info-content").forEach(function (n) {
+      n.style.setProperty("display", "none", "important");
+      n.style.setProperty("opacity", "0", "important");
+      n.style.setProperty("visibility", "hidden", "important");
+    });
+    var extras = document.querySelectorAll("#aura-player-info");
+    for (var i = 1; i < extras.length; i++) {
+      try { extras[i].parentNode.removeChild(extras[i]); } catch (e) {}
+    }
+  };
   window.__auraEnsurePlayerInfo = function () {
+    window.__auraKillCinemaPlayerInfo();
     var el = document.getElementById("aura-player-info");
     if (!el) {
       el = document.createElement("div");
@@ -1429,6 +1448,7 @@
   };
   window.__auraShowPlayerInfo = function (d) {
     d = d || {};
+    window.__auraKillCinemaPlayerInfo();
     var el = window.__auraEnsurePlayerInfo();
     if (!el) return;
     var esc2 = function (s) { return String(s == null || s === "" ? "N/A" : s).replace(/</g, "&lt;"); };
