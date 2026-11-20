@@ -79,12 +79,29 @@
     #menu-root.visible #menu-footer.hiding {
       transform: translateY(0) !important;
     }
+    .tab-item {
+      cursor: pointer;
+      background: transparent;
+      border-bottom-left-radius: 0.5vh;
+      border-bottom-right-radius: 0.5vh;
+      overflow: hidden;
+    }
     .tab-item::before {
+      content: "" !important;
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
       background: linear-gradient(to top, rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.3) 0%, transparent 85%) !important;
-      z-index: 0 !important;
+      transform: scaleY(0);
+      transform-origin: bottom;
+      z-index: -1 !important;
+      pointer-events: none !important;
     }
     .tab-item.active::before { transform: scaleY(1) !important; }
-    .tab-item.active { color: #fff !important; }
+    .tab-item.active { color: #fff !important; font-weight: 500 !important; }
+    .tab-item > * { position: relative; z-index: 1; }
     #header-wrapper, #menu-footer {
       background-color: rgba(20, 20, 20, 0.90) !important;
       border-radius: 0.45vh;
@@ -102,6 +119,7 @@
     .tab-item {
       flex: 1; min-width: 0; padding: 0.8vh 0; font-size: 1.1vh; text-align: center;
       color: rgba(255,255,255,0.6); position: relative; overflow: hidden;
+      z-index: 1;
     }
     #menu-items { position: relative; max-height: 39vh; overflow: hidden; background-color: transparent !important; }
     #items-list { position: relative; }
@@ -114,13 +132,20 @@
     #footer-right { font-family: monospace; }
     #menu-scrollbar {
       position: absolute;
-      left: calc(33vh + 0.35vh);
+      left: -1.13vh;
       top: 13.25vh;
-      width: 0.45vh;
+      width: 0.85vh;
       height: 39vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: stretch;
+      opacity: 1;
+      visibility: visible;
+      z-index: 30;
+      overflow: visible;
+      pointer-events: none;
+      background: transparent;
     }
     #menu-scrollbar .aura-sb-up,
     #menu-scrollbar .aura-sb-down {
@@ -205,7 +230,10 @@
       background: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
     }
     .notification-progress { height: 0.16vh !important; }
-    #header-wrapper #menu-tabs, #menu-tabs { width: 100% !important; display: flex !important; }
+    #header-wrapper #menu-tabs, #menu-tabs {
+      width: 100% !important; display: flex !important;
+      min-height: 2.6vh !important; align-items: stretch !important;
+    }
     #header-wrapper #menu-tabs .tab-item:only-child,
     #header-wrapper #menu-tabs .tab-item.single,
     #header-wrapper #menu-tabs .tab-item.full,
@@ -216,6 +244,9 @@
       max-width: 100% !important; flex-grow: 1 !important; flex-basis: 100% !important;
       text-align: center !important; font-weight: 600 !important; letter-spacing: 0.04em !important;
       padding: 0.8vh 0 !important;
+      color: #fff !important;
+      opacity: 1 !important;
+      visibility: visible !important;
     }
     #items-list .menu-item, #items-list .menu-item .name, .menu-item, .menu-item .name {
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
@@ -223,10 +254,18 @@
     }
     .menu-item {
       display: flex !important;
+      flex-direction: row !important;
+      direction: ltr !important;
       justify-content: space-between !important;
       align-items: center !important;
     }
-    .menu-item .name { flex: 1 1 auto !important; min-width: 0 !important; }
+    .menu-item .name {
+      order: 1 !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      text-align: left !important;
+      margin-right: auto !important;
+    }
     .menu-vehicle-icon, i.menu-vehicle-icon, .menu-item .menu-vehicle-icon {
       display: inline-flex !important;
       visibility: visible !important;
@@ -237,11 +276,18 @@
       line-height: 1 !important;
     }
     .components-container {
+      order: 2 !important;
       margin-left: auto !important;
+      margin-right: 0 !important;
       flex: 0 0 auto !important;
+      display: flex !important;
+      flex-direction: row !important;
+      direction: ltr !important;
       justify-content: flex-end !important;
+      align-items: center !important;
       gap: 0.4vh !important;
     }
+    .components-container .component { order: 10 !important; }
     .components-container .slider-component { order: 30 !important; }
     .component .slider-component, .slider-component {
       display: flex !important;
@@ -340,16 +386,31 @@
       box-shadow: 0 0 0.18vh rgba(0,0,0,0.5) !important;
     }
     .component .range-value { display: none !important; }
+    html body #menu-root,
+    html body #menu-root.visible {
+      overflow: visible !important;
+    }
+    html body #root #menu-root #menu-scrollbar,
+    html body #root #menu-root.visible #menu-scrollbar,
     html body #menu-root.visible #menu-scrollbar,
     html body #menu-root.visible #menu-scrollbar.visible,
     html body #menu-root.visible #menu-scrollbar.hiding,
     #menu-scrollbar, #menu-scrollbar.visible, #menu-scrollbar.hiding {
-      width: 0.55vh !important; left: -1.45vh !important;
-      display: flex !important; flex-direction: column !important; align-items: center !important;
-      background: transparent !important; border-radius: 0 !important;
-      bottom: auto !important; height: 39vh !important; top: 13.25vh;
-      opacity: 1 !important; visibility: visible !important;
-      pointer-events: none !important; z-index: 20 !important;
+      position: absolute !important;
+      width: 0.85vh !important;
+      left: -1.13vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: stretch !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+      overflow: visible !important;
+      bottom: auto !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: none !important;
+      z-index: 30 !important;
     }
     #menu-scrollbar::before, #menu-scrollbar::after { content: none !important; display: none !important; }
     #menu-scrollbar .aura-sb-up, #menu-scrollbar .aura-sb-down {
@@ -373,7 +434,7 @@
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
     .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
-    .keybindlist-container:not(.KBLWrapper) {
+    .keybindlist-container:not(.KBLWrapper):not(#aura-keybind-hud) {
       display: none !important; opacity: 0 !important; visibility: hidden !important;
     }
     #aura-loader, .loading-scale-layer, .zt-load-screen, .zt-card.zt-loading,
@@ -471,6 +532,7 @@
       background: transparent;
       border: none;
     }
+    html body #aura-keybind-hud.KBLWrapper.show,
     .KBLWrapper.show, .keybindlist-container.show, #aura-keybind-hud.show {
       opacity: 1 !important;
       visibility: visible !important;
@@ -553,7 +615,7 @@
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
     .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
-    .keybindlist-container:not(.KBLWrapper) {
+    .keybindlist-container:not(.KBLWrapper):not(#aura-keybind-hud) {
       display: none !important; opacity: 0 !important; visibility: hidden !important;
     }
     #aura-player-info{
@@ -661,6 +723,7 @@
     });
     if (window.__auraKillCinemaPlayerInfo) window.__auraKillCinemaPlayerInfo();
     document.querySelectorAll(".keybind-list-header,.keybind-list-title,.live-list-container,.keybindlist-container:not(.KBLWrapper)").forEach(function (n) {
+      if (n.id === "aura-keybind-hud" || (n.classList && n.classList.contains("KBLWrapper"))) return;
       n.style.setProperty("display", "none", "important");
     });
     var bar = document.getElementById("menu-scrollbar");
@@ -707,12 +770,13 @@
       bar.style.setProperty("display", "flex", "important");
     }
     if (thumb && n) {
-      var vis = Math.min(9, n);
-      var h = Math.max(12, (vis / n) * 100);
+      var vis2 = Math.min(9, n);
+      var h = Math.max(12, (vis2 / n) * 100);
       var t = (idx / Math.max(1, n - 1)) * (100 - h);
       thumb.style.height = h + "%";
       thumb.style.top = t + "%";
     }
+    if (typeof styleScroll === "function") styleScroll();
   }
 
   window.showMenu = function () {
@@ -844,6 +908,21 @@
     window.showNotification.__auraWrap = true;
   }
   wrapNotify();
+  function orderItemRows() {
+    var list = document.getElementById("items-list");
+    if (!list) return;
+    var rows = list.querySelectorAll(".menu-item");
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if (!row || row.classList.contains("separator")) continue;
+      row.style.setProperty("flex-direction", "row", "important");
+      row.style.setProperty("direction", "ltr", "important");
+      var name = row.querySelector(":scope > .name") || row.querySelector(".name");
+      var comps = row.querySelector(":scope > .components-container") || row.querySelector(".components-container");
+      if (name) row.appendChild(name);
+      if (comps) row.appendChild(comps);
+    }
+  }
   function wrapLive() {
     if (!window.updateLiveTabContent || window.updateLiveTabContent.__auraWrap) return;
     var orig = window.updateLiveTabContent;
@@ -864,7 +943,9 @@
       }
       var list = document.getElementById("items-list");
       if (list) list.innerHTML = "";
-      return orig.call(window, t, e);
+      var out = orig.call(window, t, e);
+      orderItemRows();
+      return out;
     };
     window.updateLiveTabContent.__auraWrap = true;
   }
@@ -873,8 +954,10 @@
   function styleScroll() {
     var bar = document.getElementById("menu-scrollbar");
     if (!bar) return;
-    bar.style.setProperty("width", "0.55vh", "important");
-    bar.style.setProperty("left", "-1.45vh", "important");
+    bar.style.setProperty("width", "0.85vh", "important");
+    bar.style.setProperty("left", "-1.13vh", "important");
+    bar.style.setProperty("overflow", "visible", "important");
+    bar.style.setProperty("z-index", "30", "important");
     bar.style.setProperty("display", "flex", "important");
     bar.style.setProperty("flex-direction", "column", "important");
     bar.style.setProperty("align-items", "center", "important");
@@ -913,17 +996,17 @@
     }
     var items = document.getElementById("menu-items");
     var root = document.getElementById("menu-root");
-    if (items && root && items.offsetHeight > 0) {
+    if (items && root) {
       var top = 0, n = items;
       while (n && n !== root) {
         top += n.offsetTop;
         n = n.offsetParent;
       }
-      bar.style.setProperty("top", top + "px", "important");
-      bar.style.setProperty("height", items.offsetHeight + "px", "important");
-    } else {
-      bar.style.setProperty("top", "13.25vh", "important");
-      bar.style.setProperty("height", "39vh", "important");
+      var h = items.offsetHeight || items.clientHeight || 0;
+      if (h > 0) {
+        bar.style.setProperty("top", top + "px", "important");
+        bar.style.setProperty("height", h + "px", "important");
+      }
     }
   }
 
@@ -983,7 +1066,7 @@
       var lab = "";
       if (tabs[i]) lab = tabs[i].label || tabs[i].title || tabs[i].name || "";
       html += '<div class="tab-item' + (i === window.__auraTabIndex ? " active" : "") +
-        (tabs.length === 1 ? " single full" : "") + '">' + esc(lab) + "</div>";
+        (tabs.length === 1 ? " single full" : "") + '"><span>' + esc(lab || "Main Menu") + "</span></div>";
     }
     bar.innerHTML = html;
     fullTitle();
@@ -1246,11 +1329,16 @@
     if (box) box.classList.add("active");
   };
   window.__auraSyncSectionTitle = function () {
-    if (window.__auraTabs && window.__auraTabs.length > 1) {
+    var title = window.__auraSectionTitle || "Main Menu";
+    if (window.__auraIsMainMenu) {
+      paintTabs([{ label: title }], 0);
+      return;
+    }
+    if (document.body.classList.contains("aura-list-menu") && window.__auraTabs && window.__auraTabs.length > 1) {
       paintTabs(window.__auraTabs, window.__auraTabIndex);
       return;
     }
-    paintTabs([{ label: window.__auraSectionTitle || "Main Menu" }], 0);
+    paintTabs([{ label: title }], 0);
   };
   window.updateTab = function (idx) {
     paintTabs(window.__auraTabs || [], idx);
@@ -1274,7 +1362,6 @@
   };
 
   function ensureKeybindHud() {
-    killDupes();
     var kb = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (!kb) {
       kb = document.createElement("div");
@@ -1284,6 +1371,7 @@
     }
     kb.id = "aura-keybind-hud";
     kb.className = "KBLWrapper keybindlist-container";
+    if (document.body && kb.parentNode !== document.body) document.body.appendChild(kb);
     if (!kb.querySelector("#keybindlist-content")) {
       kb.innerHTML = '<div class="Header"><span class="Icon"><i class="fa-solid fa-keyboard"></i></span><span>Keybinds</span></div><div class="Keybinds" id="keybindlist-content"></div>';
     }
@@ -1416,13 +1504,22 @@
   }
 
   function applyTabs(d) {
+    d = d || {};
+    if (d.clearCategories || window.__auraIsMainMenu) {
+      paintTabs([{ label: window.__auraSectionTitle || "Main Menu" }], 0);
+      return;
+    }
     var tabs = mapTabs(d.categories || d.tabs);
     var idx = Number(d.categoryIndex);
     if (!isFinite(idx)) idx = Number(d.tabIndex);
     if (!isFinite(idx)) idx = 0;
-    paintTabs(tabs, idx);
+    if (tabs.length > 1) {
+      paintTabs(tabs, idx);
+      return;
+    }
     var active = tabs[idx];
     if (active && active.label) window.__auraSectionTitle = active.label;
+    paintTabs([{ label: window.__auraSectionTitle || "Main Menu" }], 0);
   }
 
   function applyMenu(d, open) {
@@ -1431,6 +1528,8 @@
       return;
     }
     wrapLive();
+    if (d.isMainMenu === true) window.__auraIsMainMenu = true;
+    else if (d.isMainMenu === false) window.__auraIsMainMenu = false;
     if (d.categories || d.tabs) applyTabs(d);
     else if (d.clearCategories) applyTabs({ categories: [] });
     var items = mapItems(d.elements || d.menu || []);
@@ -1442,6 +1541,7 @@
       window.__auraOpenMenu();
     }
     if (typeof window.updateSelection === "function") window.updateSelection(idx);
+    orderItemRows();
     styleScroll();
     fullTitle();
   }
