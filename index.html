@@ -1281,8 +1281,9 @@
       document.body.appendChild(t);
     }
     t.classList.add("show");
-    t.style.display = "block";
-    t.style.opacity = "1";
+    t.style.setProperty("display", "block", "important");
+    t.style.setProperty("opacity", "1", "important");
+    t.style.setProperty("visibility", "visible", "important");
   };
   window.updateProgressBar = function (pct, top, bottom) {
     window.showProgressBar();
@@ -1652,7 +1653,11 @@
         });
       }
     } else if (a === "updateLoader" || a === "showLoading" || a === "updateLoading" || a === "hideLoading") {
-      /* loader is painted once from lua ExecJs */
+      var pr = Number(d.percent != null ? d.percent : d.progress) || 0;
+      var msg = d.text || d.status || d.message || "Please wait, loading menu...";
+      if (window.__auraPaintSharkLoader) {
+        window.__auraPaintSharkLoader(pr, msg, d.avatar, a === "hideLoading" || d.hide === true || pr >= 100);
+      }
     } else if (a === "openKeySelection" || a === "updateKeySelection" || a === "updateKeyboard" || a === "openTextInput" || a === "updateTextInput") {
       if (d.visible === false) window.__auraHideKeyPick();
       else window.__auraShowKeyPick(d.title || d.header || (d.menuKey ? "Press a key" : "Input"), d.value || d.keyName || "");
