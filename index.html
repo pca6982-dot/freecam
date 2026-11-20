@@ -209,9 +209,9 @@
       padding-bottom: 0.5vh !important;
     }
     body.aura-space-compact #selection-highlight { height: 2.1vh !important; }
-    body.aura-space-wide #header-wrapper { margin-bottom: 0.7vh !important; border-radius: 0.45vh !important; }
+    body.aura-space-wide #header-wrapper { margin-bottom: 0 !important; border-radius: 0.45vh !important; }
     body.aura-space-wide #menu-container { border-radius: 0.45vh !important; }
-    body.aura-space-wide #menu-footer { margin-top: 0.85vh !important; border-radius: 0.45vh !important; }
+    body.aura-space-wide #menu-footer { margin-top: 0 !important; border-radius: 0.45vh !important; }
     body.aura-space-wide .menu-item { height: 3.2vh !important; }
     *::-webkit-scrollbar, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-button, *::-webkit-scrollbar-corner {
@@ -1001,14 +1001,14 @@
       root.style.setProperty("flex-direction", "column", "important");
       root.style.setProperty("background", "transparent", "important");
       root.style.setProperty("background-color", "transparent", "important");
-      root.style.setProperty("gap", wide ? "0.82vh" : "0", "important");
+      root.style.setProperty("gap", "0", "important");
     }
     if (wide) {
-      if (h) { h.style.setProperty("margin-bottom", "0.82vh", "important"); h.style.setProperty("border-radius", "0.45vh", "important"); }
+      if (h) { h.style.setProperty("margin-bottom", "0", "important"); h.style.setProperty("border-radius", "0.45vh", "important"); }
       if (c) { c.style.setProperty("border-radius", "0.45vh", "important"); }
-      if (f) { f.style.setProperty("margin-top", "0.95vh", "important"); f.style.setProperty("border-radius", "0.45vh", "important"); }
-      spacer("aura-space-top", h, "0.82vh");
-      spacer("aura-space-bot", c, "0.95vh");
+      if (f) { f.style.setProperty("margin-top", "0", "important"); f.style.setProperty("border-radius", "0.45vh", "important"); }
+      spacer("aura-space-top", h, "0.38vh");
+      spacer("aura-space-bot", c, "0.42vh");
     } else {
       if (h) { h.style.setProperty("margin-bottom", "0", "important"); h.style.setProperty("border-radius", "0.45vh 0.45vh 0 0", "important"); }
       if (c) { c.style.setProperty("border-radius", "0", "important"); }
