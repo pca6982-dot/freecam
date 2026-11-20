@@ -1755,19 +1755,8 @@
     el.style.setProperty("max-width", "13.6vw", "important");
     document.documentElement.style.setProperty("--aura-menu-x", x);
     document.documentElement.style.setProperty("--aura-menu-y", y);
-    if (m && m.getBoundingClientRect) {
-      var r = m.getBoundingClientRect();
-      if (r && r.width > 0) {
-        el.style.setProperty("left", (r.right + Math.max(6, r.width * 0.02)) + "px", "important");
-        el.style.setProperty("top", r.top + "px", "important");
-      } else {
-        el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
-        el.style.setProperty("top", y, "important");
-      }
-    } else {
-      el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
-      el.style.setProperty("top", y, "important");
-    }
+    el.style.setProperty("left", "calc(" + x + " + 33vh + 0.55vh)", "important");
+    el.style.setProperty("top", y, "important");
     window.__auraLastPlayerInfo = d;
     requestAnimationFrame(function () {
       if (window.__auraKillCinemaPlayerInfo) window.__auraKillCinemaPlayerInfo();
