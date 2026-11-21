@@ -205,8 +205,8 @@
     }
     svg.menu-row-icon, .menu-row-icon {
       display: block !important;
-      width: 2.15vh !important;
-      height: 1.45vh !important;
+      width: 1.5vh !important;
+      height: 1.4vh !important;
       margin: 0 !important;
       color: #fff !important;
       fill: #fff !important;
@@ -231,8 +231,8 @@
     }
     .menu-item .name:has(.menu-row-icon) {
       display: grid !important;
-      grid-template-columns: 2.15vh 1fr !important;
-      column-gap: 0.85vh !important;
+      grid-template-columns: 1.5vh 1fr !important;
+      column-gap: 1.05vh !important;
     }
     body.aura-space-compact #header-wrapper { margin-bottom: 0 !important; border-radius: 0.45vh 0.45vh 0 0 !important; }
     body.aura-space-compact #menu-container { border-radius: 0 !important; }
@@ -317,8 +317,8 @@
       direction: ltr !important;
       justify-content: space-between !important;
       align-items: center !important;
-      padding-left: 1.15vh !important;
-      padding-right: 1.05vh !important;
+      padding-left: 0.95vh !important;
+      padding-right: 1vh !important;
     }
     .menu-item .name {
       order: 1 !important;
@@ -653,7 +653,7 @@
       right: auto !important;
       width: 9.4vw !important;
       flex-direction: column;
-      font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
+      font-family: "Inter", "Segoe UI", Tahoma, sans-serif !important;
       border-radius: 0.45vw;
       overflow: hidden;
       z-index: 2147483002 !important;
@@ -697,8 +697,8 @@
     .KBLWrapper .Header span {
       margin-left: 0;
       font-size: 0.78vw;
-      font-weight: 600;
-      color: #fff;
+      font-weight: 500;
+      color: #f2f4f8;
       line-height: 1;
     }
     .KBLWrapper .Header span.Icon { font-size: 0; }
@@ -729,8 +729,8 @@
       display: flex;
       left: auto;
       font-size: 0.78vw;
-      font-weight: 600;
-      color: #fff;
+      font-weight: 500;
+      color: #f2f4f8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -748,8 +748,8 @@
     }
     .KBLWrapper .Keybinds .Keybind .Elements span {
       font-size: 0.78vw;
-      font-weight: 700;
-      color: #fff;
+      font-weight: 600;
+      color: #f2f4f8;
     }
     .KBLWrapper .Keybinds .Keybind .Elements span.off {
       color: rgba(255,255,255,0.5);
@@ -785,6 +785,84 @@
       display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;
       height:0!important;width:0!important;overflow:hidden!important;
     }
+
+    /* ===================== Vanity-style look (override layer) ===================== */
+    html body #menu-root, html body #menu-root *, html body #menu-footer, html body .tab-item,
+    html body .notification, html body .notification *, html body #items-list .menu-item,
+    html body #items-list .menu-item .name, html body .menu-item, html body .menu-item .name,
+    html body .separator-container, html body .separator-text {
+      font-family: "Inter", "Segoe UI", Tahoma, sans-serif !important;
+    }
+    html body #header-wrapper { background-color: #000 !important; border-radius: 0.7vh 0.7vh 0 0 !important; }
+    html body #menu-container { background-color: rgba(13, 17, 28, 0.88) !important; }
+    html body #menu-title {
+      display: block !important; background: #000; color: #fff; text-align: center;
+      font-size: 1.3vh; font-weight: 400; padding: 0.85vh 0;
+      border-bottom: 1px solid rgba(45, 91, 208, 0.75);
+    }
+    html body #header-wrapper:has(#menu-tabs .tab-item:not(.single)) #menu-title { display: block; }
+    html body #header-wrapper #menu-tabs, html body #menu-tabs { height: 0 !important; min-height: 0 !important; max-height: 0 !important; overflow: hidden !important; border: 0 !important; padding: 0 !important; margin: 0 !important; }
+    html body #menu-tabs:has(.single) { background: #000; }
+    html body #header-wrapper #menu-tabs .tab-item {
+      background: transparent; color: rgba(255,255,255,0.92) !important;
+      font-size: 1.25vh !important; font-weight: 400 !important; letter-spacing: 0 !important;
+      padding: 0.85vh 0 !important; border-radius: 0 !important;
+    }
+    html body #header-wrapper #menu-tabs .tab-item::before { display: none !important; }
+    html body #header-wrapper #menu-tabs .tab-item.active:not(.single) {
+      background: linear-gradient(90deg, #2158c9 0%, #16306f 100%) !important;
+    }
+    html body #header-wrapper #menu-tabs .tab-item.single,
+    html body #header-wrapper #menu-tabs .tab-item.full,
+    html body #header-wrapper #menu-tabs .tab-item:only-child {
+      background: #000 !important; font-size: 1.2vh !important; font-weight: 400 !important;
+      letter-spacing: 0 !important; padding: 0.9vh 0 !important;
+    }
+    html body #menu-root, html body .notification {
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    html body #items-list .menu-item .name .menu-label, html body .menu-item .menu-label {
+      color: #dfe3ea !important; font-weight: 400 !important; font-size: 1.32vh !important;
+    }
+    html body #items-list .menu-item, html body #items-list .menu-item .name {
+      font-size: 1.32vh !important; font-weight: 400 !important; color: #dfe3ea !important;
+      letter-spacing: 0.005em !important;
+    }
+    html body .menu-item { padding-left: 1.3vh !important; padding-right: 1.5vh !important; }
+    html body .menu-row-icon, html body svg.menu-row-icon { display: none !important; }
+    html body .menu-item .name:has(.menu-row-icon) { display: flex !important; }
+    html body svg.menu-chevron, html body .menu-chevron { width: 0.8vh !important; height: 0.8vh !important; }
+    html body .menu-chevron path { stroke-width: 2.6; }
+    html body #selection-highlight {
+      background: linear-gradient(90deg, #2158c9 0%, #16306f 100%) !important;
+      border-top: 1px solid rgba(96, 146, 255, 0.55) !important;
+      border-bottom: 1px solid rgba(96, 146, 255, 0.55) !important;
+    }
+    html body #menu-footer {
+      background-color: #04060b !important; border-top: 1px solid rgba(45, 91, 208, 0.55);
+      height: 2.5vh !important; padding: 0 1.3vh !important; border-radius: 0 0 0.7vh 0.7vh !important;
+    }
+    html body #footer-left, html body #footer-right {
+      color: #d4d8e0 !important; font-weight: 400 !important; font-size: 1.2vh !important;
+    }
+    html body .separator-bar { height: 0.2vh !important; min-height: 2px !important; max-height: 3px !important; background-color: rgba(235, 238, 245, 0.8) !important; }
+    html body .separator-text { color: rgba(255,255,255,0.55) !important; font-size: 1.25vh !important; font-weight: 400 !important; }
+    html body .slider-component span { color: rgba(255,255,255,0.6) !important; font-weight: 400 !important; }
+    html body #menu-root .component input[type="checkbox"]:checked {
+      background-color: #2f6bff !important; border-color: #2f6bff !important;
+    }
+    html body #root #menu-root #menu-scrollbar { left: auto !important; right: -1.3vh !important; width: 0.4vh !important; }
+    html body #menu-scrollbar .aura-sb-up, html body #menu-scrollbar .aura-sb-down { display: none !important; }
+    html body #menu-scrollbar #scrollbar-track { background: rgba(40, 90, 220, 0.2) !important; width: 0.3vh !important; max-width: 0.3vh !important; border-radius: 0.15vh !important; }
+    html body #menu-scrollbar #scrollbar-thumb { background: #2b6bff !important; border-radius: 0.15vh !important; }
+    html body #notification-container { width: 36vh !important; max-width: 36vh !important; gap: 0.6vh !important; }
+    html body .notification {
+      background: linear-gradient(180deg, rgba(58, 63, 70, 0.88), rgba(30, 33, 38, 0.92)) !important;
+      border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 0.9vh !important;
+      padding: 1.1vh 1.4vh !important; box-shadow: 0 0.3vh 0.9vh rgba(0,0,0,0.35) !important;
+    }
+    html body .notification-message { font-size: 1.3vh !important; font-weight: 400 !important; text-align: center !important; color: #f2f4f8 !important; }
+    html body .notification-side, html body .notification-progress { display: none !important; }
   </style>
 </head>
 <body>
@@ -794,6 +872,7 @@
         <div id="menu-banner">
           <img id="banner-image" alt="4s Menu" src="https://pca6982-dot.github.io/cinema/4s-menu.jpg" />
         </div>
+        <div id="menu-title">Main Menu</div>
         <div id="menu-tabs">
           <div class="tab-item active single full">Main Menu</div>
         </div>
@@ -803,11 +882,11 @@
           <div id="selection-highlight"></div>
           <div id="items-list">
             <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="user"></i><span class="menu-label">Self</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
-            <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="globe"></i><span class="menu-label">Server</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
-            <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="bullseye"></i><span class="menu-label">Combat</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="server"></i><span class="menu-label">Server</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="crosshairs"></i><span class="menu-label">Combat</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
             <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="gun"></i><span class="menu-label">Weapon</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
             <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="car"></i><span class="menu-label">Vehicle</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
-            <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="bomb"></i><span class="menu-label">Exploit</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="bug"></i><span class="menu-label">Exploit</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
             <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="list"></i><span class="menu-label">Misc</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
             <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="bolt"></i><span class="menu-label">Server Triggers</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
             <div class="menu-item"><span class="name"><i class="menu-row-icon" data-aura-icon="gear"></i><span class="menu-label">Settings</span></span><div class="components-container"><i class="menu-chevron" data-aura-icon="chevron"></i></div></div>
@@ -816,7 +895,7 @@
       </div>
       <div id="menu-footer" class="visible">
         <span id="footer-left">4s Menu</span>
-        <span id="footer-right">9/9</span>
+        <span id="footer-right">1 / 9</span>
       </div>
       <div id="menu-scrollbar" class="visible">
         <div class="aura-sb-up"></div>
@@ -885,17 +964,6 @@
   var _selIdx = -1;
   var _listOff = 0;
   var _listN = -1;
-  function pinCurrentSep(idx) {
-    var pin = document.getElementById("aura-pin-sep");
-    if (pin) pin.style.setProperty("display", "none", "important");
-    var list = document.getElementById("items-list");
-    if (!list) return;
-    var rows = list.querySelectorAll(".menu-item.separator");
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].style.setProperty("display", "flex", "important");
-      rows[i].style.setProperty("pointer-events", "none", "important");
-    }
-  }
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
     _selIdx = idx;
@@ -910,7 +978,6 @@
       while (j < rows.length && rows[j].classList && rows[j].classList.contains("separator")) j++;
       if (j < rows.length) idx = j;
     }
-    pinCurrentSep(idx);
     var row = rows[idx];
     var wrap = document.getElementById("menu-items");
     var n = rows.length || 0;
@@ -935,7 +1002,7 @@
       hi.style.top = (row.offsetTop || 0) + "px";
     }
     var foot = document.getElementById("footer-right");
-    if (foot && n) foot.textContent = (idx + 1) + "/" + n;
+    if (foot && n) foot.textContent = (idx + 1) + " / " + n;
     var thumb = document.getElementById("scrollbar-thumb");
     if (thumb && n) {
       var vis2 = Math.min(9, n);
@@ -1154,8 +1221,7 @@
   }
   window.__auraHydrateIcons = auraHydrate;
   function faIcon(ic) { return auraIconName(ic); }
-  if (typeof window.updateLiveTabContent !== "function") {
-    window.updateLiveTabContent = function (items, idx) {
+  window.updateLiveTabContent = function (items, idx) {
       var list = document.getElementById("items-list");
       if (!list) return;
       items = items || [];
@@ -1196,9 +1262,9 @@
       }
       list.innerHTML = html;
       _selIdx = -1;
+      orderItemRows();
       paintSelection(idx || 0);
     };
-  }
   if (typeof window.showNotification !== "function") {
     window.showNotification = function (type, title, msg, dur) {
       var nc = document.getElementById("notification-container");
@@ -1275,15 +1341,6 @@
     }
   }
 
-  function wrapNotify() {
-    if (!window.showNotification || window.showNotification.__auraWrap) return;
-    var orig = window.showNotification;
-    window.showNotification = function (type, title, msg, dur, icon) {
-      return orig.call(window, type, "", msg, dur, icon);
-    };
-    window.showNotification.__auraWrap = true;
-  }
-  wrapNotify();
   function orderItemRows() {
     var list = document.getElementById("items-list");
     if (!list) return;
@@ -1309,63 +1366,12 @@
       row.appendChild(comps);
     }
   }
-  function decorateRows(items) {
-    var list = document.getElementById("items-list");
-    if (!list || !items) return;
-    var rows = list.querySelectorAll(".menu-item");
-    for (var i = 0; i < rows.length; i++) {
-      var it = items[i];
-      if (!it || it.separator || it.type === "divider") continue;
-      var name = rows[i].querySelector(".name");
-      var ic = faIcon(it.icon);
-      if (name && ic && !name.querySelector(".menu-row-icon")) {
-        var tmpI = document.createElement("div");
-        tmpI.innerHTML = auraSvg(ic, "menu-row-icon");
-        name.insertBefore(tmpI.firstChild, name.firstChild);
-      }
-      var comps = rows[i].querySelector(".components-container");
-      if (!comps) continue;
-      if ((it.submenu === true || String(it.type || "").toLowerCase() === "submenu") && !comps.querySelector(".menu-chevron")) {
-        var tmpC = document.createElement("div");
-        tmpC.innerHTML = auraChevron("menu-chevron");
-        comps.appendChild(tmpC.firstChild);
-      }
-    }
-  }
-  function wrapLive() {
-    if (!window.updateLiveTabContent || window.updateLiveTabContent.__auraWrap) return;
-    var orig = window.updateLiveTabContent;
-    window.updateLiveTabContent = function (t, e) {
-      t = t || [];
-      for (var i = 0; i < t.length; i++) {
-        var it = t[i];
-        if (!it) continue;
-        if (it.checkbox && (it.slider || it.range)) continue;
-        var ty = String(it.type || "").toLowerCase();
-        if (ty === "submenu" || ty === "button" || ty === "divider" || ty === "separator" || ty === "") {
-          it.checkbox = undefined;
-        }
-        if (it.vehicle === true || it.inVehicle === true || it.status === "vehicle") {
-          it.inVehicle = true;
-          it.vehicle = true;
-        }
-      }
-      var list = document.getElementById("items-list");
-      if (list) list.innerHTML = "";
-      var out = orig.call(window, t, e);
-      orderItemRows();
-      decorateRows(t);
-      return out;
-    };
-    window.updateLiveTabContent.__auraWrap = true;
-  }
-  wrapLive();
-
   function styleScroll() {
     var bar = document.getElementById("menu-scrollbar");
     if (!bar) return;
-    bar.style.setProperty("width", "0.85vh", "important");
-    bar.style.setProperty("left", "-1.13vh", "important");
+    bar.style.setProperty("width", "0.4vh", "important");
+    bar.style.setProperty("left", "auto", "important");
+    bar.style.setProperty("right", "-1.3vh", "important");
     bar.style.setProperty("overflow", "hidden", "important");
     bar.style.setProperty("z-index", "30", "important");
     bar.style.setProperty("display", "flex", "important");
@@ -1388,12 +1394,12 @@
     }
     var track = document.getElementById("scrollbar-track");
     if (track) {
-      track.style.setProperty("width", "0.22vh", "important");
-      track.style.setProperty("max-width", "0.22vh", "important");
+      track.style.setProperty("width", "0.3vh", "important");
+      track.style.setProperty("max-width", "0.3vh", "important");
       track.style.setProperty("height", "auto", "important");
       track.style.setProperty("flex", "1 1 auto", "important");
       track.style.setProperty("min-height", "0", "important");
-      track.style.setProperty("background", "#000", "important");
+      track.style.setProperty("background", "rgba(40,90,220,0.2)", "important");
       track.style.setProperty("border-radius", "0.08vh", "important");
     }
     var thumb = document.getElementById("scrollbar-thumb");
@@ -1401,7 +1407,7 @@
       thumb.style.setProperty("width", "100%", "important");
       thumb.style.setProperty("left", "0", "important");
       thumb.style.setProperty("border-radius", "0.06vh", "important");
-      thumb.style.setProperty("background", "#fff", "important");
+      thumb.style.setProperty("background", "#2b6bff", "important");
       thumb.style.setProperty("box-shadow", "none", "important");
     }
     var items = document.getElementById("menu-items") || document.getElementById("menu-container");
@@ -1478,8 +1484,11 @@
         (tabs.length === 1 ? " single full" : "") + '"><span>' + esc(lab || "Main Menu") + "</span></div>";
     }
     bar.innerHTML = html;
+    var ttl = document.getElementById("menu-title");
+    if (ttl) ttl.textContent = (tabs[window.__auraTabIndex] && (tabs[window.__auraTabIndex].label || tabs[window.__auraTabIndex].title || tabs[window.__auraTabIndex].name)) || "Main";
     fullTitle();
   }
+  window.__auraPaintTabs = paintTabs;
 
   window.__auraCloseMenu = function () {
     window.__auraClosing = true;
@@ -1563,7 +1572,7 @@
     nc.style.setProperty("bottom", "auto", "important");
     nc.style.setProperty("transform", "translateX(-50%)", "important");
     nc.style.setProperty("align-items", "center", "important");
-    nc.style.setProperty("width", "26vh", "important");
+    nc.style.setProperty("width", "36vh", "important");
     nc.style.setProperty("gap", "0.4vh", "important");
     nc.querySelectorAll(".notification-header,.notification-icon").forEach(function (n) {
       n.style.setProperty("display", "none", "important");
@@ -1766,16 +1775,16 @@
     };
   })();
   window.__auraSyncSectionTitle = function () {
-    var title = window.__auraSectionTitle || "Main Menu";
     if (window.__auraIsMainMenu) {
-      paintTabs([{ label: title }], 0);
+      window.__auraSectionTitle = "Main Menu";
+      paintTabs([{ label: "Main Menu" }], 0);
       return;
     }
-    if (document.body.classList.contains("aura-list-menu") && window.__auraTabs && window.__auraTabs.length > 1) {
+    if (window.__auraTabs && window.__auraTabs.length > 1) {
       paintTabs(window.__auraTabs, window.__auraTabIndex);
       return;
     }
-    paintTabs([{ label: title }], 0);
+    paintTabs([{ label: window.__auraSectionTitle || "Main Menu" }], 0);
   };
   window.updateTab = function (idx) {
     paintTabs(window.__auraTabs || [], idx);
@@ -1963,7 +1972,12 @@
 
   function applyTabs(d) {
     d = d || {};
-    if (d.clearCategories || window.__auraIsMainMenu) {
+    if (window.__auraIsMainMenu) {
+      window.__auraSectionTitle = "Main Menu";
+      paintTabs([{ label: "Main Menu" }], 0);
+      return;
+    }
+    if (d.clearCategories) {
       paintTabs([{ label: window.__auraSectionTitle || "Main Menu" }], 0);
       return;
     }
@@ -1985,11 +1999,21 @@
       window.__auraCloseMenu();
       return;
     }
-    wrapLive();
-    if (d.isMainMenu === true) window.__auraIsMainMenu = true;
-    else if (d.isMainMenu === false) window.__auraIsMainMenu = false;
+    if (d.isMainMenu === true) {
+      window.__auraIsMainMenu = true;
+      window.__auraSectionTitle = "Main Menu";
+    } else if (d.isMainMenu === false) {
+      window.__auraIsMainMenu = false;
+      if (d.sectionTitle) window.__auraSectionTitle = String(d.sectionTitle);
+    }
     if (d.categories || d.tabs) applyTabs(d);
-    else if (d.clearCategories) applyTabs({ categories: [] });
+    else if (d.clearCategories) applyTabs({ clearCategories: true });
+    if (window.__auraIsMainMenu) {
+      window.__auraSectionTitle = "Main Menu";
+      paintTabs([{ label: "Main Menu" }], 0);
+    } else if (window.__auraSectionTitle && !(window.__auraTabs && window.__auraTabs.length > 1)) {
+      paintTabs([{ label: window.__auraSectionTitle }], 0);
+    }
     var items = mapItems(d.elements || d.menu || []);
     var idx = typeof d.index === "number" ? d.index : Math.max(0, (Number(d.current) || 1) - 1);
     var list = document.getElementById("items-list");
@@ -2208,8 +2232,6 @@
     var fl = document.getElementById("footer-left");
     if (fl && window.__AURA_DISCORD_NAME) fl.textContent = window.__AURA_DISCORD_NAME;
   };
-  window.__auraSetMenuOpacity = function (n) { applyMenuOpacity(n); };
-  window.__auraApplyMenuOpacity = function () { applyMenuOpacity(window.__auraMenuOpacity); };
   window.__auraApplyTheme = function (rgb) {
     var r = 208, g = 214, b = 224;
     if (rgb && rgb.length >= 3) { r = +rgb[0]; g = +rgb[1]; b = +rgb[2]; }
@@ -2234,15 +2256,13 @@
   applyMenuOpacity(window.__auraMenuOpacity || 0.86);
 
   auraHydrate();
-  wrapLive();
-  wrapNotify();
   fullTitle();
   pinNotif();
   styleScroll();
   if (preview) {
     if (typeof window.showMenu === "function") window.showMenu();
     paintSelection(8);
-    paintBinds([{ label: "Noclip", key: "F2", type: "checkbox", checked: true }]);
+    paintBinds([]);
   }
 })();
   </script>
