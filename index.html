@@ -194,9 +194,9 @@
     #selection-highlight {
       z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(255, 255, 255, 0.13) !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.88) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.88) !important;
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.18) !important;
+      border-top: 1px solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
+      border-bottom: 1px solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
       border-left: none !important;
       border-right: none !important;
       box-sizing: border-box !important;
@@ -208,7 +208,7 @@
       width: 2.15vh !important;
       height: 1.45vh !important;
       margin: 0 !important;
-      color: #fff !important;
+      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
       fill: currentColor !important;
       flex-shrink: 0 !important;
       overflow: visible !important;
@@ -217,7 +217,7 @@
       display: block !important;
       width: 1.2vh !important;
       height: 1.2vh !important;
-      color: #fff !important;
+      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
       opacity: 1 !important;
       margin: 0 !important;
       flex-shrink: 0 !important;
@@ -302,8 +302,9 @@
       font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
       font-size: 1.2vh !important; font-weight: 600 !important; letter-spacing: 0 !important;
     }
-    #items-list .menu-item .name, .menu-item .name {
-      color: #f3f5f8 !important;
+    #items-list .menu-item .name, .menu-item .name,
+    #items-list .menu-item .name .menu-label, .menu-item .menu-label {
+      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
     }
     .menu-item {
       display: flex !important;
@@ -325,7 +326,7 @@
       display: inline-flex !important;
       visibility: visible !important;
       opacity: 1 !important;
-      color: #fff !important;
+      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
       fill: currentColor !important;
       flex-shrink: 0 !important;
       width: 1.5vh !important;
@@ -362,6 +363,7 @@
       padding: 0 !important;
       text-align: right !important;
       white-space: nowrap !important;
+      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
     }
     .separator-container {
       display: flex !important;
@@ -385,7 +387,8 @@
       font-size: 1.05vh !important;
     }
     .separator-text {
-      color: rgba(255,255,255,0.78) !important;
+      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
+      opacity: 0.82;
       font-weight: 500 !important;
       padding: 0 0.35vh !important;
     }
@@ -503,8 +506,10 @@
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
     .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
-    .keybindlist-container:not(.KBLWrapper):not(#aura-keybind-hud) {
+    .keybindlist-container:not(#aura-keybind-hud),
+    .KBLWrapper:not(#aura-keybind-hud) {
       display: none !important; opacity: 0 !important; visibility: hidden !important;
+      pointer-events: none !important;
     }
     #aura-loader, .loading-scale-layer, .zt-load-screen, .zt-card.zt-loading,
     .shark-load-inner, #SharkLoadingOverlay {
@@ -547,8 +552,8 @@
       text-align: center; text-shadow: none;
     }
     #progress-bottom-text { display: none; }
-    .slider-component span::before { content: "- " !important; color: rgba(255,255,255,0.7) !important; }
-    .slider-component span::after { content: " -" !important; color: rgba(255,255,255,0.7) !important; }
+    .slider-component span::before { content: "- " !important; color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; opacity: 0.75; }
+    .slider-component span::after { content: " -" !important; color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; opacity: 0.75; }
     .key-selection-container {
       position: fixed; left: 0; right: 0; bottom: 0; top: auto;
       height: 12vw; max-height: 12vw; overflow: hidden;
@@ -744,8 +749,10 @@
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
     .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
-    .keybindlist-container:not(.KBLWrapper):not(#aura-keybind-hud) {
+    .keybindlist-container:not(#aura-keybind-hud),
+    .KBLWrapper:not(#aura-keybind-hud) {
       display: none !important; opacity: 0 !important; visibility: hidden !important;
+      pointer-events: none !important;
     }
     #aura-player-info{
       position:fixed!important;z-index:2147483000!important;display:none;flex-direction:column;
@@ -1781,7 +1788,16 @@
     if (window.__auraShowSharkInput) window.__auraShowSharkInput(t.header || t.title || "Input", t.value || "");
   };
 
+  function killCinemaKeybinds() {
+    document.querySelectorAll("#live-list-keybinds,.live-list-container,.keybindlist-container,.KBLWrapper").forEach(function (n) {
+      if (!n || n.id === "aura-keybind-hud") return;
+      try { n.parentNode.removeChild(n); } catch (e) {
+        n.style.setProperty("display", "none", "important");
+      }
+    });
+  }
   function ensureKeybindHud() {
+    killCinemaKeybinds();
     var kb = document.getElementById("aura-keybind-hud") || document.getElementById("keybindlist-container");
     if (!kb) {
       kb = document.createElement("div");
