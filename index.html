@@ -967,10 +967,6 @@
       setTimeout(function () { n.classList.add("hide"); setTimeout(function () { n.remove(); }, 400); }, Math.max(1200, Number(dur) || 3500));
     };
   }
-  if (typeof window.updateProgressBar !== "function") {
-    window.updateProgressBar = function () {};
-    window.hideProgressBar = function () {};
-  }
   window.__auraSetSelectStyle = function (name) {
     var n = String(name || "").toLowerCase();
     var wide = n === "soft" || n === "spaced" || n === "wide";
@@ -1386,12 +1382,7 @@
 
   window.showProgressBar = function () {
     var t = document.getElementById("progress-container");
-    if (!t) {
-      t = document.createElement("div");
-      t.id = "progress-container";
-      t.innerHTML = '<div id="progress-box"><img id="progress-avatar" alt=""/><div id="progress-top-text"></div><div id="progress-bar-container"><div id="progress-bar"></div></div><div id="progress-percent-text">0%</div></div>';
-      document.body.appendChild(t);
-    }
+    if (!t) return;
     t.classList.add("show");
     t.style.setProperty("display", "block", "important");
     t.style.setProperty("opacity", "1", "important");
@@ -1411,11 +1402,19 @@
   };
   window.hideProgressBar = function () {
     var t = document.getElementById("progress-container");
-    if (!t) return;
-    t.classList.remove("show");
-    t.style.opacity = "0";
-    t.style.display = "none";
+    if (t) {
+      t.classList.remove("show");
+      t.style.opacity = "0";
+      t.style.display = "none";
+    }
+    window.__auraLoaderDone = true;
+    document.querySelectorAll("#SharkLoadingOverlay,#aura-loader,.loading-scale-layer,.zt-load-screen,.zt-card.zt-loading,.zt-card.zt-ready,.zt-load-compact,.zt-ring-wrap,.zt-logo-box,.shark-load-inner").forEach(function (el) {
+      el.style.setProperty("display", "none", "important");
+      el.style.setProperty("opacity", "0", "important");
+      el.style.setProperty("visibility", "hidden", "important");
+    });
   };
+  window.__auraLoaderHtmlReady = true;
   window.__auraPaintSharkLoader = function (p, text, avatar, hide) {
     if (hide || p >= 100) {
       window.hideProgressBar();
