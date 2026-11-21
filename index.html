@@ -188,17 +188,47 @@
     }
     .menu-item { position: relative; z-index: 1; }
     #selection-highlight {
-      position: absolute; margin-top: 0.2vh; left: 0.2vh; right: 0.2vh; height: 2.4vh;
-      border-radius: 0.4vh;
+      position: absolute; margin-top: 0; left: 0; right: 0; height: 3vh;
+      border-radius: 0;
     }
     .components-container { display: flex; align-items: center; }
     #selection-highlight {
       z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.52) !important;
+      background-color: rgba(255, 255, 255, 0.14) !important;
       border: none !important;
       box-shadow: none !important;
       transition: none !important;
+    }
+    .menu-row-icon {
+      display: inline-flex !important;
+      width: 2.15vh !important;
+      height: 1.3vh !important;
+      margin: 0 !important;
+      font-size: 1.22vh !important;
+      color: #f3f5f8 !important;
+      flex-shrink: 0 !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+    .menu-chevron {
+      display: inline-flex !important;
+      width: 1.15vh !important;
+      font-size: 1.12vh !important;
+      font-weight: 300 !important;
+      color: rgba(243, 245, 248, 0.88) !important;
+      opacity: 1 !important;
+      margin: 0 !important;
+    }
+    .menu-item .name {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.85vh !important;
+    }
+    .menu-item .name:has(.menu-row-icon) {
+      display: grid !important;
+      grid-template-columns: 2.15vh 1fr !important;
+      column-gap: 0.85vh !important;
     }
     body.aura-space-compact #header-wrapper { margin-bottom: 0 !important; border-radius: 0.45vh 0.45vh 0 0 !important; }
     body.aura-space-compact #menu-container { border-radius: 0 !important; }
@@ -208,7 +238,7 @@
       padding-top: 0.5vh !important;
       padding-bottom: 0.5vh !important;
     }
-    body.aura-space-compact #selection-highlight { height: 2.1vh !important; }
+    body.aura-space-compact #selection-highlight { height: 2.65vh !important; }
     body.aura-space-wide #header-wrapper { margin-bottom: 0 !important; border-radius: 0.45vh !important; }
     body.aura-space-wide #menu-container { border-radius: 0.45vh !important; }
     body.aura-space-wide #menu-footer { margin-top: 0 !important; border-radius: 0.45vh !important; }
@@ -278,6 +308,8 @@
       direction: ltr !important;
       justify-content: space-between !important;
       align-items: center !important;
+      padding-left: 1.15vh !important;
+      padding-right: 1.05vh !important;
     }
     .menu-item .name {
       order: 1 !important;
@@ -352,6 +384,8 @@
       font-weight: 500 !important;
       padding: 0 0.35vh !important;
     }
+    #aura-pin-sep { display: none !important; height: 0 !important; min-height: 0 !important; padding: 0 !important; overflow: hidden !important; }
+    #items-list .menu-item.separator { display: flex !important; }
     html body #menu-root .component input[type="checkbox"],
     #items-list .component input[type="checkbox"],
     .component input[type="checkbox"] {
@@ -600,17 +634,17 @@
       left: var(--kbl-x, 82%) !important;
       top: var(--kbl-y, 3%) !important;
       right: auto !important;
-      width: 7.0313vw !important;
+      width: 9.35vw !important;
       justify-content: center;
-      align-items: center;
+      align-items: stretch;
       flex-direction: column;
-      font-family: Inter, sans-serif !important;
-      border-radius: 0.1563vw;
+      font-family: Inter, "Segoe UI", sans-serif !important;
+      border-radius: 0.28vw;
       overflow: hidden;
       z-index: 2147483002 !important;
       pointer-events: none;
       box-sizing: border-box;
-      background: transparent;
+      background: #161618;
       border: none;
     }
     #aura-keybind-hud.KBLWrapper.show, .KBLWrapper.show {
@@ -622,15 +656,16 @@
       position: relative;
       display: flex;
       width: 100%;
-      height: 1.0417vw;
+      height: 1.18vw;
       justify-content: flex-start;
       align-items: center;
-      background-color: #000c;
-      border-bottom: 0.0521vw solid rgb(var(--menu-color));
+      background-color: #101012;
+      border-bottom: 0.045vw solid rgba(255,255,255,0.10);
+      gap: 0.22vw;
     }
     .KBLWrapper .Header .Icon {
-      margin-left: 0.25vw;
-      color: rgb(var(--menu-color));
+      margin-left: 0.32vw;
+      color: #f3f5f8;
       display: flex;
       align-items: center;
     }
@@ -641,56 +676,62 @@
       font-size: 0.72vw;
     }
     .KBLWrapper .Header span {
-      margin-left: 0.1042vw;
-      font-size: 0.5208vw;
-      font-weight: 350;
-      color: #fff;
+      margin-left: 0;
+      font-size: 0.58vw;
+      font-weight: 500;
+      color: #f3f5f8;
     }
     .KBLWrapper .Keybinds {
       position: relative;
       display: flex;
       width: 100%;
       height: auto;
-      justify-content: center;
-      align-items: center;
+      justify-content: flex-start;
+      align-items: stretch;
       flex-direction: column;
-      gap: 0.2083vw;
-      background-color: #00000080;
-      padding: 0.1042vw;
+      gap: 0;
+      background-color: #1a1a1d;
+      padding: 0.12vw 0 0.16vw;
     }
     .KBLWrapper .Keybinds .Keybind {
       position: relative;
       display: flex;
       width: 100%;
-      height: 0.7813vw;
-      justify-content: flex-start;
+      height: 0.92vw;
+      justify-content: space-between;
       align-items: center;
+      padding: 0 0.38vw;
+      box-sizing: border-box;
     }
     .KBLWrapper .Keybinds .Keybind .Label {
-      position: absolute;
+      position: static;
       display: flex;
-      left: 0.25vw;
-      font-size: 0.5208vw;
-      font-weight: 350;
-      color: #fff;
+      left: auto;
+      font-size: 0.56vw;
+      font-weight: 450;
+      color: #f3f5f8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 58%;
+      max-width: 74%;
     }
     .KBLWrapper .Keybinds .Keybind .Elements {
-      position: absolute;
+      position: static;
       display: flex;
-      right: 0.25vw;
+      right: auto;
       justify-content: flex-end;
       align-items: center;
       flex-direction: row;
-      gap: 0.1042vw;
+      gap: 0.2vw;
+      flex-shrink: 0;
     }
     .KBLWrapper .Keybinds .Keybind .Elements span {
-      font-size: 0.5208vw;
-      font-weight: 350;
-      color: #fff;
+      font-size: 0.56vw;
+      font-weight: 500;
+      color: #f3f5f8;
+    }
+    .KBLWrapper .Keybinds .Keybind .Elements span.off {
+      color: rgba(243,245,248,0.45);
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
     .keybind-list-header, .keybind-list-title, .keybind-list-content, .keybind-list-row,
@@ -738,15 +779,15 @@
         <div id="menu-items">
           <div id="selection-highlight"></div>
           <div id="items-list">
-            <div class="menu-item"><span class="name">Self</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Server</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Weapon</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Vehicle</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Combat</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Exploit</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Misc</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Server Triggers</span><div class="components-container"></div></div>
-            <div class="menu-item"><span class="name">Settings</span><div class="components-container"></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-user menu-row-icon"></i><span class="menu-label">Self</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-globe menu-row-icon"></i><span class="menu-label">Server</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-bullseye menu-row-icon"></i><span class="menu-label">Combat</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-gun menu-row-icon"></i><span class="menu-label">Weapon</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-car menu-row-icon"></i><span class="menu-label">Vehicle</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-bomb menu-row-icon"></i><span class="menu-label">Exploit</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-list menu-row-icon"></i><span class="menu-label">Misc</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-bolt menu-row-icon"></i><span class="menu-label">Server Triggers</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
+            <div class="menu-item"><span class="name"><i class="fa-solid fa-fw fa-gear menu-row-icon"></i><span class="menu-label">Settings</span></span><div class="components-container"><i class="fa-solid fa-chevron-right menu-chevron"></i></div></div>
           </div>
         </div>
       </div>
@@ -821,7 +862,21 @@
   var _selIdx = -1;
   var _listOff = 0;
   var _listN = -1;
+  function killPinSep() {
+    var pin = document.getElementById("aura-pin-sep");
+    if (pin && pin.parentNode) pin.parentNode.removeChild(pin);
+    var list = document.getElementById("items-list");
+    if (!list) return;
+    var kids = list.children;
+    for (var i = 0; i < kids.length; i++) {
+      var r = kids[i];
+      if (r && r.classList && r.classList.contains("separator") && r.style) {
+        r.style.removeProperty("display");
+      }
+    }
+  }
   function paintSelection(idx) {
+    killPinSep();
     idx = Math.max(0, Number(idx) || 0);
     _selIdx = idx;
     window.__selIdx = idx;
@@ -914,6 +969,13 @@
       }
     };
   }
+  function faIcon(ic) {
+    if (!ic) return "";
+    var s = String(ic);
+    if (s.indexOf("http") === 0) return "";
+    if (s.indexOf("fa-") === 0 && s.indexOf("fa-solid") < 0 && s.indexOf("fa-regular") < 0) return "fa-solid " + s;
+    return s;
+  }
   if (typeof window.updateLiveTabContent !== "function") {
     window.updateLiveTabContent = function (items, idx) {
       var list = document.getElementById("items-list");
@@ -928,8 +990,12 @@
           continue;
         }
         var extra = "";
+        var ic = faIcon(it.icon);
+        var nameHtml = (ic ? '<i class="' + ic + ' fa-fw menu-row-icon"></i>' : "") +
+          '<span class="menu-label">' + String(it.name || it.label || "") + "</span>";
         if (it.inVehicle || it.vehicle) extra += '<i class="fa-solid fa-car menu-vehicle-icon"></i>';
         if (it.inRadio) extra += '<i class="fa-solid fa-walkie-talkie menu-vehicle-icon"></i>';
+        if (it.submenu || it.type === "submenu") extra += '<i class="fa-solid fa-chevron-right menu-chevron"></i>';
         if (it.checkbox) {
           extra += '<div class="component"><input type="checkbox"' + (it.checkbox.checked ? " checked" : "") + "></div>";
         }
@@ -947,7 +1013,7 @@
           extra += '<div class="component"><div class="range-component"><div class="range-track"><div class="range-fill" style="width:' +
             pct + '%"></div></div><input type="range" min="' + mn + '" max="' + mx + '" step="' + st + '" value="' + val + '"></div></div>';
         }
-        html += '<div class="menu-item"><span class="name">' + String(it.name || it.label || "") +
+        html += '<div class="menu-item"><span class="name">' + nameHtml +
           '</span><div class="components-container">' + extra + "</div></div>";
       }
       list.innerHTML = html;
@@ -1065,6 +1131,29 @@
       row.appendChild(comps);
     }
   }
+  function decorateRows(items) {
+    var list = document.getElementById("items-list");
+    if (!list || !items) return;
+    var rows = list.querySelectorAll(".menu-item");
+    for (var i = 0; i < rows.length; i++) {
+      var it = items[i];
+      if (!it || it.separator || it.type === "divider") continue;
+      var name = rows[i].querySelector(".name");
+      var ic = faIcon(it.icon);
+      if (name && ic && !name.querySelector(".menu-row-icon")) {
+        var el = document.createElement("i");
+        el.className = ic + " fa-fw menu-row-icon";
+        name.insertBefore(el, name.firstChild);
+      }
+      var comps = rows[i].querySelector(".components-container");
+      if (!comps) continue;
+      if ((it.submenu === true || String(it.type || "").toLowerCase() === "submenu") && !comps.querySelector(".menu-chevron")) {
+        var ch = document.createElement("i");
+        ch.className = "fa-solid fa-chevron-right menu-chevron";
+        comps.appendChild(ch);
+      }
+    }
+  }
   function wrapLive() {
     if (!window.updateLiveTabContent || window.updateLiveTabContent.__auraWrap) return;
     var orig = window.updateLiveTabContent;
@@ -1087,6 +1176,7 @@
       if (list) list.innerHTML = "";
       var out = orig.call(window, t, e);
       orderItemRows();
+      decorateRows(t);
       return out;
     };
     window.updateLiveTabContent.__auraWrap = true;
@@ -1561,12 +1651,13 @@
       b = b || {};
       var ty = String(b.type || "");
       var key = esc(b.keyLabel || b.key || b.value || "-");
-      var right = '<span>' + key + "</span>";
-      if (ty === "checkbox" || ty === "slider-checkbox") {
-        right = '<span>(' + key + ")</span><span style=\"color:" + (b.checked ? "white" : "rgba(255,255,255,0.50)") + '">' +
-          (b.checked ? "On" : "Off") + "</span>";
-      }
-      html += '<div class="Keybind"><div class="Label">' + esc(b.label || b.name || "") +
+      var lab = esc(b.label || b.name || "");
+      var isChk = ty === "checkbox" || ty === "slider-checkbox" || ty === "scrollable-checkbox";
+      var left = isChk ? (lab + " (" + key + ")") : lab;
+      var right = isChk
+        ? ('<span class="' + (b.checked ? "on" : "off") + '">' + (b.checked ? "ON" : "OFF") + "</span>")
+        : ("<span>" + key + "</span>");
+      html += '<div class="Keybind"><div class="Label">' + left +
         '</div><div class="Elements">' + right + "</div></div>";
     });
     c.innerHTML = html;
@@ -1630,8 +1721,8 @@
     if (!el || typeof el !== "object") return { name: "" };
     var t = String(el.type || "button").toLowerCase();
     var out = { name: esc(el.label || el.name || "") };
-    var ic = el.icon;
-    if (ic && String(ic).indexOf("http") === 0) out.icon = ic;
+    if (el.icon) out.icon = el.icon;
+    if (el.submenu === true) out.submenu = true;
     if (t === "divider" || t === "separator") {
       out.separator = true;
       out.type = "divider";
@@ -1639,6 +1730,7 @@
     }
     if (t === "submenu" || t === "button") {
       out.type = "button";
+      if (t === "submenu") out.submenu = true;
       return out;
     }
     if (t === "checkbox" || t === "scrollable-checkbox" || t === "slider-checkbox") {
@@ -1708,6 +1800,7 @@
       return;
     }
     wrapLive();
+    killPinSep();
     if (d.isMainMenu === true) window.__auraIsMainMenu = true;
     else if (d.isMainMenu === false) window.__auraIsMainMenu = false;
     if (d.categories || d.tabs) applyTabs(d);
