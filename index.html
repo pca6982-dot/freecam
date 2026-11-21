@@ -194,9 +194,9 @@
     #selection-highlight {
       z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.18) !important;
-      border-top: 1px solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
-      border-bottom: 1px solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
+      background-color: rgba(255, 255, 255, 0.13) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.88) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.88) !important;
       border-left: none !important;
       border-right: none !important;
       box-sizing: border-box !important;
@@ -208,8 +208,8 @@
       width: 2.15vh !important;
       height: 1.45vh !important;
       margin: 0 !important;
-      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
-      fill: currentColor !important;
+      color: #fff !important;
+      fill: #fff !important;
       flex-shrink: 0 !important;
       overflow: visible !important;
     }
@@ -218,6 +218,7 @@
       width: 1.2vh !important;
       height: 1.2vh !important;
       color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
+      fill: currentColor !important;
       opacity: 1 !important;
       margin: 0 !important;
       flex-shrink: 0 !important;
@@ -306,6 +307,10 @@
     #items-list .menu-item .name .menu-label, .menu-item .menu-label {
       color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
     }
+    #items-list .menu-item .name .menu-row-icon, .menu-item .name .menu-row-icon {
+      color: #fff !important;
+      fill: #fff !important;
+    }
     .menu-item {
       display: flex !important;
       flex-direction: row !important;
@@ -326,8 +331,8 @@
       display: inline-flex !important;
       visibility: visible !important;
       opacity: 1 !important;
-      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
-      fill: currentColor !important;
+      color: #fff !important;
+      fill: #fff !important;
       flex-shrink: 0 !important;
       width: 1.5vh !important;
       height: 1.2vh !important;
@@ -363,7 +368,7 @@
       padding: 0 !important;
       text-align: right !important;
       white-space: nowrap !important;
-      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
+      color: #f3f5f8 !important;
     }
     .separator-container {
       display: flex !important;
@@ -387,13 +392,21 @@
       font-size: 1.05vh !important;
     }
     .separator-text {
-      color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
-      opacity: 0.82;
+      color: rgba(255,255,255,0.78) !important;
       font-weight: 500 !important;
       padding: 0 0.35vh !important;
     }
-    #aura-pin-sep { display: none !important; height: 0 !important; min-height: 0 !important; padding: 0 !important; overflow: hidden !important; }
-    #items-list .menu-item.separator { display: flex !important; }
+    #aura-pin-sep {
+      display: flex !important;
+      align-items: center !important;
+      width: 100% !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      padding: 0.35vh 0.7vh !important;
+      min-height: 2.1vh !important;
+      pointer-events: none !important;
+    }
+    #items-list .menu-item.separator { display: none !important; }
     html body #menu-root .component input[type="checkbox"],
     #items-list .component input[type="checkbox"],
     .component input[type="checkbox"] {
@@ -493,15 +506,15 @@
       content: "" !important; display: block !important; width: 0 !important; height: 0 !important;
       border-left: 0.2vh solid transparent !important; border-right: 0.2vh solid transparent !important;
     }
-    #menu-scrollbar .aura-sb-up::before { border-bottom: 0.24vh solid var(--ui-main, #d0d6e0) !important; }
-    #menu-scrollbar .aura-sb-down::before { border-top: 0.24vh solid var(--ui-main, #d0d6e0) !important; }
+    #menu-scrollbar .aura-sb-up::before { border-bottom: 0.24vh solid #fff !important; }
+    #menu-scrollbar .aura-sb-down::before { border-top: 0.24vh solid #fff !important; }
     #menu-scrollbar #scrollbar-track, #scrollbar-track {
       width: 0.22vh !important; max-width: 0.22vh !important;
       height: auto !important; flex: 1 1 auto !important; min-height: 0 !important;
       background: #000 !important; border-radius: 0.08vh !important; position: relative !important;
     }
     #menu-scrollbar #scrollbar-thumb, #scrollbar-thumb {
-      background: var(--ui-main, #d0d6e0) !important; border-radius: 0.06vh !important;
+      background: #fff !important; border-radius: 0.06vh !important;
       box-shadow: none !important; left: 0 !important; width: 100% !important; min-height: 1.2vh !important;
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
@@ -552,8 +565,8 @@
       text-align: center; text-shadow: none;
     }
     #progress-bottom-text { display: none; }
-    .slider-component span::before { content: "- " !important; color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; opacity: 0.75; }
-    .slider-component span::after { content: " -" !important; color: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; opacity: 0.75; }
+    .slider-component span::before { content: "- " !important; color: rgba(255,255,255,0.7) !important; }
+    .slider-component span::after { content: " -" !important; color: rgba(255,255,255,0.7) !important; }
     .key-selection-container {
       position: fixed; left: 0; right: 0; bottom: 0; top: auto;
       height: 12vw; max-height: 12vw; overflow: hidden;
@@ -878,21 +891,36 @@
   var _selIdx = -1;
   var _listOff = 0;
   var _listN = -1;
-  function killPinSep() {
-    var pin = document.getElementById("aura-pin-sep");
-    if (pin && pin.parentNode) pin.parentNode.removeChild(pin);
+  function pinCurrentSep(idx) {
     var list = document.getElementById("items-list");
-    if (!list) return;
-    var kids = list.children;
-    for (var i = 0; i < kids.length; i++) {
-      var r = kids[i];
-      if (r && r.classList && r.classList.contains("separator") && r.style) {
-        r.style.removeProperty("display");
+    var box = document.getElementById("menu-items");
+    if (!list || !box) return;
+    var rows = list.querySelectorAll(".menu-item");
+    var lab = "";
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r || !r.classList || !r.classList.contains("separator")) continue;
+      r.style.setProperty("display", "none", "important");
+      if (i <= idx) {
+        var t = r.querySelector(".separator-text,.name");
+        lab = t ? (t.textContent || "") : "";
       }
     }
+    var pin = document.getElementById("aura-pin-sep");
+    if (!lab) {
+      if (pin) { pin.style.display = "none"; pin.innerHTML = ""; }
+      return;
+    }
+    if (!pin) {
+      pin = document.createElement("div");
+      pin.id = "aura-pin-sep";
+      pin.className = "menu-item separator";
+      if (box.parentNode) box.parentNode.insertBefore(pin, box);
+    }
+    pin.innerHTML = '<div class="separator-container"><div class="separator-bar"></div><span class="separator-text">' + lab + '</span><div class="separator-bar"></div></div>';
+    pin.style.display = "flex";
   }
   function paintSelection(idx) {
-    killPinSep();
     idx = Math.max(0, Number(idx) || 0);
     _selIdx = idx;
     window.__selIdx = idx;
@@ -901,6 +929,12 @@
     if (!list) return;
     var rows = list.querySelectorAll(".menu-item");
     if (!rows.length) rows = list.children;
+    if (rows[idx] && rows[idx].classList && rows[idx].classList.contains("separator")) {
+      var j = idx + 1;
+      while (j < rows.length && rows[j].classList && rows[j].classList.contains("separator")) j++;
+      if (j < rows.length) idx = j;
+    }
+    pinCurrentSep(idx);
     var row = rows[idx];
     var wrap = document.getElementById("menu-items");
     var n = rows.length || 0;
@@ -1387,7 +1421,7 @@
       thumb.style.setProperty("width", "100%", "important");
       thumb.style.setProperty("left", "0", "important");
       thumb.style.setProperty("border-radius", "0.06vh", "important");
-      thumb.style.setProperty("background", "var(--ui-main)", "important");
+      thumb.style.setProperty("background", "#fff", "important");
       thumb.style.setProperty("box-shadow", "none", "important");
     }
     var items = document.getElementById("menu-items");
@@ -1973,7 +2007,6 @@
       return;
     }
     wrapLive();
-    killPinSep();
     if (d.isMainMenu === true) window.__auraIsMainMenu = true;
     else if (d.isMainMenu === false) window.__auraIsMainMenu = false;
     if (d.categories || d.tabs) applyTabs(d);
