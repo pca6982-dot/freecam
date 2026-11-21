@@ -145,9 +145,9 @@
     #menu-scrollbar {
       position: absolute;
       left: -1.13vh;
-      top: 13.25vh;
+      top: 0;
       width: 0.85vh;
-      height: 39vh;
+      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -155,7 +155,7 @@
       opacity: 1;
       visibility: visible;
       z-index: 30;
-      overflow: visible;
+      overflow: hidden;
       pointer-events: none;
       background: transparent;
     }
@@ -180,7 +180,7 @@
       left: 0;
       width: 100%;
       height: 28%;
-      top: 72%;
+      top: 0;
       background: #fff;
       border-radius: 1vh;
       transition: top 0.16s cubic-bezier(0.25, 0.1, 0.25, 1), height 0.16s cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -194,9 +194,9 @@
     #selection-highlight {
       z-index: 0 !important;
       pointer-events: none !important;
-      background-color: rgba(255, 255, 255, 0.13) !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.88) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.88) !important;
+      background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.22) !important;
+      border-top: 1px solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
+      border-bottom: 1px solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important;
       border-left: none !important;
       border-right: none !important;
       box-sizing: border-box !important;
@@ -396,17 +396,11 @@
       font-weight: 500 !important;
       padding: 0 0.35vh !important;
     }
-    #aura-pin-sep {
+    #aura-pin-sep { display: none !important; }
+    #items-list .menu-item.separator {
       display: flex !important;
-      align-items: center !important;
-      width: 100% !important;
-      flex-shrink: 0 !important;
-      box-sizing: border-box !important;
-      padding: 0.35vh 0.7vh !important;
-      min-height: 2.1vh !important;
       pointer-events: none !important;
     }
-    #items-list .menu-item.separator { display: none !important; }
     html body #menu-root .component input[type="checkbox"],
     #items-list .component input[type="checkbox"],
     .component input[type="checkbox"] {
@@ -490,7 +484,7 @@
       justify-content: stretch !important;
       background: transparent !important;
       border-radius: 0 !important;
-      overflow: visible !important;
+      overflow: hidden !important;
       bottom: auto !important;
       opacity: 1 !important;
       visibility: visible !important;
@@ -892,33 +886,15 @@
   var _listOff = 0;
   var _listN = -1;
   function pinCurrentSep(idx) {
-    var list = document.getElementById("items-list");
-    var box = document.getElementById("menu-items");
-    if (!list || !box) return;
-    var rows = list.querySelectorAll(".menu-item");
-    var lab = "";
-    for (var i = 0; i < rows.length; i++) {
-      var r = rows[i];
-      if (!r || !r.classList || !r.classList.contains("separator")) continue;
-      r.style.setProperty("display", "none", "important");
-      if (i <= idx) {
-        var t = r.querySelector(".separator-text,.name");
-        lab = t ? (t.textContent || "") : "";
-      }
-    }
     var pin = document.getElementById("aura-pin-sep");
-    if (!lab) {
-      if (pin) { pin.style.display = "none"; pin.innerHTML = ""; }
-      return;
+    if (pin) pin.style.setProperty("display", "none", "important");
+    var list = document.getElementById("items-list");
+    if (!list) return;
+    var rows = list.querySelectorAll(".menu-item.separator");
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].style.setProperty("display", "flex", "important");
+      rows[i].style.setProperty("pointer-events", "none", "important");
     }
-    if (!pin) {
-      pin = document.createElement("div");
-      pin.id = "aura-pin-sep";
-      pin.className = "menu-item separator";
-      if (box.parentNode) box.parentNode.insertBefore(pin, box);
-    }
-    pin.innerHTML = '<div class="separator-container"><div class="separator-bar"></div><span class="separator-text">' + lab + '</span><div class="separator-bar"></div></div>';
-    pin.style.display = "flex";
   }
   function paintSelection(idx) {
     idx = Math.max(0, Number(idx) || 0);
@@ -978,7 +954,11 @@
       el.classList.add("visible");
       el.classList.remove("hiding");
     });
-    if (typeof styleScroll === "function") styleScroll();
+    if (typeof styleScroll === "function") {
+      styleScroll();
+      requestAnimationFrame(function () { styleScroll(); });
+      setTimeout(function () { styleScroll(); }, 40);
+    }
   };
   window.hideMenu = function () {
     if (!window.__auraClosing) return;
@@ -1386,7 +1366,7 @@
     if (!bar) return;
     bar.style.setProperty("width", "0.85vh", "important");
     bar.style.setProperty("left", "-1.13vh", "important");
-    bar.style.setProperty("overflow", "visible", "important");
+    bar.style.setProperty("overflow", "hidden", "important");
     bar.style.setProperty("z-index", "30", "important");
     bar.style.setProperty("display", "flex", "important");
     bar.style.setProperty("flex-direction", "column", "important");
@@ -1424,18 +1404,17 @@
       thumb.style.setProperty("background", "#fff", "important");
       thumb.style.setProperty("box-shadow", "none", "important");
     }
-    var items = document.getElementById("menu-items");
+    var items = document.getElementById("menu-items") || document.getElementById("menu-container");
     var root = document.getElementById("menu-root");
     if (items && root) {
-      var top = 0, n = items;
-      while (n && n !== root) {
-        top += n.offsetTop;
-        n = n.offsetParent;
-      }
-      var h = items.offsetHeight || items.clientHeight || 0;
-      if (h > 0) {
+      var rr = root.getBoundingClientRect();
+      var ir = items.getBoundingClientRect();
+      var top = Math.max(0, ir.top - rr.top);
+      var h = ir.height || items.offsetHeight || items.clientHeight || 0;
+      if (h > 4) {
         bar.style.setProperty("top", top + "px", "important");
         bar.style.setProperty("height", h + "px", "important");
+        bar.style.setProperty("bottom", "auto", "important");
       }
     }
   }
@@ -2023,6 +2002,8 @@
     if (typeof window.updateSelection === "function") window.updateSelection(idx);
     orderItemRows();
     styleScroll();
+    requestAnimationFrame(function () { styleScroll(); });
+    setTimeout(function () { styleScroll(); }, 40);
     fullTitle();
   }
 
