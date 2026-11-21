@@ -653,7 +653,7 @@
       right: auto !important;
       width: 9.4vw !important;
       flex-direction: column;
-      font-family: "Inter", "Segoe UI", Tahoma, sans-serif !important;
+      font-family: "Montserrat", "Segoe UI", Tahoma, sans-serif !important;
       border-radius: 0.45vw;
       overflow: hidden;
       z-index: 2147483002 !important;
@@ -697,8 +697,8 @@
     .KBLWrapper .Header span {
       margin-left: 0;
       font-size: 0.78vw;
-      font-weight: 500;
-      color: #f2f4f8;
+      font-weight: 600;
+      color: #fff;
       line-height: 1;
     }
     .KBLWrapper .Header span.Icon { font-size: 0; }
@@ -729,8 +729,8 @@
       display: flex;
       left: auto;
       font-size: 0.78vw;
-      font-weight: 500;
-      color: #f2f4f8;
+      font-weight: 600;
+      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -748,8 +748,8 @@
     }
     .KBLWrapper .Keybinds .Keybind .Elements span {
       font-size: 0.78vw;
-      font-weight: 600;
-      color: #f2f4f8;
+      font-weight: 700;
+      color: #fff;
     }
     .KBLWrapper .Keybinds .Keybind .Elements span.off {
       color: rgba(255,255,255,0.5);
@@ -785,84 +785,6 @@
       display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;
       height:0!important;width:0!important;overflow:hidden!important;
     }
-
-    /* ===================== Vanity-style look (override layer) ===================== */
-    html body #menu-root, html body #menu-root *, html body #menu-footer, html body .tab-item,
-    html body .notification, html body .notification *, html body #items-list .menu-item,
-    html body #items-list .menu-item .name, html body .menu-item, html body .menu-item .name,
-    html body .separator-container, html body .separator-text {
-      font-family: "Inter", "Segoe UI", Tahoma, sans-serif !important;
-    }
-    html body #header-wrapper { background-color: #000 !important; border-radius: 0.7vh 0.7vh 0 0 !important; }
-    html body #menu-container { background-color: rgba(13, 17, 28, 0.88) !important; }
-    html body #menu-title {
-      display: block !important; background: #000; color: #fff; text-align: center;
-      font-size: 1.3vh; font-weight: 400; padding: 0.85vh 0;
-      border-bottom: 1px solid rgba(45, 91, 208, 0.75);
-    }
-    html body #header-wrapper:has(#menu-tabs .tab-item:not(.single)) #menu-title { display: block; }
-    html body #header-wrapper #menu-tabs, html body #menu-tabs { height: 0 !important; min-height: 0 !important; max-height: 0 !important; overflow: hidden !important; border: 0 !important; padding: 0 !important; margin: 0 !important; }
-    html body #menu-tabs:has(.single) { background: #000; }
-    html body #header-wrapper #menu-tabs .tab-item {
-      background: transparent; color: rgba(255,255,255,0.92) !important;
-      font-size: 1.25vh !important; font-weight: 400 !important; letter-spacing: 0 !important;
-      padding: 0.85vh 0 !important; border-radius: 0 !important;
-    }
-    html body #header-wrapper #menu-tabs .tab-item::before { display: none !important; }
-    html body #header-wrapper #menu-tabs .tab-item.active:not(.single) {
-      background: linear-gradient(90deg, #2158c9 0%, #16306f 100%) !important;
-    }
-    html body #header-wrapper #menu-tabs .tab-item.single,
-    html body #header-wrapper #menu-tabs .tab-item.full,
-    html body #header-wrapper #menu-tabs .tab-item:only-child {
-      background: #000 !important; font-size: 1.2vh !important; font-weight: 400 !important;
-      letter-spacing: 0 !important; padding: 0.9vh 0 !important;
-    }
-    html body #menu-root, html body .notification {
-      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-    }
-    html body #items-list .menu-item .name .menu-label, html body .menu-item .menu-label {
-      color: #dfe3ea !important; font-weight: 400 !important; font-size: 1.32vh !important;
-    }
-    html body #items-list .menu-item, html body #items-list .menu-item .name {
-      font-size: 1.32vh !important; font-weight: 400 !important; color: #dfe3ea !important;
-      letter-spacing: 0.005em !important;
-    }
-    html body .menu-item { padding-left: 1.3vh !important; padding-right: 1.5vh !important; }
-    html body .menu-row-icon, html body svg.menu-row-icon { display: none !important; }
-    html body .menu-item .name:has(.menu-row-icon) { display: flex !important; }
-    html body svg.menu-chevron, html body .menu-chevron { width: 0.8vh !important; height: 0.8vh !important; }
-    html body .menu-chevron path { stroke-width: 2.6; }
-    html body #selection-highlight {
-      background: linear-gradient(90deg, #2158c9 0%, #16306f 100%) !important;
-      border-top: 1px solid rgba(96, 146, 255, 0.55) !important;
-      border-bottom: 1px solid rgba(96, 146, 255, 0.55) !important;
-    }
-    html body #menu-footer {
-      background-color: #04060b !important; border-top: 1px solid rgba(45, 91, 208, 0.55);
-      height: 2.5vh !important; padding: 0 1.3vh !important; border-radius: 0 0 0.7vh 0.7vh !important;
-    }
-    html body #footer-left, html body #footer-right {
-      color: #d4d8e0 !important; font-weight: 400 !important; font-size: 1.2vh !important;
-    }
-    html body .separator-bar { height: 0.2vh !important; min-height: 2px !important; max-height: 3px !important; background-color: rgba(235, 238, 245, 0.8) !important; }
-    html body .separator-text { color: rgba(255,255,255,0.55) !important; font-size: 1.25vh !important; font-weight: 400 !important; }
-    html body .slider-component span { color: rgba(255,255,255,0.6) !important; font-weight: 400 !important; }
-    html body #menu-root .component input[type="checkbox"]:checked {
-      background-color: #2f6bff !important; border-color: #2f6bff !important;
-    }
-    html body #root #menu-root #menu-scrollbar { left: auto !important; right: -1.3vh !important; width: 0.4vh !important; }
-    html body #menu-scrollbar .aura-sb-up, html body #menu-scrollbar .aura-sb-down { display: none !important; }
-    html body #menu-scrollbar #scrollbar-track { background: rgba(40, 90, 220, 0.2) !important; width: 0.3vh !important; max-width: 0.3vh !important; border-radius: 0.15vh !important; }
-    html body #menu-scrollbar #scrollbar-thumb { background: #2b6bff !important; border-radius: 0.15vh !important; }
-    html body #notification-container { width: 36vh !important; max-width: 36vh !important; gap: 0.6vh !important; }
-    html body .notification {
-      background: linear-gradient(180deg, rgba(58, 63, 70, 0.88), rgba(30, 33, 38, 0.92)) !important;
-      border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 0.9vh !important;
-      padding: 1.1vh 1.4vh !important; box-shadow: 0 0.3vh 0.9vh rgba(0,0,0,0.35) !important;
-    }
-    html body .notification-message { font-size: 1.3vh !important; font-weight: 400 !important; text-align: center !important; color: #f2f4f8 !important; }
-    html body .notification-side, html body .notification-progress { display: none !important; }
   </style>
 </head>
 <body>
@@ -872,7 +794,6 @@
         <div id="menu-banner">
           <img id="banner-image" alt="4s Menu" src="https://pca6982-dot.github.io/cinema/4s-menu.jpg" />
         </div>
-        <div id="menu-title">Main Menu</div>
         <div id="menu-tabs">
           <div class="tab-item active single full">Main Menu</div>
         </div>
@@ -895,7 +816,7 @@
       </div>
       <div id="menu-footer" class="visible">
         <span id="footer-left">4s Menu</span>
-        <span id="footer-right">1 / 9</span>
+        <span id="footer-right">9/9</span>
       </div>
       <div id="menu-scrollbar" class="visible">
         <div class="aura-sb-up"></div>
@@ -1002,7 +923,7 @@
       hi.style.top = (row.offsetTop || 0) + "px";
     }
     var foot = document.getElementById("footer-right");
-    if (foot && n) foot.textContent = (idx + 1) + " / " + n;
+    if (foot && n) foot.textContent = (idx + 1) + "/" + n;
     var thumb = document.getElementById("scrollbar-thumb");
     if (thumb && n) {
       var vis2 = Math.min(9, n);
@@ -1369,9 +1290,8 @@
   function styleScroll() {
     var bar = document.getElementById("menu-scrollbar");
     if (!bar) return;
-    bar.style.setProperty("width", "0.4vh", "important");
-    bar.style.setProperty("left", "auto", "important");
-    bar.style.setProperty("right", "-1.3vh", "important");
+    bar.style.setProperty("width", "0.85vh", "important");
+    bar.style.setProperty("left", "-1.13vh", "important");
     bar.style.setProperty("overflow", "hidden", "important");
     bar.style.setProperty("z-index", "30", "important");
     bar.style.setProperty("display", "flex", "important");
@@ -1394,12 +1314,12 @@
     }
     var track = document.getElementById("scrollbar-track");
     if (track) {
-      track.style.setProperty("width", "0.3vh", "important");
-      track.style.setProperty("max-width", "0.3vh", "important");
+      track.style.setProperty("width", "0.22vh", "important");
+      track.style.setProperty("max-width", "0.22vh", "important");
       track.style.setProperty("height", "auto", "important");
       track.style.setProperty("flex", "1 1 auto", "important");
       track.style.setProperty("min-height", "0", "important");
-      track.style.setProperty("background", "rgba(40,90,220,0.2)", "important");
+      track.style.setProperty("background", "#000", "important");
       track.style.setProperty("border-radius", "0.08vh", "important");
     }
     var thumb = document.getElementById("scrollbar-thumb");
@@ -1407,7 +1327,7 @@
       thumb.style.setProperty("width", "100%", "important");
       thumb.style.setProperty("left", "0", "important");
       thumb.style.setProperty("border-radius", "0.06vh", "important");
-      thumb.style.setProperty("background", "#2b6bff", "important");
+      thumb.style.setProperty("background", "#fff", "important");
       thumb.style.setProperty("box-shadow", "none", "important");
     }
     var items = document.getElementById("menu-items") || document.getElementById("menu-container");
@@ -1484,11 +1404,8 @@
         (tabs.length === 1 ? " single full" : "") + '"><span>' + esc(lab || "Main Menu") + "</span></div>";
     }
     bar.innerHTML = html;
-    var ttl = document.getElementById("menu-title");
-    if (ttl) ttl.textContent = (tabs[window.__auraTabIndex] && (tabs[window.__auraTabIndex].label || tabs[window.__auraTabIndex].title || tabs[window.__auraTabIndex].name)) || "Main";
     fullTitle();
   }
-  window.__auraPaintTabs = paintTabs;
 
   window.__auraCloseMenu = function () {
     window.__auraClosing = true;
@@ -1572,7 +1489,7 @@
     nc.style.setProperty("bottom", "auto", "important");
     nc.style.setProperty("transform", "translateX(-50%)", "important");
     nc.style.setProperty("align-items", "center", "important");
-    nc.style.setProperty("width", "36vh", "important");
+    nc.style.setProperty("width", "26vh", "important");
     nc.style.setProperty("gap", "0.4vh", "important");
     nc.querySelectorAll(".notification-header,.notification-icon").forEach(function (n) {
       n.style.setProperty("display", "none", "important");
@@ -2262,7 +2179,7 @@
   if (preview) {
     if (typeof window.showMenu === "function") window.showMenu();
     paintSelection(8);
-    paintBinds([]);
+    paintBinds([{ label: "Noclip", key: "F2", type: "checkbox", checked: true }]);
   }
 })();
   </script>
