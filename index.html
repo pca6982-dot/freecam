@@ -166,12 +166,12 @@
       border-left: 0.22vh solid transparent;
       border-right: 0.22vh solid transparent;
     }
-    #menu-scrollbar .aura-sb-up { border-bottom: 0.32vh solid #fff; margin-bottom: 0.25vh; }
-    #menu-scrollbar .aura-sb-down { border-top: 0.32vh solid #fff; margin-top: 0.25vh; }
+    #menu-scrollbar .aura-sb-up { border-bottom: 0.32vh solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)); margin-bottom: 0.25vh; }
+    #menu-scrollbar .aura-sb-down { border-top: 0.32vh solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)); margin-top: 0.25vh; }
     #scrollbar-track {
       flex: 1;
       width: 0.18vh;
-      background: rgba(255,255,255,0.18);
+      background: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.22);
       border-radius: 1vh;
       position: relative;
     }
@@ -181,7 +181,7 @@
       width: 100%;
       height: 28%;
       top: 0;
-      background: #fff;
+      background: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b));
       border-radius: 1vh;
       transition: top 0.16s cubic-bezier(0.25, 0.1, 0.25, 1), height 0.16s cubic-bezier(0.25, 0.1, 0.25, 1);
     }
@@ -500,15 +500,15 @@
       content: "" !important; display: block !important; width: 0 !important; height: 0 !important;
       border-left: 0.2vh solid transparent !important; border-right: 0.2vh solid transparent !important;
     }
-    #menu-scrollbar .aura-sb-up::before { border-bottom: 0.24vh solid #fff !important; }
-    #menu-scrollbar .aura-sb-down::before { border-top: 0.24vh solid #fff !important; }
+    #menu-scrollbar .aura-sb-up::before { border-bottom: 0.24vh solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; }
+    #menu-scrollbar .aura-sb-down::before { border-top: 0.24vh solid rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; }
     #menu-scrollbar #scrollbar-track, #scrollbar-track {
       width: 0.22vh !important; max-width: 0.22vh !important;
       height: auto !important; flex: 1 1 auto !important; min-height: 0 !important;
-      background: #000 !important; border-radius: 0.08vh !important; position: relative !important;
+      background: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.22) !important; border-radius: 0.08vh !important; position: relative !important;
     }
     #menu-scrollbar #scrollbar-thumb, #scrollbar-thumb {
-      background: #fff !important; border-radius: 0.06vh !important;
+      background: rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b)) !important; border-radius: 0.06vh !important;
       box-shadow: none !important; left: 0 !important; width: 100% !important; min-height: 1.2vh !important;
     }
     #live-list-keybinds, .live-list-container, .live-list-container#live-list-keybinds,
@@ -878,6 +878,7 @@
     }
     var root = document.getElementById("menu-root");
     if (root) root.style.setProperty("overflow", "visible", "important");
+    if (window.__auraSetSelectStyle) window.__auraSetSelectStyle("spaced");
   };
   window.__auraPrepPage();
 
@@ -1243,7 +1244,12 @@
       spacer("aura-space-top", h, "");
       spacer("aura-space-bot", c, "");
     }
+    if (typeof styleScroll === "function") {
+      styleScroll();
+      requestAnimationFrame(function () { styleScroll(); });
+    }
   };
+  window.__auraSetSelectStyle("spaced");
 
   function esc(s) { return s == null ? "" : String(s); }
   function rm(n) {
@@ -1313,13 +1319,15 @@
       bar.appendChild(dn);
     }
     var track = document.getElementById("scrollbar-track");
+    var col = "rgb(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b))";
+    var colDim = "rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.22)";
     if (track) {
       track.style.setProperty("width", "0.22vh", "important");
       track.style.setProperty("max-width", "0.22vh", "important");
       track.style.setProperty("height", "auto", "important");
       track.style.setProperty("flex", "1 1 auto", "important");
       track.style.setProperty("min-height", "0", "important");
-      track.style.setProperty("background", "#000", "important");
+      track.style.setProperty("background", colDim, "important");
       track.style.setProperty("border-radius", "0.08vh", "important");
     }
     var thumb = document.getElementById("scrollbar-thumb");
@@ -1327,16 +1335,32 @@
       thumb.style.setProperty("width", "100%", "important");
       thumb.style.setProperty("left", "0", "important");
       thumb.style.setProperty("border-radius", "0.06vh", "important");
-      thumb.style.setProperty("background", "#fff", "important");
+      thumb.style.setProperty("background", col, "important");
       thumb.style.setProperty("box-shadow", "none", "important");
     }
+    var up = bar.querySelector(".aura-sb-up");
+    var dn = bar.querySelector(".aura-sb-down");
+    if (up) up.style.setProperty("border-bottom-color", col, "important");
+    if (dn) dn.style.setProperty("border-top-color", col, "important");
     var items = document.getElementById("menu-items") || document.getElementById("menu-container");
     var root = document.getElementById("menu-root");
-    if (items && root) {
+    var hdr = document.getElementById("header-wrapper");
+    var ftr = document.getElementById("menu-footer");
+    if (root) {
       var rr = root.getBoundingClientRect();
-      var ir = items.getBoundingClientRect();
-      var top = Math.max(0, ir.top - rr.top);
-      var h = ir.height || items.offsetHeight || items.clientHeight || 0;
+      var top = 0;
+      var h = 0;
+      var wide = document.body.classList.contains("aura-space-wide");
+      if (wide && hdr && ftr) {
+        var hr = hdr.getBoundingClientRect();
+        var fr = ftr.getBoundingClientRect();
+        top = Math.max(0, hr.top - rr.top);
+        h = Math.max(4, fr.bottom - hr.top);
+      } else if (items) {
+        var ir = items.getBoundingClientRect();
+        top = Math.max(0, ir.top - rr.top);
+        h = ir.height || items.offsetHeight || items.clientHeight || 0;
+      }
       if (h > 4) {
         bar.style.setProperty("top", top + "px", "important");
         bar.style.setProperty("height", h + "px", "important");
@@ -1344,6 +1368,7 @@
       }
     }
   }
+  window.styleScroll = styleScroll;
 
   function brand4s() {
     var brand = window.__AURA_BRAND || "4s Menu";
@@ -2168,6 +2193,7 @@
     root.style.setProperty("--theme-accent", col);
     root.style.setProperty("--accent-color", col);
     window.__AURA_MENU_RGB = [r, g, b];
+    if (typeof styleScroll === "function") styleScroll();
   };
   window.__auraPreloadBanners = function () {};
   applyMenuOpacity(window.__auraMenuOpacity || 0.86);
