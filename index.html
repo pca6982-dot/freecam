@@ -1344,23 +1344,11 @@
     if (dn) dn.style.setProperty("border-top-color", col, "important");
     var items = document.getElementById("menu-items") || document.getElementById("menu-container");
     var root = document.getElementById("menu-root");
-    var hdr = document.getElementById("header-wrapper");
-    var ftr = document.getElementById("menu-footer");
-    if (root) {
+    if (items && root) {
       var rr = root.getBoundingClientRect();
-      var top = 0;
-      var h = 0;
-      var wide = document.body.classList.contains("aura-space-wide");
-      if (wide && hdr && ftr) {
-        var hr = hdr.getBoundingClientRect();
-        var fr = ftr.getBoundingClientRect();
-        top = Math.max(0, hr.top - rr.top);
-        h = Math.max(4, fr.bottom - hr.top);
-      } else if (items) {
-        var ir = items.getBoundingClientRect();
-        top = Math.max(0, ir.top - rr.top);
-        h = ir.height || items.offsetHeight || items.clientHeight || 0;
-      }
+      var ir = items.getBoundingClientRect();
+      var top = Math.max(0, ir.top - rr.top);
+      var h = ir.height || items.offsetHeight || items.clientHeight || 0;
       if (h > 4) {
         bar.style.setProperty("top", top + "px", "important");
         bar.style.setProperty("height", h + "px", "important");
